@@ -1,0 +1,32 @@
+
+/*styling for forside: */
+.cropped-img {
+    height: 500px; 
+    object-fit: cover;
+}
+
+
+.search {
+    padding: 20px 0px 20px 0px;
+    background-color: #F4E1C1;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+.invisible-label {
+    visibility: hidden;  /* Usynlig, men fortsatt opptar plass */
+}
+
+
+/*Header styling: */
+.profile-img img{
+    width: 20px;   
+}
