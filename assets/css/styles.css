@@ -30,3 +30,56 @@ body {
 .profile-img img{
     width: 20px;   
 }
+
+
+
+/*user_profile:*/
+.sylinder {
+    width: 400px; 
+    height: 100%; 
+    border-radius: 100px 0 0 100px; 
+    position: absolute;
+    right: 0; 
+    z-index: 1;
+  }
+
+  .sylinder:nth-child(2) {
+    z-index: 0; 
+    right: 200px; 
+}
+
+.img-thumbnail {
+    width: 200px;
+    margin: 10px 0 10px 0;
+}
+
+#point img {
+    object-fit: contain;
+    width: 100%;
+}
+
+#tracker {
+    display: flex;          
+    align-items: center; 
+    position: absolute;
+    left: 40px;
+    top: 50%;                 
+    transform: translateY(-50%);
+}
+
+#point {
+    height: 50px;
+    width: 50px;
+    display: flex;          
+    justify-content: center; 
+    align-items: center;     
+} 
+
+#point p {
+    margin: 0;              
+    font-size: 24px;       
+}
+
+
+
+  
