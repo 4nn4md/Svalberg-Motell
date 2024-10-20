@@ -7,7 +7,7 @@
     <title>Svalberg motell</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="http://localhost/Svalberg-Motell/assets/css/styles.css">
 </head>
 <body>
     <!-- Navigation bar (felles for alle sider) -->
@@ -29,7 +29,7 @@
                         <a class="nav-link" href="#">Opplevelser</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link profile-img" href="#" ><img src="assets/image/icons8-user-profile-64.png"></a>
+                        <a class="nav-link profile-img" href="page/user/user_profile.php" ><img src="http://localhost/Svalberg-Motell/assets/image/icons8-user-profile-64.png"></a>
                     </li>
                 </ul>
             </div>
