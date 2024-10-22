@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Svalberg motell</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="http://localhost/Svalberg-Motell/assets/css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="http://localhost/Svalberg-Motell/www/assets/css/styles.css" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation bar (felles for alle sider) -->
@@ -29,7 +29,7 @@
                         <a class="nav-link" href="#">Opplevelser</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link profile-img" href="page/user/user_profile.php" ><img src="http://localhost/Svalberg-Motell/assets/image/icons8-user-profile-64.png"></a>
+                        <a class="nav-link profile-img-header" href="page/user/user_profile_two.php" ><img src="http://localhost/Svalberg-Motell/assets/image/icons8-user-profile-64.png" ></a>
                     </li>
                 </ul>
             </div>

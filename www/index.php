@@ -1,7 +1,6 @@
 <html>
     <head>
-    <?php include("assets/include/header.php");?>
-    </head>
+    <?php include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header.php"); ?>    </head>
     <body>
         <div class="container-fluid p-0 mt-0 mb-0 search">
             <form class="d-flex justify-content-center mb-0">
