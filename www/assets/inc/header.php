@@ -29,7 +29,7 @@
                         <a class="nav-link" href="#">Opplevelser</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link profile-img-header" href="page/user/user_profile_two.php" ><img src="http://localhost/Svalberg-Motell/assets/image/icons8-user-profile-64.png" ></a>
+                        <a class="nav-link profile-img-header" href="page/user/user_profile_two.php" ><img src="http://localhost/Svalberg-Motell/www/assets/image/icons8-user-profile-64.png" ></a>
                     </li>
                 </ul>
             </div>
