@@ -12,11 +12,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Login form handling
         $username = $_POST['username'];
         $password = $_POST['password'];
-        $role = $_POST['role'];
 
         // Prepare SQL query to check user credentials
-        $stmt = $conn->prepare("SELECT password, role FROM users WHERE username = ? AND role = ?");
-        $stmt->bind_param("ss", $username, $role);
+        $stmt = $conn->prepare("SELECT password, role FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
         $stmt->execute();
         $stmt->store_result();
 
@@ -29,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 // Redirect based on role
                 if ($user_role == "staff") {
-                    header("Location: adminIndex.php"); //Redirecting staff
+                    header("Location: adminIndex.php"); // Redirecting staff
                     exit();
                 } else {
                     header("Location: index1.php"); // Redirecting users
@@ -46,7 +45,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Registration form handling
         $username = $_POST['reg_username'];
         $password = password_hash($_POST['reg_password'], PASSWORD_DEFAULT);
-        $role = $_POST['reg_role'];
+
+        // Determine the role based on the email domain
+        if (filter_var($username, FILTER_VALIDATE_EMAIL) && preg_match('/@svalberg\.no$/', $username)) {
+            $role = 'staff'; // If the email domain is @svalberg.no, set role to staff
+        } else {
+            $role = 'user'; // Otherwise, set role to user
+        }
+
+        // Registration form handling
+if (isset($_POST['register'])) {
+    // Registration form handling
+    $username = $_POST['reg_username'];
+    $password = password_hash($_POST['reg_password'], PASSWORD_DEFAULT);
+    
+    // Determine the role based on the username
+    $role = (preg_match('/@svalberg\.no$/', $username)) ? 'staff' : 'user';
+
+    // Prepare SQL query to check if the username already exists
+    $checkStmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+    $checkStmt->bind_param("s", $username);
+    $checkStmt->execute();
+    $checkStmt->store_result();
+
+    if ($checkStmt->num_rows > 0) {
+        echo "Username already exists. Please choose another one.";
+    } else {
+        // Prepare SQL query to insert a new user
+        $stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $username, $password, $role);
+
+        if ($stmt->execute()) {
+            echo "Registration successful! You can now log in.";
+        } else {
+            echo "Error: Could not register user.";
+        }
+        $stmt->close();
+    }
+    $checkStmt->close();
+}
+
 
         // Prepare SQL query to insert a new user
         $stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
@@ -80,14 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <!-- Login Form -->
             <form action="login.php" method="post" id="login-form">
                 <div class="form-group mb-3">
-                    <label for="role" class="form-label">Role</label>
-                    <select class="form-select" id="role" name="role" required>
-                        <option value="user">User</option>
-                        <option value="staff">Staff</option>
-                    </select>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="username" class="form-label">Username</label>
+                    <label for="username" class="form-label">Username (Email)</label>
                     <input type="text" class="form-control" id="username" name="username" required>
                 </div>
                 <div class="form-group mb-3">
@@ -103,14 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <!-- Registration Form -->
             <form action="login.php" method="post" id="register-form" style="display: none;">
                 <div class="form-group mb-3">
-                    <label for="reg_role" class="form-label">Role</label>
-                    <select class="form-select" id="reg_role" name="reg_role" required>
-                        <option value="user">User</option>
-                        <option value="staff">Staff</option>
-                    </select>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="reg_username" class="form-label">Username</label>
+                    <label for="reg_username" class="form-label">Username (Email)</label>
                     <input type="text" class="form-control" id="reg_username" name="reg_username" required>
                 </div>
                 <div class="form-group mb-3">
