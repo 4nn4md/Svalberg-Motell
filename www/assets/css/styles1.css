@@ -1,0 +1,343 @@
+
+/*Navbar i header*/
+.navbar .navbar-brand {
+    font-weight: 500;
+    color: #5E5E5E;
+    font-size: 24px;
+    transition: 0.3s color;
+}
+
+.navbar .login-button {
+    background-color: #5E5E5E;
+    color: #fff;
+    font-size: 14px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: 0.3s background-color;
+}
+
+.navbar .login-button:hover {
+    background-color: red;
+}
+
+.navbar .navbar-toggler {
+    border: none;
+    font-size: 1.25rem;
+}
+
+.navbar .navbar-toggler:focus, .btn-clcose:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.navbar .nav-link {
+    color: #5E5E5E;
+    font-weight: 500;
+    position: relative;
+}
+
+.navbar .nav-link:hover, .nav-link:active {
+    color: #000;
+}
+
+@media (min-width: 991px) {
+    .navbar .nav-link::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0%;
+        height: 2px;
+        background-color: #5E5E5E;
+        visibility: hidden;
+        transition: 0.3s ease-in-out;
+    }
+
+    .navbar .nav-link:hover::before, .nav-link.active::before {
+        width: 100%;
+        visibility: visible;
+    }
+}
+
+/*Index*/
+
+.mainImage {
+    position: relative; /* Set parent position for absolute child */
+}
+
+
+.booking-form {
+    position: absolute; /* Position it relative to the parent */
+    top: 20%; /* Adjust this value to move the box vertically */
+    left: 50%; /* Center it horizontally */
+    transform: translate(-50%, -20%); /* Centering fix */
+    background: rgba(255, 255, 255, 0.9); /* White background with transparency */
+    padding: 15px; /* Padding for the form */
+    border-radius: 8px; /* Slightly rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 10; /* Ensure it's above the image */
+    width: 80%; /* Responsive width */
+    max-width: 900px; /* Max width for larger screens */
+}
+
+.booking-form label {
+    margin-bottom: 5px; /* Space between label and input */
+    font-size: 14px; /* Smaller font size for labels */
+}
+
+.booking-form .form-control {
+    font-size: 14px; /* Smaller font size for inputs */
+    padding: 8px; /* Padding inside input fields */
+}
+
+.booking-form .btn {
+    padding: 10px; /* Adjust button padding */
+    font-size: 16px; /* Button text size */
+}
+
+.booking-form .form-group {
+    margin-bottom: 0; /* Remove margin for inline layout */
+}
+
+.msearch-btn {
+    background-color: #B3D8F2; /* Blue background */
+    color: black; /* White text */
+    border: none; /* Remove border */ 
+}
+
+.msearch-btn:hover {
+    background-color: #0A3D62; /* Darker blue on hover */
+    color: white;
+    font-weight: bold;
+}
+
+.bold-label {
+    font-weight: bold; /* Makes the text bold */
+}
+
+.carousel {
+    max-width: 800px; /* Set a maximum width for the carousel */
+    margin: 0 auto; /* Center the carousel */
+    border-radius: 10px; /* Round the corners */
+    overflow: hidden; /* Hide overflow */
+}
+
+.carousel-item img {
+    height: 400px; /* Fixed height for images */
+    object-fit: cover; /* Cover the entire area */
+    width: 100%; /* Full width */
+}
+
+.carousel-caption {
+    position: absolute; /* Position caption absolutely within the carousel item */
+    bottom: 20px; /* Adjust position from the bottom */
+    left: 50%; /* Center it horizontally */
+    transform: translateX(-50%); /* Centering fix */
+    color: white; /* Text color */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Shadow for readability */
+    text-align: center; /* Center the text */
+}
+
+.secondSection {
+    padding: 50px 0; /* Add some padding */
+    background-color: #f8f9fa; /* Light background color for contrast */
+}
+
+.secondSection h2 {
+    font-weight: bold; /* Bold title */
+    font-size: 2rem; /* Adjust size */
+    margin-bottom: 10px; /* Spacing below title */
+}
+
+.secondSection p {
+    font-size: 1.2rem; /* Size for description */
+    margin-bottom: 40px; /* Spacing below paragraph */
+}
+
+.thirdSection {
+    padding: 100px 0; /* Add some padding */
+    background-color: #f1f9ff; /* Light background color for contrast */
+}
+
+.thirdSection img {
+    border-radius: 10px; /* Round the corners of the images */
+}
+
+.thirdSection h3 {
+    font-weight: bold; /* Bold title */
+    margin-bottom: 15px; /* Space below title */
+}
+
+.thirdSection p {
+    font-size: 1rem; /* Adjust size for readability */
+}
+
+.custom-btn {
+    padding: 10px 30px;
+    font-size: 1rem;
+    border-radius: 50px; /* Rounded corners */
+    color: #000000; /* White text */
+    background-color: #B3D8F2; /* Main button color */
+    border: none; /* Remove default border */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    transition: all 0.3s ease; /* Smooth transition */
+}
+
+.custom-btn:hover {
+    color: #fff;
+    background-color: #0A3D62; /* Darker shade on hover */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Larger shadow on hover */
+    transform: translateY(-2px); /* Slightly lift button */
+    font-weight: bold;
+}
+
+.custom-btn:focus {
+    outline: none; /* Remove focus outline */
+    box-shadow: 0 0 0 0.2rem rgba(10, 61, 98, 0.5); /* Focus shadow */
+}
+
+/*Footer*/
+
+.footer {
+    background-color: #0A3D62;
+    color: #ffffff;
+    padding: 40px 20px;
+    font-size: 0.9rem;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    text-align: left;
+}
+
+.footer-heading {
+    font-weight: bold;
+    color: #B3D8F2;
+    margin-bottom: 15px;
+}
+
+.footer-section {
+    flex: 1 1 25%;
+    margin: 10px;
+}
+
+.footer-list {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-list li {
+    margin-bottom: 8px;
+}
+
+.footer-list li a {
+    color: #B3D8F2;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-list li a:hover {
+    color: #ffffff;
+}
+
+.footer-divider {
+    width: 100%;
+    border-top: 1px solid #B3D8F2;
+    margin: 20px 0;
+}
+
+.footer-bottom {
+    text-align: center;
+    color: #B3D8F2;
+    font-size: 0.85rem;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+}
+
+/*Om Motellet*/
+ body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4; /* Lys bakgrunnsfarge */
+}
+
+main {
+    padding: 20px;
+    max-width: 800px; /* Maks bredde for innholdet */
+    margin: 20px auto; /* Sentrerer innholdet */
+    background-color: #ffffff; /* Hvit bakgrunn for innholdet */
+    border-radius: 8px; /* Runde kanter på innholdsboksen */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Lett skygge for dybde */
+}
+
+h2 {
+    color: #555; /* Grønn farge for hovedoverskrifter */
+    border-bottom: 2px solid #0095ff; /* Blå underlinje */
+    padding-bottom: 5px; /* Avstand under overskriften */
+}
+
+h3 {
+    color: #333; /* Mørkere grå for deloverskrifter */
+    margin-top: 15px; /* Avstand over deloverskrifter */
+}
+
+.om ul {
+    list-style-type: square; /* Firkanter i stedet for punktlister */
+    padding-left: 20px; /* Innvendig avstand for listen */
+}
+
+.om ul li {
+    margin: 5px 0; /* Avstand mellom listene */
+}
+
+/* rom */
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4; /* Lys bakgrunnsfarge */
+}
+
+main {
+    max-width: 800px; /* Maks bredde for innholdet */
+    margin: 20px auto; /* Sentrerer innholdet */
+    background-color: #ffffff; /* Hvit bakgrunn for innholdet */
+    border-radius: 8px; /* Runde kanter på innholdsboksen */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Lett skygge for dybde */
+    padding: 20px; /* Innvendig avstand */
+}
+
+.room {
+    margin-bottom: 20px;
+    padding: 15px; /* Innvendig avstand */
+}
+
+.room-img {
+    width: 100%; /* Bildet tar opp 100% av tilgjengelig bredde */
+    height: auto; /* Beholder proporsjonene */
+    border-radius: 8px; /* Runde kanter på bildet */
+    margin-top: 15px; /* Avstand over bildet */
+}
+
+.room h2 {
+    color: #5E5E5E; /* Grå farge for overskrifter */
+}
+
+
+
