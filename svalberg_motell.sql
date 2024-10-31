@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: 30. Okt, 2024 18:23 PM
+-- Generation Time: 31. Okt, 2024 10:30 AM
 -- Tjener-versjon: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -70,6 +70,8 @@ CREATE TABLE `payment` (
 CREATE TABLE `room` (
   `room_id` int(11) NOT NULL,
   `room_type` int(11) NOT NULL,
+  `nearElevator` enum('Ja','Nei') NOT NULL,
+  `floor` int(11) NOT NULL,
   `availability` enum('ledig','opptatt') NOT NULL,
   `under_construction` enum('Ja','Nei') NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -80,13 +82,13 @@ CREATE TABLE `room` (
 -- Dataark for tabell `room`
 --
 
-INSERT INTO `room` (`room_id`, `room_type`, `availability`, `under_construction`, `created_at`, `updated_at`) VALUES
-(1, 1, 'ledig', 'Nei', '2024-10-30 16:42:13', '2024-10-30 16:42:13'),
-(2, 2, 'ledig', 'Nei', '2024-10-30 16:42:13', '2024-10-30 16:42:13'),
-(3, 3, 'ledig', 'Nei', '2024-10-30 16:42:48', '2024-10-30 16:42:48'),
-(4, 4, 'ledig', 'Nei', '2024-10-30 16:42:48', '2024-10-30 16:53:40'),
-(5, 5, 'ledig', 'Nei', '2024-10-30 16:43:24', '2024-10-30 16:43:24'),
-(6, 6, 'ledig', 'Nei', '2024-10-30 16:43:24', '2024-10-30 16:43:24');
+INSERT INTO `room` (`room_id`, `room_type`, `nearElevator`, `floor`, `availability`, `under_construction`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Nei', 1, 'ledig', 'Nei', '2024-10-30 16:42:13', '2024-10-31 09:28:34'),
+(2, 2, 'Ja', 2, 'ledig', 'Nei', '2024-10-30 16:42:13', '2024-10-31 09:28:44'),
+(3, 3, 'Ja', 2, 'ledig', 'Nei', '2024-10-30 16:42:48', '2024-10-31 09:28:57'),
+(4, 4, 'Nei', 1, 'ledig', 'Nei', '2024-10-30 16:42:48', '2024-10-31 09:29:15'),
+(5, 5, 'Nei', 1, 'ledig', 'Nei', '2024-10-30 16:43:24', '2024-10-31 09:29:31'),
+(6, 6, 'Ja', 2, 'ledig', 'Nei', '2024-10-30 16:43:24', '2024-10-31 09:29:42');
 
 -- --------------------------------------------------------
 
