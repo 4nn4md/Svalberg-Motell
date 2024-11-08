@@ -4,18 +4,16 @@ ini_set('display_errors', 1);
 session_start();
 include 'assets/inc/config.php';
 
-// Your existing code...
-
+// Handle login and registration
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Determine if we're handling login or registration
     if (isset($_POST['login'])) {
         // Login form handling
-        $username = $_POST['username'];
+        $email = $_POST['email'];  // Use email instead of username
         $password = $_POST['password'];
 
         // Prepare SQL query to check user credentials
-        $stmt = $conn->prepare("SELECT password, role FROM users WHERE username = ?");
-        $stmt->bind_param("s", $username);
+        $stmt = $conn->prepare("SELECT password, role FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email); // Use email to find the user
         $stmt->execute();
         $stmt->store_result();
 
@@ -23,79 +21,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_result($hashed_password, $user_role);
             $stmt->fetch();
             if (password_verify($password, $hashed_password)) {
-                $_SESSION['username'] = $username;
+                $_SESSION['email'] = $email;  // Store email in session
                 $_SESSION['role'] = $user_role;
 
                 // Redirect based on role
                 if ($user_role == "staff") {
-                    header("Location: adminIndex.php"); // Redirecting staff
+                    header("Location: adminIndex.php");  // Admin
                     exit();
                 } else {
-                    header("Location: index1.php"); // Redirecting users
+                    header("Location: index1.php");  // User
                     exit();
                 }
             } else {
-                echo "Invalid password.";
+                echo "Incorrect password.";
             }
         } else {
-            echo "Invalid credentials.";
+            echo "Invalid login details.";
         }
         $stmt->close();
     } elseif (isset($_POST['register'])) {
         // Registration form handling
-        $username = $_POST['reg_username'];
+        $email = $_POST['reg_email'];
         $password = password_hash($_POST['reg_password'], PASSWORD_DEFAULT);
 
-        // Determine the role based on the email domain
-        if (filter_var($username, FILTER_VALIDATE_EMAIL) && preg_match('/@svalberg\.no$/', $username)) {
-            $role = 'staff'; // If the email domain is @svalberg.no, set role to staff
+        // Determine user role based on email domain
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) && preg_match('/@svalberg\.no$/', $email)) {
+            $role = 'staff';  // Use admin role for @svalberg.no
         } else {
-            $role = 'user'; // Otherwise, set role to user
+            $role = 'user';  // Use regular user role
         }
 
-        // Registration form handling
-if (isset($_POST['register'])) {
-    // Registration form handling
-    $username = $_POST['reg_username'];
-    $password = password_hash($_POST['reg_password'], PASSWORD_DEFAULT);
-    
-    // Determine the role based on the username
-    $role = (preg_match('/@svalberg\.no$/', $username)) ? 'staff' : 'user';
+        // Check if email already exists
+        $checkStmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+        $checkStmt->bind_param("s", $email);
+        $checkStmt->execute();
+        $checkStmt->store_result();
 
-    // Prepare SQL query to check if the username already exists
-    $checkStmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-    $checkStmt->bind_param("s", $username);
-    $checkStmt->execute();
-    $checkStmt->store_result();
-
-    if ($checkStmt->num_rows > 0) {
-        echo "Username already exists. Please choose another one.";
-    } else {
-        // Prepare SQL query to insert a new user
-        $stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $username, $password, $role);
-
-        if ($stmt->execute()) {
-            echo "Registration successful! You can now log in.";
+        if ($checkStmt->num_rows > 0) {
+            echo "The email is already registered. Choose another one.";
         } else {
-            echo "Error: Could not register user.";
+            // Insert new user into the database
+            $stmt = $conn->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $email, $password, $role);
+
+            if ($stmt->execute()) {
+                echo "Registration successful! You can now log in.";
+            } else {
+                echo "Error: Could not register user.";
+            }
+            $stmt->close();
         }
-        $stmt->close();
-    }
-    $checkStmt->close();
-}
-
-
-        // Prepare SQL query to insert a new user
-        $stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $username, $password, $role);
-
-        if ($stmt->execute()) {
-            echo "Registration successful! You can now log in.";
-        } else {
-            echo "Error: Could not register user.";
-        }
-        $stmt->close();
+        $checkStmt->close();
     }
     $conn->close();
 }
@@ -107,7 +83,7 @@ if (isset($_POST['register'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login and Register</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="http://localhost/Svalberg-Motell/www/assets/css/loginStyle.css">
 </head>
 <body>
@@ -118,8 +94,8 @@ if (isset($_POST['register'])) {
             <!-- Login Form -->
             <form action="login.php" method="post" id="login-form">
                 <div class="form-group mb-3">
-                    <label for="username" class="form-label">Username (Email)</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
                 </div>
                 <div class="form-group mb-3">
                     <label for="password" class="form-label">Password</label>
@@ -134,8 +110,8 @@ if (isset($_POST['register'])) {
             <!-- Registration Form -->
             <form action="login.php" method="post" id="register-form" style="display: none;">
                 <div class="form-group mb-3">
-                    <label for="reg_username" class="form-label">Username (Email)</label>
-                    <input type="text" class="form-control" id="reg_username" name="reg_username" required>
+                    <label for="reg_email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="reg_email" name="reg_email" required>
                 </div>
                 <div class="form-group mb-3">
                     <label for="reg_password" class="form-label">Password</label>
@@ -150,6 +126,7 @@ if (isset($_POST['register'])) {
     </div>
 
     <script>
+        // Toggle between Login and Register forms
         function toggleForm() {
             const loginForm = document.getElementById("login-form");
             const registerForm = document.getElementById("register-form");
@@ -165,6 +142,17 @@ if (isset($_POST['register'])) {
                 formTitle.textContent = "Register";
             }
         }
+
+        // Change button text based on whether the user is logged in
+        window.onload = function() {
+            const loginLogoutButton = document.getElementById("login-logout-btn");
+
+            <?php if (isset($_SESSION['email'])): ?>
+                loginLogoutButton.innerText = "Logout";
+            <?php else: ?>
+                loginLogoutButton.innerText = "Login";
+            <?php endif; ?>
+        };
     </script>
 </body>
 </html>

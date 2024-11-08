@@ -1,15 +1,17 @@
-
--- lag database på phpmyAdmin som heter "svalberg_motell" deretter run dette scriptet så burde login funksjon fungere --
-
 USE svalberg_motell;
 
+-- Drop the old table if it exists
+DROP TABLE IF EXISTS users;
+
+-- Create the users table with email instead of username
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,  -- Change 'username' to 'email' with VARCHAR(100)
     password VARCHAR(255) NOT NULL,
-    role ENUM('user', 'staff') NOT NULL
+    role ENUM('user', 'admin') NOT NULL  -- Change 'staff' to 'admin'
 );
 
+-- Room table remains the same
 CREATE TABLE IF NOT EXISTS room (
     room_id INT AUTO_INCREMENT PRIMARY KEY,
     room_type VARCHAR(50) NOT NULL,
@@ -21,6 +23,7 @@ CREATE TABLE IF NOT EXISTS room (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Staff table remains unchanged
 CREATE TABLE IF NOT EXISTS staff (
     staff_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -32,6 +35,7 @@ CREATE TABLE IF NOT EXISTS staff (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Booking table remains unchanged
 CREATE TABLE IF NOT EXISTS booking (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
     guest_name VARCHAR(100) NOT NULL,
@@ -45,6 +49,7 @@ CREATE TABLE IF NOT EXISTS booking (
     FOREIGN KEY (room_id) REFERENCES room(room_id) ON DELETE CASCADE
 );
 
+-- Payment table remains unchanged
 CREATE TABLE IF NOT EXISTS payment (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     booking_id INT NOT NULL,
@@ -55,6 +60,7 @@ CREATE TABLE IF NOT EXISTS payment (
     FOREIGN KEY (booking_id) REFERENCES booking(booking_id) ON DELETE CASCADE
 );
 
+-- Room type table remains unchanged
 CREATE TABLE IF NOT EXISTS room_type (
     type_id INT AUTO_INCREMENT PRIMARY KEY,
     type_name VARCHAR(50) NOT NULL UNIQUE,
