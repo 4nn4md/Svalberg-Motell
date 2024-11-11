@@ -263,7 +263,7 @@ try {
                                             <input type="hidden" name="children" value="<?php echo htmlspecialchars($children); ?>">
                                             <input type="hidden" name="checkin" value="<?php echo htmlspecialchars($checkin); ?>">
                                             <input type="hidden" name="checkout" value="<?php echo htmlspecialchars($checkout); ?>">
-                                            <input type="hidden" name="base_price" value="<?php echo htmlspecialchars($base_price); ?>">
+                                            <input type="hidden" name="base_price" value="<?php echo htmlspecialchars($row['price']); ?>">
 
                                             <button type="submit" id="submit" class="btn msearch-btn w-100" id="#MBtn">Velg</button>
                                         </form>
@@ -279,7 +279,9 @@ try {
                 <p>Ingen ledige rom tilgjengelig.</p>
             <?php endif; ?>
         </div>
-        
+        <?php 
+        //var_dump($_SESSION['selected_room']['base_price']);
+        ?>
     </body>
     <footer>
         <div style="margin-top: 50px;">

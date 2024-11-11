@@ -42,6 +42,8 @@ function GetRoomImage($type_name){
 
 
 function calculateMVA($base_price){
+    // Convert the base price to a float to ensure it's a valid number
+    //$base_price = (int) $base_price;
     $base_priceMVA = ($base_price * 12) / 100;
     return $base_priceMVA; 
 }

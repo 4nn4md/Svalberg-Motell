@@ -11,22 +11,18 @@ session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
 
 // This checks if information about the room is saved in the session
-if (isset($_SESSION['room'])) {
-    // Retrieves information from the session. 
-    $room_info = $_SESSION['room'];
-
-    // Retrieve individual values from rom information
-    $type_name = $room_info['type_name'] ?? '';
-    $description = $room_info['description'] ?? '';
-    $floor = $room_info['floor'] ?? '';
-    $nearElevator = $room_info['nearElevator'] ?? '';
-    $total_price = $room_info['total_price'] ?? '';
-    $picture = $room_info['picture'] ?? '';
-    $adults = (int) $room_info['adults'] ?? 0;
-    $children = (int) $room_info['children'] ?? 0;
-    $checkin = $room_info['checkin'] ?? '';
-    $checkout = $room_info['checkout'] ?? '';
-    $base_price = $room_info['base-price'] ?? '';
+if (isset($_SESSION['selected_room'])) {
+     // Retrieve individual values from rom information
+    $type_name = $_SESSION['selected_room']['type_name'] ?? '';
+    $description = $_SESSION['selected_room']['description'] ?? '';
+    $floor = $_SESSION['selected_room']['floor'] ?? '';
+    $nearElevator = $_SESSION['selected_room']['nearElevator'] ?? '';
+    $total_price = $_SESSION['selected_room']['total_price'] ?? '';
+    $picture = $_SESSION['selected_room']['picture'] ?? '';
+    $adults = (int) ($_SESSION['selected_room']['adults'] ?? 0);
+    $children = (int) ($_SESSION['selected_room']['children'] ?? 0);
+    $checkin = $_SESSION['selected_room']['checkin'] ?? '';
+    $checkout = $_SESSION['selected_room']['checkout'] ?? '';
 } else {
     // Direct user to booking_1.php if no room information is available 
     header('Location: booking_1.php'); 
@@ -98,13 +94,14 @@ $checkout = date('d.m.Y', $checkout);
                         <thead>
                             <tr>
                                 <th scope="col">Pris for rom</th>
-                                <td class="text-end" scope="col"><?php echo htmlspecialchars($base_price) . " NOK";?></td>              
+                                <td class="text-end" scope="col"><?php echo htmlspecialchars($_SESSION['selected_room']['base_price']) . " NOK";?></td>              
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
+                                <!-- uses calculateMVA function -->
                                 <td scope="row"><?php echo "MVA 12%" . " Nok";?></td>
-                                <td class="text-end"><?php echo calculateMVA($base_price) . " NOK";?>
+                                <td class="text-end"><?php echo calculateMVA($_SESSION['selected_room']['base_price']) . " NOK";?>
                                     <p>MVA er inkludert i prisen</p>
                                 </td>
                             </tr>
