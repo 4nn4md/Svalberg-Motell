@@ -18,8 +18,7 @@ function price_guests($base_price, $adults, $children) {
     return $total_price;
 }
 
-
-/*function GetRoomImage uses switch to look for the value of $type_name */
+//function GetRoomImage uses switch to look for the value of $type_name 
 function GetRoomImage($type_name){
  
     switch ($type_name) {
@@ -38,8 +37,6 @@ function GetRoomImage($type_name){
             return 'honeymoon.jpg';
     }
 }
-
-
 
 function calculateMVA($base_price){
     // Convert the base price to a float to ensure it's a valid number
