@@ -1,74 +1,11 @@
 <?php 
+
+//Code is not finished for this page!
+
 session_start();
 // Include function and database file
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php"); 
-
-//find information from the session and give them a new variable name
-/*if (isset($_SESSION['room'])) {
-    $room_info = $_SESSION['room'];
-    $total_price = $room_info['total_price'] ?? '';
-    $adults = (int) $room_info['adults'] ?? 0;
-    $children = (int) $room_info['children'] ?? 0;
-    $base_price = $room_info['base-price'] ?? '';
-}
-
-if (isset($_SESSION['username'])) {
-    // Hent user_id fra databasen basert på username fra session
-    $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = :username");
-    $stmt->execute([':username' => $_SESSION['username']]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    // Sett user_id hvis brukeren er funnet, ellers sett til NULL
-    $user_id = $user['user_id'];
-} else {
-    // Hvis brukeren ikke er logget inn, sett user_id til NULL
-    $user_id = NULL;
-}
-
-$sql = "INSERT IGNORE INTO booking 
-        (booking_id, user_id, room_id, 'name', email, tlf, check_in_date, check_out_date, number_of_quests, payment_id) 
-        VALUES 
-        (:booking_id, :user_id, :room_id, :name, :email, :tlf, :check_in_date, :check_out_date, :number_of_quests, :payment_id )"; 
-
-$sql = "INSERT IGNORE INTO payment 
-        (payment_id ,booking_id, amount, payment_date, payment_method, 'status') 
-        VALUES 
-        (:payment_id, :booking_id, :amount, :payment_date, :payment_method, :status)"; 
-
-
-$q = $pdo->prepare($sql);
-
-$q->bindParam(':user_id', $user_id, PDO::PARAM_STR);
-$q->bindParam(':room_id', $room_id, PDO::PARAM_STR);
-$q->bindParam(':name', $name, PDO::PARAM_STR);
-$q->bindParam(':tlf', $tlf, PDO::PARAM_STR);
-$q->bindParam(':check_in_date', $check_in_date, PDO::PARAM_INT);
-$q->bindParam(':check_out_date', $check_out_date, PDO::PARAM_STR);
-$q->bindParam(':number_of_quests', $number_of_quests, PDO::PARAM_STR);
-$q->bindParam(':payment_id', $payment_id, PDO::PARAM_STR);
-
-
-$firstname = "Luke";
-$lastname = "Skywalker";
-$email = "luke@uia.no";
-$cell = 99887766;
-$zip = 4516;
-$city = "Mandal";
-
-try {
-    $q->execute();
-} catch (PDOException $e) {
-    echo "Feil ved tilkobling: " . $e->getMessage() . "<br>"; // Kun for læring, bør logges!
-}
-//$q->debugDumpParams(); 
-
-if($pdo->lastInsertId() > 0) {
-    echo "Data er lagt til, identifisert ved UID " . $pdo->lastInsertId() . ".";
-} else {
-    echo "Data ble ikke lagt til databasen. Vennligst forsøk igjen senere.";
-}
-*/
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fname = $_POST['fname'];
@@ -78,68 +15,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mobile = $_POST['mobile'];
     $message = $_POST['message'];
     $choosePayment = $_POST['choosePayment'];
-    $total_price = $_SESSION['room']['total_price']; // Bruk total_price fra session
+    $total_price = $_SESSION['selected_room']['total_price']; // Bruk total_price fra session
 
-    // Kombiner landskode og mobilnummer til ett telefonnummer
+    // Combine country_code and phone number
     $phone = $country_code . $mobile;
 
     try {
-        // Start transaksjon
         $pdo->beginTransaction();
 
-        // Sett inn i booking-tabellen
-        $stmt = $pdo->prepare("INSERT INTO booking (user_id, room_id, name, email, tlf, check_in_date, check_out_date, number_of_guests) 
-                               VALUES (:user_id, :room_id, :name, :email, :tlf, :check_in_date, :check_out_date, :number_of_guests)");
-        $stmt->execute([
-            ':user_id' => $user_id,
-            ':room_id' => $_SESSION['room']['room_id'],
-            ':name' => $fname . " " . $lname,
-            ':email' => $email,
-            ':tlf' => $phone, // Lagre kombinert telefonnummer her
-            ':check_in_date' => $_SESSION['room']['check_in_date'],
-            ':check_out_date' => $_SESSION['room']['check_out_date'],
-            ':number_of_guests' => $_SESSION['room']['adults'] + $_SESSION['room']['children']
-        ]);
+        // Insert to payment table
+        $stmt = $pdo->prepare("INSERT INTO payment (amount, payment_method, status) 
+                               VALUES (:amount, :payment_method, :status)");
 
-        // Hent booking_id for den nye bookingen
-        $booking_id = $pdo->lastInsertId();
+        
+        /*Can use this part for later expancions for the system:
+        (has to change :status => $status)
+        $status = 'Pending'; // Default status
 
-        // Sett inn i payment-tabellen
-        $stmt = $pdo->prepare("INSERT INTO payment (booking_id, amount, payment_date, payment_method, status) 
-                               VALUES (:booking_id, :amount, NOW(), :payment_method, :status)");
+        //Depending on the payment method or payment outcome, change the status
+        if ($payment_successful) {
+            $status = 'Completed';
+        } else {
+            $status = 'Failed';
+        }*/
+
         $stmt->execute([
-            ':booking_id' => $booking_id,
             ':amount' => $total_price,
             ':payment_method' => $choosePayment,
-            ':status' => 'Paid' // eller 'Pending' avhengig av betaling
+            ':status' => 'Completed' 
         ]);
 
-        // Fullfør transaksjon
+        $payment_id = $pdo->lastInsertId();
+
+        $user_id = Null;
+        if (isset($_SESSION['username'])) {
+            // Get user_id from the database based on the username in the session
+            $username = $_SESSION['username'];
+
+            // Query to get the user_id from the database
+            $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = :username");
+            $stmt->execute([':username' => $username]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user) {
+                $user_id = $user['user_id'];
+            }
+        } 
+
+        // Insert to booking table
+        $stmt = $pdo->prepare("INSERT INTO booking (user_id, room_id, payment_id, name, email, tlf, check_in_date, check_out_date, number_of_guests) 
+                               VALUES (:user_id, :room_id, :payment_id, :name, :email, :tlf, :check_in_date, :check_out_date, :number_of_guests)");
+        
+       
+        $stmt->execute([
+            ':user_id' => $user_id,
+            ':room_id' => $_SESSION['selected_room']['room_id'],
+            ':payment_id' => $payment_id,
+            ':name' => $fname . " " . $lname,
+            ':email' => $email,
+            ':tlf' => $phone, 
+            ':check_in_date' => $_SESSION['checkin'],
+            ':check_out_date' => $_SESSION['checkout'],
+            ':number_of_guests' => $_SESSION['adults'] + $_SESSION['children']
+        ]);
         $pdo->commit();
 
         if (isset($_SESSION['username'])) {
-            header('Location: /profil.php'); // Endre til riktig URL for profilsiden
-            exit(); // Sørg for at ingen ytterligere kode blir kjørt
+            header('Location: user_profile_two.php'); 
+            exit(); 
         } else {
-            header('Location: /index.php'); // Endre til riktig URL for hovedsiden
-            exit(); // Sørg for at ingen ytterligere kode blir kjørt
+            header('Location: /index1.php'); 
+            exit();
         }
        
     } catch (Exception $e) {
-        // Rull tilbake ved feil
         $pdo->rollBack();
-        echo "Feil: " . $e->getMessage();
+        //error_log("Error: " . $e->getMessage());
+        //echo "Obs, noe gikk galt her!";
     }
 }
-
-
-
 ?>
-
-
-
-
-
 
 <html>
     <head>
@@ -190,15 +145,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h3>Velg betalingsmetode</h3>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" value="" id="flexCheckDefault" name="choosePayment" >
+                        <input class="form-check-input" type="radio" value="Vips" id="flexCheckDefault" name="choosePayment" >
                         <label class="form-check-label" for="flexCheckDefault">Vips</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" value="" id="flexCheckDefault" name="choosePayment">
+                        <input class="form-check-input" type="radio" value="Credit Card" id="flexCheckDefault" name="choosePayment">
                         <label class="form-check-label" for="flexCheckDefault">Kort</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" value="" id="flexCheckChecked" name="choosePayment">
+                        <input class="form-check-input" type="radio" value="Invoice" id="flexCheckChecked" name="choosePayment">
                         <label class="form-check-label" for="flexCheckChecked">Faktura</label>
                     </div>
                     <div class="col-12">
@@ -207,13 +162,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <thead>
                                     <tr>
                                         <th scope="col">Pris for rom</th>
-                                        <td class="text-end" scope="col"><?php echo htmlspecialchars($base_price) . " NOK";?></td>              
+                                        <td class="text-end" scope="col"><?php echo htmlspecialchars($_SESSION['selected_room']['base_price']) . " NOK";?></td>              
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
+                                        <!-- uses calculateMVA function -->
                                         <td scope="row"><?php echo "MVA 12%" . " Nok";?></td>
-                                        <td class="text-end"><?php echo calculateMVA($base_price) . " NOK";?>
+                                        <td class="text-end"><?php echo calculateMVA($_SESSION['selected_room']['base_price']) . " NOK";?>
                                             <p>MVA er inkludert i prisen</p>
                                         </td>
                                     </tr>
@@ -231,6 +187,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
             </div>
         </div>
+        <?php 
+        // Debug purpose
+        var_dump($_POST);
+        ini_set('display_errors', 1);
+        ini_set('display_startup_errors', 1);
+        error_reporting(E_ALL);
+        ?>
     </body>
     <footer>
         <div style="margin-top: 50px;">
