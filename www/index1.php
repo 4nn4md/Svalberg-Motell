@@ -1,3 +1,31 @@
+<?php 
+session_start(); // Start sessionen
+
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    session_destroy(); // Ødelegger sessionen og fjerner alle session-variabler
+
+    // Start sessionen på nytt etter session_destroy, hvis du trenger å bruke session etterpå
+    session_start();
+
+    // Lagre alle relevante data i session
+    $_SESSION['location'] = $_POST['location'];
+    $_SESSION['checkin'] = $_POST['checkin'];
+    $_SESSION['checkout'] = $_POST['checkout'];
+    $_SESSION['adults'] = $_POST['adults'];
+    $_SESSION['children'] = $_POST['children'];
+
+    // Debugging: Vis session-innholdet etter at dataene er lagret
+    // Dette vil vise innholdet i session etter at skjemaet er sendt
+
+    // Hvis du ønsker å omdirigere til booking_1.php etter skjemaet er sendt, kan du bruke:
+    // header('Location: booking_1.php');
+    // exit();
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="no-nb">
 
@@ -9,14 +37,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="http://localhost/Svalberg-Motell/www/assets/css/styles1.css" rel="stylesheet">
 </head>
-
+<!-- action="page/user/booking_1.php" -->
 <body>
 <!--First Section-->
 <section class=firstSection>
     <div class="mainImage">
         <img src="assets/image/index1/Hjem1.jpg" class="d-block w-100" alt="fjordenTilSvalbergMotel">
         <div class="booking-form">
-            <form class="d-flex justify-content-center">
+            <form action="page/user/booking_1.php" method="POST" class="d-flex justify-content-center">
                 <div class="row w-100 no-gutters"> <!-- Remove gutters for spacing -->
                     <div class="col-md-2">
                         <label for="location" class="bold-label">Lokasjon</label>
@@ -121,7 +149,9 @@
     </div>
 </section>
 <!-- End of Third Section-->
-
+<?php 
+var_dump($_SESSION);
+?>
 </body>
 
 <?php include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/footer1.php"); ?>
