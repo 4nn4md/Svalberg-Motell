@@ -2,7 +2,7 @@
     define('DB_HOST', 'localhost');
     define('DB_USER', 'root');
     define('DB_PASS', '');
-    define('DB_NAME', 'is-115-test');
+    define('DB_NAME', 'svalberg_motell');
     $dsn = 'mysql:dbname=' . DB_NAME . ';host=' . DB_HOST; // Driver settes her
 
     try {
