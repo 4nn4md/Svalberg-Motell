@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: 31. Okt, 2024 10:30 AM
+-- Generation Time: 12. Nov, 2024 10:12 AM
 -- Tjener-versjon: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -29,12 +29,16 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `booking` (
   `booking_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `room_id` int(11) NOT NULL,
+  `payment_id` int(11) NOT NULL,
   `check_in_date` date NOT NULL,
   `check_out_date` date NOT NULL,
   `number_of_guests` int(11) NOT NULL,
-  `status` enum('Pending','Confirmed','Cancelled') NOT NULL DEFAULT 'Pending',
+  `name` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `tlf` int(11) DEFAULT NULL,
+  `comments` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -43,8 +47,9 @@ CREATE TABLE `booking` (
 -- Dataark for tabell `booking`
 --
 
-INSERT INTO `booking` (`booking_id`, `user_id`, `room_id`, `check_in_date`, `check_out_date`, `number_of_guests`, `status`, `created_at`, `updated_at`) VALUES
-(2, 3, 1, '2024-10-01', '2024-10-02', 1, 'Pending', '2024-10-30 17:21:07', '2024-10-30 17:21:07');
+INSERT INTO `booking` (`booking_id`, `user_id`, `room_id`, `payment_id`, `check_in_date`, `check_out_date`, `number_of_guests`, `name`, `email`, `tlf`, `comments`, `created_at`, `updated_at`) VALUES
+(2, 3, 1, 1, '2024-10-01', '2024-10-02', 1, NULL, NULL, NULL, '', '2024-10-30 17:21:07', '2024-11-09 22:36:55'),
+(3, 4, 5, 2, '2024-11-02', '2024-11-04', 2, NULL, NULL, NULL, '', '2024-11-01 12:51:20', '2024-11-09 22:37:03');
 
 -- --------------------------------------------------------
 
@@ -54,12 +59,19 @@ INSERT INTO `booking` (`booking_id`, `user_id`, `room_id`, `check_in_date`, `che
 
 CREATE TABLE `payment` (
   `payment_id` int(11) NOT NULL,
-  `booking_id` int(11) NOT NULL,
-  `amount` decimal(10,2) NOT NULL,
+  `amount` int(11) NOT NULL,
   `payment_date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `payment_method` enum('Cash','Credit Card','Bank Transfer') NOT NULL,
+  `payment_method` enum('Credit Card','Vips','invoice') NOT NULL,
   `status` enum('Pending','Completed','Failed') NOT NULL DEFAULT 'Pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dataark for tabell `payment`
+--
+
+INSERT INTO `payment` (`payment_id`, `amount`, `payment_date`, `payment_method`, `status`) VALUES
+(1, 2000, '2024-11-09 21:31:03', 'Vips', 'Completed'),
+(2, 4000, '2024-11-09 21:31:03', 'Credit Card', 'Completed');
 
 -- --------------------------------------------------------
 
@@ -148,6 +160,9 @@ INSERT INTO `staff` (`staff_id`, `name`, `position`, `email`, `phone`, `hired_da
 
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
+  `firstName` varchar(255) NOT NULL,
+  `lastName` varchar(255) NOT NULL,
+  `tlf` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` enum('user','staff') NOT NULL
@@ -157,9 +172,10 @@ CREATE TABLE `users` (
 -- Dataark for tabell `users`
 --
 
-INSERT INTO `users` (`user_id`, `username`, `password`, `role`) VALUES
-(3, 'test@hotmail.com', 'test123', 'user'),
-(4, 'ny.test@hotmail.com', 'test123', 'user');
+INSERT INTO `users` (`user_id`, `firstName`, `lastName`, `tlf`, `username`, `password`, `role`) VALUES
+(3, 'test', 'one', 12345678, 'test@hotmail.com', 'test123', 'user'),
+(4, 'bob', 'kåre', 11111111, 'ny.test@hotmail.com', 'test123', 'user'),
+(5, 'jane', 'doe', 22222222, 'ikke_innlogget@gmail.com', 'test123', 'user');
 
 --
 -- Indexes for dumped tables
@@ -171,14 +187,14 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `role`) VALUES
 ALTER TABLE `booking`
   ADD PRIMARY KEY (`booking_id`),
   ADD KEY `room_id` (`room_id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `payment_id` (`payment_id`);
 
 --
 -- Indexes for table `payment`
 --
 ALTER TABLE `payment`
-  ADD PRIMARY KEY (`payment_id`),
-  ADD KEY `booking_id` (`booking_id`);
+  ADD PRIMARY KEY (`payment_id`);
 
 --
 -- Indexes for table `room`
@@ -216,13 +232,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `booking`
 --
 ALTER TABLE `booking`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `room`
@@ -246,7 +262,7 @@ ALTER TABLE `staff`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Begrensninger for dumpede tabeller
@@ -257,13 +273,8 @@ ALTER TABLE `users`
 --
 ALTER TABLE `booking`
   ADD CONSTRAINT `booking_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `room_type` (`type_id`),
-  ADD CONSTRAINT `booking_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
-
---
--- Begrensninger for tabell `payment`
---
-ALTER TABLE `payment`
-  ADD CONSTRAINT `payment_ibfk_1` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`booking_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `booking_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  ADD CONSTRAINT `booking_ibfk_3` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`payment_id`);
 
 --
 -- Begrensninger for tabell `room`
