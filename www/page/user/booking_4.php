@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" value="Vips" id="flexCheckDefault" name="choosePayment" >
-                        <label class="form-check-label" for="flexCheckDefault">Vips</label>
+                        <label class="form-check-label" for="flexCheckDefault">Vipps</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" value="Credit Card" id="flexCheckDefault" name="choosePayment">

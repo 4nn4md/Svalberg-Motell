@@ -100,14 +100,14 @@ $checkout = date('d.m.Y', $checkout);
                         <tbody>
                             <tr>
                                 <!-- uses calculateMVA function -->
-                                <td scope="row"><?php echo "MVA 12%" . " Nok";?></td>
+                                <td scope="row"><?php echo "MVA 12%" . " NOK";?></td>
                                 <td class="text-end"><?php echo calculateMVA($_SESSION['selected_room']['base_price']) . " NOK";?>
                                     <p>MVA er inkludert i prisen</p>
                                 </td>
                             </tr>
                             <tr>
                                 <th scope="row">Total</th>
-                                <td class="text-end"><?php echo $total_price . " Nok";?></td>
+                                <td class="text-end"><?php echo $total_price . " NOK";?></td>
                             </tr>
                         </tbody>
                     </table>
