@@ -26,17 +26,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['room_type'] = $_POST['room_type'] ?? $_SESSION['room_type'];
 
         $_SESSION['selected_room'] = [
-            'type_name' => $_POST['type_name'] ?? '',
-            'description' => $_POST['description'] ?? '',
+            'room_id' => $_POST['room_id'],
+            'type_name' => $_POST['type_name'] /*?? ''*/,
+            'description' => $_POST['description'] /*?? ''*/,
             'floor' => $_POST['floor'] ?? '',
-            'nearElevator' => $_POST['nearElevator'] ?? '',
-            'total_price' => $_POST['total_price'] ?? 0,
-            'picture' => $_POST['picture'] ?? '',
-            'adults' => $_POST['adults'] ?? 0,
-            'children' => $_POST['children'] ?? 0,
-            'checkin' => $_POST['checkin'] ?? '',
-            'checkout' => $_POST['checkout'] ?? '',
-            'base_price' => $_POST['base_price'] ?? 0
+            'nearElevator' => $_POST['nearElevator'] /*?? ''*/,
+            'total_price' => $_POST['total_price'] /*?? 0*/,
+            'picture' => $_POST['picture'] /*?? ''*/,
+            'adults' => $_POST['adults'] /*?? 0*/,
+            'children' => $_POST['children'] /*?? 0*/,
+            'checkin' => $_POST['checkin'] /*?? ''*/,
+            'checkout' => $_POST['checkout'] /*?? ''*/,
+            'base_price' => $_POST['base_price'] /*?? 0*/
         ];
 
         // Redirect to booking_2.php after selecting a room
@@ -253,6 +254,7 @@ try {
                                         <div class="col-md-2 d-flex align-items-end"> 
                                         <form method="post" action=""> <!-- Form to submit the selected room data -->
                                             <!-- Include hidden fields to pass room and booking data to the server when submitted -->
+                                            <input type="hidden" name="room_id" value="<?php echo htmlspecialchars($row['room_id']); ?>">
                                             <input type="hidden" name="type_name" value="<?php echo htmlspecialchars($row['type_name']); ?>">
                                             <input type="hidden" name="description" value="<?php echo htmlspecialchars($row['description']); ?>">
                                             <input type="hidden" name="floor" value="<?php echo htmlspecialchars($row['floor']); ?>">

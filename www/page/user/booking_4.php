@@ -1,13 +1,14 @@
-<?php 
+<?php
 
-//Code is not finished for this page!
-
+// Start session
 session_start();
+
 // Include function and database file
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php"); 
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Get form data
     $fname = $_POST['fname'];
     $lname = $_POST['lname'];
     $email = $_POST['epost'];
@@ -15,44 +16,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mobile = $_POST['mobile'];
     $message = $_POST['message'];
     $choosePayment = $_POST['choosePayment'];
-    $total_price = $_SESSION['selected_room']['total_price']; // Bruk total_price fra session
+    $total_price = $_SESSION['selected_room']['total_price']; // Use total_price from session
 
-    // Combine country_code and phone number
+    // Combine country code and mobile number
     $phone = $country_code . $mobile;
 
+    // Validate form fields
+    if (empty($fname) || empty($lname) || empty($email) || empty($choosePayment)) {
+        echo "Please fill in all required fields.";
+        exit();
+    }
+
     try {
+        // Start transaction
         $pdo->beginTransaction();
 
         // Insert to payment table
         $stmt = $pdo->prepare("INSERT INTO payment (amount, payment_method, status) 
                                VALUES (:amount, :payment_method, :status)");
 
-        
-        /*Can use this part for later expancions for the system:
-        (has to change :status => $status)
-        $status = 'Pending'; // Default status
-
-        //Depending on the payment method or payment outcome, change the status
-        if ($payment_successful) {
-            $status = 'Completed';
-        } else {
-            $status = 'Failed';
-        }*/
-
+        // Insert payment record
         $stmt->execute([
             ':amount' => $total_price,
             ':payment_method' => $choosePayment,
-            ':status' => 'Completed' 
+            ':status' => 'Completed' // Default status, can be changed later
         ]);
 
+        // Get the payment_id for the inserted record
         $payment_id = $pdo->lastInsertId();
 
-        $user_id = Null;
+        // Initialize user_id as NULL
+        $user_id = NULL;
         if (isset($_SESSION['username'])) {
-            // Get user_id from the database based on the username in the session
+            // Get user_id based on the username in session
             $username = $_SESSION['username'];
-
-            // Query to get the user_id from the database
             $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = :username");
             $stmt->execute([':username' => $username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -60,38 +57,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($user) {
                 $user_id = $user['user_id'];
             }
-        } 
+        }
 
         // Insert to booking table
-        $stmt = $pdo->prepare("INSERT INTO booking (user_id, room_id, payment_id, name, email, tlf, check_in_date, check_out_date, number_of_guests) 
-                               VALUES (:user_id, :room_id, :payment_id, :name, :email, :tlf, :check_in_date, :check_out_date, :number_of_guests)");
-        
-       
+        $stmt = $pdo->prepare("INSERT INTO booking (user_id, room_id, payment_id, name, email, tlf, comments, check_in_date, check_out_date, number_of_guests) 
+                               VALUES (:user_id, :room_id, :payment_id, :name, :email, :tlf, :comments, :check_in_date, :check_out_date, :number_of_guests)");
+
+        // Insert booking record
         $stmt->execute([
             ':user_id' => $user_id,
             ':room_id' => $_SESSION['selected_room']['room_id'],
             ':payment_id' => $payment_id,
             ':name' => $fname . " " . $lname,
             ':email' => $email,
-            ':tlf' => $phone, 
+            ':tlf' => $phone,
+            ':comments' => $message,
             ':check_in_date' => $_SESSION['checkin'],
             ':check_out_date' => $_SESSION['checkout'],
             ':number_of_guests' => $_SESSION['adults'] + $_SESSION['children']
         ]);
+
+        // Commit the transaction
         $pdo->commit();
 
+        // Redirect user to appropriate page
         if (isset($_SESSION['username'])) {
-            header('Location: user_profile_two.php'); 
-            exit(); 
+            header('Location: user_profile_two.php');
+            exit();
         } else {
-            header('Location: /index1.php'); 
+            session_destroy();
+            header('Location: ../../index1.php');
             exit();
         }
-       
+
     } catch (Exception $e) {
+        // Rollback in case of error
         $pdo->rollBack();
-        //error_log("Error: " . $e->getMessage());
-        //echo "Obs, noe gikk galt her!";
+
+        // Log and display error message for debugging
+        error_log("Error: " . $e->getMessage());
+        echo "Error: " . $e->getMessage();
     }
 }
 ?>
@@ -168,14 +173,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <tbody>
                                     <tr>
                                         <!-- uses calculateMVA function -->
-                                        <td scope="row"><?php echo "MVA 12%" . " Nok";?></td>
+                                        <td scope="row"><?php echo "MVA 12%" . " NOK";?></td>
                                         <td class="text-end"><?php echo calculateMVA($_SESSION['selected_room']['base_price']) . " NOK";?>
                                             <p>MVA er inkludert i prisen</p>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Total</th>
-                                        <td class="text-end"><?php echo $total_price . " Nok";?></td>
+                                        <td class="text-end"><?php echo htmlspecialchars($_SESSION['selected_room']['total_price']) . " NOK";?></td>
                                     </tr>
                                 </tbody>
                             </table>

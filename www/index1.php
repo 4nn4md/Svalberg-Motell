@@ -149,9 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </section>
 <!-- End of Third Section-->
-<?php 
-var_dump($_SESSION);
-?>
 </body>
 
 <?php include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/footer1.php"); ?>
