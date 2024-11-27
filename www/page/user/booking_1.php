@@ -54,9 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['adults'] = $_POST['adults'] ?? $_SESSION['adults'];
         $_SESSION['children'] = $_POST['children'] ?? $_SESSION['children'];
 
-        $_SESSION['etasje'] = $_POST['etasje'] ?? $_SESSION['etasje'];
-        $_SESSION['heis'] = $_POST['heis'] ?? $_SESSION['heis'];
-        $_SESSION['room_type'] = $_POST['room_type'] ?? $_SESSION['room_type'];
+        $_SESSION['etasje'] = $_POST['etasje'] ?? $_SESSION['etasje'] ?? null;
+        $_SESSION['heis'] = $_POST['heis'] ?? $_SESSION['heis'] ?? null;
+        $_SESSION['room_type'] = $_POST['room_type'] ?? $_SESSION['room_type'] ?? null;
     }
 }
 // Query the database for available room types (to be used in the room selection filter dropdown)
@@ -227,7 +227,7 @@ try {
                                 ?>
                                 <img
                                     src="http://localhost/Svalberg-Motell/www/assets/image/<?php echo $picture; ?>" 
-                                    class="img-fluid rounded-start" style="height: 200px; object-fit: cover;" 
+                                    class="img-fluid rounded-start" style="height: 200px; width: 500px; object-fit: cover;" 
                                 />
                             </div>
                             <div class="col-md-8">
