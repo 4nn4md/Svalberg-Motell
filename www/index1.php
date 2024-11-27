@@ -1,5 +1,5 @@
 <?php 
-session_start(); // Start sessionen
+//session_start(); // Start sessionen
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
