@@ -5,9 +5,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Start session 
-session_start(); 
+//session_start(); 
 
 // Include functions 
+include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php");
+
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
 
 // This checks if information about the room is saved in the session
@@ -41,8 +43,6 @@ $checkout = date('d.m.Y', $checkout);
 
 <html>
     <head>
-        <!-- Include header-->
-        <?php include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php"); ?>
     </head>
     <body>
         <div class="container w-75" style="margin-top: 100px;">

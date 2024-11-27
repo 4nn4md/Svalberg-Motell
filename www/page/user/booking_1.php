@@ -1,11 +1,14 @@
 <?php
+ob_start();
+include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php");
+
 // Enable error display for debugging purposes
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Start the session to store data across different pages
-session_start();
+//session_start();
 
 //including database and function file. 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php"); 
@@ -27,17 +30,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $_SESSION['selected_room'] = [
             'room_id' => $_POST['room_id'],
-            'type_name' => $_POST['type_name'] /*?? ''*/,
-            'description' => $_POST['description'] /*?? ''*/,
+            'type_name' => $_POST['type_name'],
+            'description' => $_POST['description'],
             'floor' => $_POST['floor'] ?? '',
-            'nearElevator' => $_POST['nearElevator'] /*?? ''*/,
-            'total_price' => $_POST['total_price'] /*?? 0*/,
-            'picture' => $_POST['picture'] /*?? ''*/,
-            'adults' => $_POST['adults'] /*?? 0*/,
-            'children' => $_POST['children'] /*?? 0*/,
-            'checkin' => $_POST['checkin'] /*?? ''*/,
-            'checkout' => $_POST['checkout'] /*?? ''*/,
-            'base_price' => $_POST['base_price'] /*?? 0*/
+            'nearElevator' => $_POST['nearElevator'],
+            'total_price' => $_POST['total_price'],
+            'picture' => $_POST['picture'],
+            'adults' => $_POST['adults'],
+            'children' => $_POST['children'],
+            'checkin' => $_POST['checkin'],
+            'checkout' => $_POST['checkout'],
+            'base_price' => $_POST['base_price']
         ];
 
         // Redirect to booking_2.php after selecting a room
@@ -73,16 +76,15 @@ $room_type = $_SESSION['room_type'];
 $total_guests = $adults + $children;
 
 // SQL query to fetch available rooms based on the given criteria
-$sql = 
-    "SELECT room.*, room_type.type_name, room_type.description, room_type.price
-    FROM room
-    INNER JOIN room_type ON room.room_type = room_type.type_id
-    LEFT JOIN booking ON room.room_id = booking.room_id
-    WHERE 
-        (booking.booking_id IS NULL OR 
-        (booking.check_in_date >= :checkout OR booking.check_out_date <= :checkin))
-        AND room.under_construction = 'nei'
-        AND room_type.max_capacity >= :total_guests";
+        $sql =  "SELECT DISTINCT room.room_id, room.*, room_type.type_name, room_type.description, room_type.price
+        FROM room
+        INNER JOIN room_type ON room.room_type = room_type.type_id
+        LEFT JOIN booking ON room.room_id = booking.room_id
+        WHERE 
+            (booking.booking_id IS NULL OR 
+            (booking.check_in_date >= :checkout OR booking.check_out_date <= :checkin))
+            AND room.under_construction = 'nei'
+            AND room_type.max_capacity >= :total_guests";
 
 // Create an array to store the parameters for the SQL query
 $params = [
@@ -123,9 +125,6 @@ try {
 ?>
 
 <html>
-    <head>
-        <?php include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php"); ?> <!-- include header-->
-    </head>
     <body>
         <!-- Form to search for rooms based on location, check-in/out dates, and guest numbers -->
         <div class="container w-75" style="margin: 100px auto 24px auto;">
