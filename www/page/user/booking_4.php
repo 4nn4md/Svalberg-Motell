@@ -1,11 +1,14 @@
 <?php
 
-// Start session
-session_start();
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 // Include function and database file
+include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php"); 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/ValidateController.php");
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get form data
@@ -21,90 +24,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Combine country code and mobile number
     $phone = $country_code . $mobile;
 
-    // Validate form fields
-    if (empty($fname) || empty($lname) || empty($email) || empty($choosePayment)) {
-        echo "Please fill in all required fields.";
+    $validation = new Validering();
+    
+
+    $validation->validereFornavn($fname);
+    $validation->validereEtternavn($lname);
+    $validation->validereEpost($email);
+    $validation->validereMobilnummer($country_code, $mobile);
+    $validation->validereMessage($message);
+
+    if (!empty($validation->getValidateError())) {
+        echo "Error: <br>" . implode("<br>", $validation->getValidateError()) . "<br>";
         exit();
-    }
-
-    try {
-        // Start transaction
-        $pdo->beginTransaction();
-
-        // Insert to payment table
-        $stmt = $pdo->prepare("INSERT INTO payment (amount, payment_method, status) 
-                               VALUES (:amount, :payment_method, :status)");
-
-        // Insert payment record
-        $stmt->execute([
-            ':amount' => $total_price,
-            ':payment_method' => $choosePayment,
-            ':status' => 'Completed' // Default status, can be changed later
-        ]);
-
-        // Get the payment_id for the inserted record
-        $payment_id = $pdo->lastInsertId();
-
-        // Initialize user_id as NULL
-        $user_id = NULL;
-        if (isset($_SESSION['username'])) {
-            // Get user_id based on the username in session
-            $username = $_SESSION['username'];
-            $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = :username");
-            $stmt->execute([':username' => $username]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($user) {
-                $user_id = $user['user_id'];
+    } else {
+        try {
+            // Start transaction
+            $pdo->beginTransaction();
+    
+            // Insert to payment table
+            $stmt = $pdo->prepare("INSERT INTO payment (amount, payment_method, status) 
+                                   VALUES (:amount, :payment_method, :status)");
+    
+            // Insert payment record
+            $stmt->execute([
+                ':amount' => $total_price,
+                ':payment_method' => $choosePayment,
+                ':status' => 'Completed' // Default status, can be changed later
+            ]);
+    
+            // Get the payment_id for the inserted record
+            $payment_id = $pdo->lastInsertId();
+    
+            // Initialize user_id as NULL
+            $user_id = NULL;
+            if (isset($_SESSION['username'])) {
+                // Get user_id based on the username in session
+                $username = $_SESSION['username'];
+                $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = :username");
+                $stmt->execute([':username' => $username]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+                if ($user) {
+                    $user_id = $user['user_id'];
+                }
             }
+    
+            // Insert to booking table
+            $stmt = $pdo->prepare("INSERT INTO booking (user_id, room_id, payment_id, name, email, tlf, comments, check_in_date, check_out_date, number_of_guests) 
+                                   VALUES (:user_id, :room_id, :payment_id, :name, :email, :tlf, :comments, :check_in_date, :check_out_date, :number_of_guests)");
+    
+            // Insert booking record
+            $stmt->execute([
+                ':user_id' => $user_id,
+                ':room_id' => $_SESSION['selected_room']['room_id'],
+                ':payment_id' => $payment_id,
+                ':name' => $fname . " " . $lname,
+                ':email' => $email,
+                ':tlf' => $phone,
+                ':comments' => $message,
+                ':check_in_date' => $_SESSION['checkin'],
+                ':check_out_date' => $_SESSION['checkout'],
+                ':number_of_guests' => $_SESSION['adults'] + $_SESSION['children']
+            ]);
+    
+            // Commit the transaction
+            $pdo->commit();
+    
+            // Redirect user to appropriate page
+            if (isset($_SESSION['username'])) {
+                header('Location: user_profile_two.php');
+                exit();
+            } else {
+                session_destroy();
+                header('Location: ../../index1.php');
+                exit();
+            }
+    
+        } catch (Exception $e) {
+            // Rollback in case of error
+            $pdo->rollBack();
+    
+            // Log and display error message for debugging
+            error_log("Error: " . $e->getMessage());
+            echo "Error: " . $e->getMessage();
         }
-
-        // Insert to booking table
-        $stmt = $pdo->prepare("INSERT INTO booking (user_id, room_id, payment_id, name, email, tlf, comments, check_in_date, check_out_date, number_of_guests) 
-                               VALUES (:user_id, :room_id, :payment_id, :name, :email, :tlf, :comments, :check_in_date, :check_out_date, :number_of_guests)");
-
-        // Insert booking record
-        $stmt->execute([
-            ':user_id' => $user_id,
-            ':room_id' => $_SESSION['selected_room']['room_id'],
-            ':payment_id' => $payment_id,
-            ':name' => $fname . " " . $lname,
-            ':email' => $email,
-            ':tlf' => $phone,
-            ':comments' => $message,
-            ':check_in_date' => $_SESSION['checkin'],
-            ':check_out_date' => $_SESSION['checkout'],
-            ':number_of_guests' => $_SESSION['adults'] + $_SESSION['children']
-        ]);
-
-        // Commit the transaction
-        $pdo->commit();
-
-        // Redirect user to appropriate page
-        if (isset($_SESSION['username'])) {
-            header('Location: user_profile_two.php');
-            exit();
-        } else {
-            session_destroy();
-            header('Location: ../../index1.php');
-            exit();
-        }
-
-    } catch (Exception $e) {
-        // Rollback in case of error
-        $pdo->rollBack();
-
-        // Log and display error message for debugging
-        error_log("Error: " . $e->getMessage());
-        echo "Error: " . $e->getMessage();
     }
+  
 }
 ?>
 
 <html>
-    <head>
-        <?php include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php"); ?> <!-- include header -->
-    </head>
     <body>
         <div class="container w-75" style="margin-top: 100px; height: auto;">
             <div class="position-relative m-4">
@@ -192,13 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
             </div>
         </div>
-        <?php 
-        // Debug purpose
-        var_dump($_POST);
-        ini_set('display_errors', 1);
-        ini_set('display_startup_errors', 1);
-        error_reporting(E_ALL);
-        ?>
+        
     </body>
     <footer>
         <div style="margin-top: 50px;">
