@@ -7,7 +7,6 @@
 
     $dsn = 'mysql:dbname=' . DB_NAME . ';host=' . DB_HOST; 
 
-
     // Attemt to create a new PDO instance for database connection
     try {
         // The PDO object is used to interact with the database
@@ -18,6 +17,5 @@
 
         // Show a generic error message to the user
         echo "Ops, noe gikk galt, kom tilbake senere"; // This is what the user sees
-    }
-    
+    }   
 ?>

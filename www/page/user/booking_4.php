@@ -1,5 +1,4 @@
 <?php
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -149,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="col-md-4">
                         <label for="mobile" class="form-label">Mobil</label>
-                        <input type="number" class="form-control" id="mobile" name="mobile">
+                        <input type="tel" class="form-control" id="mobile" name="mobile">
                     </div>
                     <div class="col-12">
                         <label for="message" class="form-label">Beskjed</label>
