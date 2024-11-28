@@ -8,7 +8,6 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functi
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php");
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/ValidateController.php");
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get form data
     $fname = $_POST['fname'];
@@ -25,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $validation = new Validering();
     
-
     $validation->validereFornavn($fname);
     $validation->validereEtternavn($lname);
     $validation->validereEpost($email);
@@ -86,22 +84,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':number_of_guests' => $_SESSION['adults'] + $_SESSION['children']
             ]);
     
+            if ($choosePayment === 'Invoice') {
+                require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/generate_invoice.php");
+    
+                $invoiceFileName = generateInvoice(
+                    $fname,                              
+                    $lname,                              
+                    $_SESSION['selected_room']['type_name'], 
+                    $_SESSION['selected_room']['total_price'], 
+                    $payment_id                          
+                );
+    
+                // Oppdater fakturabanen i databasen
+                $stmt = $pdo->prepare("UPDATE payment SET invoice_path = :invoice_path WHERE payment_id = :payment_id");
+                $stmt->execute([
+                    ':invoice_path' => $invoiceFileName,
+                    ':payment_id' => $payment_id
+                ]);
+            }
+
+
             // Commit the transaction
             $pdo->commit();
-    
-            // Redirect user to appropriate page
-            if (isset($_SESSION['username'])) {
-                header('Location: user_profile_two.php');
-                exit();
-            } else {
-                session_destroy();
-                header('Location: ../../index1.php');
-                exit();
-            }
+            header("Location: confirmation.php?payment_id=$payment_id");
+            exit();
     
         } catch (Exception $e) {
             // Rollback in case of error
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) { // Check if a transaction is active
+                $pdo->rollBack();
+            }
     
             // Log and display error message for debugging
             error_log("Error: " . $e->getMessage());
