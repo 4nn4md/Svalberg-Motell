@@ -76,30 +76,20 @@ $room_type = $_SESSION['room_type'];
 $total_guests = $adults + $children;
 
 // SQL query to fetch available rooms based on the given criteria
-    /*$sql =  "SELECT DISTINCT room.room_id, room.*, room_type.type_name, room_type.description, room_type.price
-    FROM room
-    INNER JOIN room_type ON room.room_type = room_type.type_id
-    LEFT JOIN booking ON room.room_id = booking.room_id
-    WHERE 
-        (booking.booking_id IS NULL OR 
-        (booking.check_in_date >= :checkout OR booking.check_out_date <= :checkin))
-        AND room.under_construction = 'nei'
-        AND room_type.max_capacity >= :total_guests";*/
-
         $sql = "
         SELECT DISTINCT room.room_id, room.*, room_type.type_name, room_type.description, room_type.price
-FROM room
-INNER JOIN room_type ON room.room_type = room_type.type_id
-WHERE 
-    room.room_id NOT IN (
-        SELECT room_id 
-        FROM booking 
+        FROM room
+        INNER JOIN room_type ON room.room_type = room_type.type_id
         WHERE 
-            booking.check_in_date < :checkout 
-            AND booking.check_out_date > :checkin
-    )
-    AND room.under_construction = 'nei'
-    AND room_type.max_capacity >= :total_guests;
+            room.room_id NOT IN (
+                SELECT room_id 
+                FROM booking 
+                WHERE 
+                    booking.check_in_date < :checkout 
+                    AND booking.check_out_date > :checkin
+            )
+            AND room.under_construction = 'nei'
+            AND room_type.max_capacity >= :total_guests;
         ";
 
 // Create an array to store the parameters for the SQL query
