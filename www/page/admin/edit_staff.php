@@ -1,6 +1,6 @@
 <?php 
 session_start();
-include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/config.php';
+include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -11,7 +11,7 @@ if ($_SESSION['role'] !== 'Admin') {
 // Fetch staff data for editing
 if (isset($_GET['id'])) {
     $staffId = $_GET['id'];
-    $staffQuery = "SELECT staff_id, email, name, position FROM staff WHERE staff_id = ?";
+    $staffQuery = "SELECT staff_id, email, name, position FROM swx_staff WHERE staff_id = ?";
     $stmt = $conn->prepare($staffQuery);
     $stmt->bind_param("i", $staffId);
     $stmt->execute();
@@ -31,7 +31,7 @@ if (isset($_POST['update_staff'])) {
     $password = $_POST['password'];
 
     // Email validation: Check if email already exists (other than the current staff's email)
-    $duplicateEmailQuery = "SELECT staff_id FROM staff WHERE email = ? AND staff_id != ?";
+    $duplicateEmailQuery = "SELECT staff_id FROM swx_staff WHERE email = ? AND staff_id != ?";
     $stmt = $conn->prepare($duplicateEmailQuery);
     $stmt->bind_param("si", $email, $staffId);
     $stmt->execute();
@@ -46,12 +46,12 @@ if (isset($_POST['update_staff'])) {
         if (!empty($password)) {
             // If password is provided, hash and update it
             $password = password_hash($password, PASSWORD_DEFAULT);
-            $updateQuery = "UPDATE staff SET email = ?, name = ?, position = ?, password = ? WHERE staff_id = ?";
+            $updateQuery = "UPDATE swx_taff SET email = ?, name = ?, position = ?, password = ? WHERE staff_id = ?";
             $stmt = $conn->prepare($updateQuery);
             $stmt->bind_param("ssssi", $email, $name, $position, $password, $staffId);
         } else {
             // If no password change, just update email, name, and position
-            $updateQuery = "UPDATE staff SET email = ?, name = ?, position = ? WHERE staff_id = ?";
+            $updateQuery = "UPDATE swx_staff SET email = ?, name = ?, position = ? WHERE staff_id = ?";
             $stmt = $conn->prepare($updateQuery);
             $stmt->bind_param("sssi", $email, $name, $position, $staffId);
         }

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/config.php';
+include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -9,7 +9,7 @@ if ($_SESSION['role'] !== 'Admin') {
 }
 
 // Fetch guest information from the database
-$guestQuery = "SELECT user_id, firstName, lastName, username, tlf FROM users"; // Changed 'email' to 'username'
+$guestQuery = "SELECT user_id, firstName, lastName, username, tlf FROM swx_users"; // Changed 'email' to 'username'
 $guestResult = mysqli_query($conn, $guestQuery);
 if (!$guestResult) {
     die("Error executing guest query: " . mysqli_error($conn));

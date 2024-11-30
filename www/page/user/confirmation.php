@@ -23,7 +23,7 @@ if (!isset($_GET['payment_id'])) {
 $payment_id = (int)$_GET['payment_id'];
 
 // Hent betalingsinformasjon fra databasen
-$stmt = $pdo->prepare("SELECT payment_method, invoice_path FROM payment WHERE payment_id = :payment_id");
+$stmt = $pdo->prepare("SELECT payment_method, invoice_path FROM swx_payment WHERE payment_id = :payment_id");
 $stmt->execute([':payment_id' => $payment_id]);
 $payment = $stmt->fetch(PDO::FETCH_ASSOC);
 
