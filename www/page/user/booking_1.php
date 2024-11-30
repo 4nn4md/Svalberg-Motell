@@ -75,38 +75,19 @@ $room_type = $_SESSION['room_type'];
 //variable for total guests
 $total_guests = $adults + $children;
 
-// SQL query to fetch available rooms based on the given criteria
-        /*$sql = "
-        SELECT DISTINCT swx_room.room_id, swx_room.*, swx_room_type.type_name, swx_room_type.description, swx_room_type.price
-        FROM swx_room
-        INNER JOIN swx_room_type ON swx_room.room_type = swx_room_type.type_id
-        WHERE 
-            swx_room.room_id NOT IN (
-                SELECT room_id 
-                FROM swx_booking 
-                WHERE 
-                    swx_booking.check_in_date < :checkout 
-                    AND swx_booking.check_out_date > :checkin
-            )
-            AND swx_room.under_construction = 'nei'
-            AND swx_room_type.max_capacity >= :total_guests;
-        ";*/
-
-        $sql = 
-        "SELECT swx_room.*, swx_room_type.type_name, swx_room_type.description, swx_room_type.price
+$sql = 
+    "SELECT swx_room.*, swx_room_type.type_name, swx_room_type.description, swx_room_type.price
     FROM swx_room
     INNER JOIN swx_room_type ON swx_room.room_type = swx_room_type.type_id
-    WHERE 
-        swx_room.room_id NOT IN (
-            SELECT room_id 
-            FROM swx_booking 
-            WHERE 
-                swx_booking.check_in_date < :checkout 
-                AND swx_booking.check_out_date > :checkin
+    WHERE swx_room.room_id NOT IN (
+        SELECT room_id 
+        FROM swx_booking 
+        WHERE 
+            swx_booking.check_in_date < :checkout 
+            AND swx_booking.check_out_date > :checkin
         )
-        AND swx_room.under_construction = 'nei'
-        AND swx_room_type.max_capacity >= :total_guests
-";
+    AND swx_room.under_construction = 'nei'
+    AND swx_room_type.max_capacity >= :total_guests";
 
 $params = [
     ':checkin' => $_SESSION['checkin'],
@@ -128,14 +109,6 @@ if (!empty($heis)) {
     $params[':near_elevator'] = ($heis === 'ja') ? 'ja' : 'nei';
 }
 
-// Debug SQL og parametere
-/*finalQuery = $sql;
-foreach ($params as $key => $value) {
-    $finalQuery = str_replace($key, "'$value'", $finalQuery);
-}
-error_log("SQL Query: " . $finalQuery);
-error_log("SQL Parameters: " . print_r($params, true));*/
-
 // Prepare the SQL query
 $q = $pdo->prepare($sql); 
 
@@ -145,9 +118,6 @@ try {
 } catch (PDOException $E) {
     echo "Feil ved tilkobling: ". $E->getMessage();
 }
-
-
-
 ?>
 
 <html>
