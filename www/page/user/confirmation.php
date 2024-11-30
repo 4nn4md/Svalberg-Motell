@@ -94,7 +94,7 @@ if (isset($_GET['filnavn']) && isset($_GET['payment_id'])) {
 <?php
 // Håndter "Ferdig"-knappen
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['done'])) {
-    if (isset($_SESSION['username'])) {
+    if (isset($_SESSION['email'])) {
         header('Location: user_profile_two.php');
     } else {
         session_destroy();

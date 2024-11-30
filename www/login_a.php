@@ -17,17 +17,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST['password'];
 
         // Check if the user exists in the 'staff' table (admin/staff users)
-        $stmt = $pdo->prepare("SELECT staff_id, password, position, login_attempts, locked_until FROM swx_staff WHERE email = :email");
-        $stmt->bindParam(':email', $email);
+        $stmt = $conn->prepare("SELECT staff_id, password, position, login_attempts, locked_until FROM swx_staff WHERE email = ?");
+        $stmt->bind_param("s", $email);
         $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->store_result();
 
         // If the email is not found in 'staff', check the 'users' table (guest users)
-        if (!$result) {
-            $stmt = $pdo->prepare("SELECT user_id, password, login_attempts, locked_until FROM swx_users WHERE username = :email");
-            $stmt->bindParam(':email', $email);
+        if ($stmt->num_rows == 0) {
+            $stmt = $conn->prepare("SELECT user_id, password, login_attempts, locked_until FROM swx_users WHERE username = ?");
+            $stmt->bind_param("s", $email);
             $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->store_result();
         }
 
         // Initialize variables
@@ -36,13 +36,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $login_attempts = null; // For login attempt tracking
         $locked_until = null; // For lockout time
 
-        // If a result is found, assign values
-        if ($result) {
-            $user_id = $result['staff_id'] ?? $result['user_id'];
-            $hashed_password = $result['password'];
-            $login_attempts = $result['login_attempts'];
-            $locked_until = $result['locked_until'];
-            $role = $result['position'] ?? 'user';
+        // Bind the result for both staff and guest users
+        if ($stmt->num_rows > 0) {
+            if ($stmt->field_count == 5) {
+                // If there are 5 columns (staff table), bind all 5 fields
+                $stmt->bind_result($user_id, $hashed_password, $role, $login_attempts, $locked_until);
+            } else {
+                // If there are 4 columns (users table), bind only the relevant 4 fields
+                $stmt->bind_result($user_id, $hashed_password, $login_attempts, $locked_until);
+                $role = 'user'; // Guests will not have a 'role' field, so default to 'user'
+            }
+            $stmt->fetch();
         } else {
             // No user found, handle error
             echo "User not found.";
@@ -69,14 +73,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Reset login attempts and lockout time in the database after a successful login
             if ($role == 'Admin' || $role == 'Staff') {
-                $update_stmt = $pdo->prepare("UPDATE swx_staff SET login_attempts = 0, locked_until = NULL WHERE email = :email");
+                $update_stmt = $conn->prepare("UPDATE swx_staff SET login_attempts = 0, locked_until = NULL WHERE email = ?");
+                $update_stmt->bind_param("s", $email);
             } else {
-                $update_stmt = $pdo->prepare("UPDATE swx_users SET login_attempts = 0, locked_until = NULL WHERE username = :email");
+                $update_stmt = $conn->prepare("UPDATE swx_users SET login_attempts = 0, locked_until = NULL WHERE username = ?");
+                $update_stmt->bind_param("s", $email);
             }
-            $update_stmt->bindParam(':email', $email);
             $update_stmt->execute();
 
-              
+
+            // -------- DETTER ER DET JEG HAR LAGT INN
+            if (isset($_SESSION['redirect_step'])) {
+                $redirect_step = $_SESSION['redirect_step'];
+                unset($_SESSION['redirect_step']); // Fjern den etter bruk
+                header("Location: page/user/$redirect_step.php");
+                exit();
+            }
+            // ------ SLUTT PÅ KODEN        
+
+
             // Redirect based on user role
             if ($role == 'Admin') {
                 header("Location: page/admin/adminIndex.php");  // Redirect to the admin dashboard
@@ -91,17 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($role == 'Maintenance') {
                 header("Location: maintenance_dashboard.php");  // Redirect to the maintenance dashboard
             } else {
-                if (isset($_SESSION['redirect_step'])) {
-                    error_log("Redirect step found: " . $_SESSION['redirect_step']);
-                    $redirect_step = $_SESSION['redirect_step'];
-                    unset($_SESSION['redirect_step']);
-                    header("Location: page/user/$redirect_step.php");
-                    exit();
-                } else {
-                    error_log("No redirect step found. Redirecting to index1.php.");
-                    header("Location: index1.php");
-                    exit();
-                }
+                header("Location: index1.php");  // Redirect to the guest dashboard
             }
             exit();
         } else {
@@ -125,12 +130,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Check if the email already exists in the users table (guests)
-        $stmt = $pdo->prepare("SELECT user_id FROM swx_users WHERE username = :email");
-        $stmt->bindParam(':email', $email);
+        $stmt = $conn->prepare("SELECT user_id FROM swx_users WHERE username = ?");
+        $stmt->bind_param("s", $email);
         $stmt->execute();
+        $stmt->store_result();
 
         // If the email is already registered, stop registration
-        if ($stmt->fetch(PDO::FETCH_ASSOC)) {
+        if ($stmt->num_rows > 0) {
             echo "Error: This email is already registered.";
             exit();
         }
@@ -139,40 +145,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         // Insert the new user into the 'users' table
-        $stmt = $pdo->prepare("INSERT INTO swx_users (firstName, lastName, tlf, username, password, role) VALUES (:firstName, :lastName, :phone, :username, :password, 'user')");
-        $stmt->bindParam(':firstName', $firstName);
-        $stmt->bindParam(':lastName', $lastName);
-        $stmt->bindParam(':phone', $phone);
-        $stmt->bindParam(':username', $email);
-        $stmt->bindParam(':password', $hashed_password);
+        $stmt = $conn->prepare("INSERT INTO swx_users (firstName, lastName, tlf, username, password, role) VALUES (?, ?, ?, ?, ?, 'user')");
+        $stmt->bind_param("ssiss", $firstName, $lastName, $phone, $email, $hashed_password);
 
         if ($stmt->execute()) {
             echo "Registration successful! You can now log in.";
+            // Redirect to login page after successful registration
             header("Location: login.php");
             exit();
         } else {
             echo "Error: Could not register the user.";
         }
+
+        $stmt->close();
     }
+
+    $conn->close();
 }
 
 // Function to handle failed login attempts
 function handle_failed_attempt($email) {
-    global $pdo;
+    global $conn;
 
     // Retrieve current failed attempts and locked_until for the user
-    $stmt = $pdo->prepare("SELECT login_attempts, locked_until FROM swx_users WHERE username = :email");
-    $stmt->bindParam(':email', $email);
+    $stmt = $conn->prepare("SELECT login_attempts, locked_until FROM swx_users WHERE username = ?");
+    $stmt->bind_param("s", $email);
     $stmt->execute();
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($result) {
-        $login_attempts = $result['login_attempts'];
-        $locked_until = $result['locked_until'];
-    } else {
-        echo "User not found.";
-        exit();
-    }
+    $stmt->store_result();
+    $stmt->bind_result($login_attempts, $locked_until);
+    $stmt->fetch();
 
     // If the user is locked out, don't allow further attempts
     if ($locked_until && strtotime($locked_until) > time()) {
@@ -183,17 +184,26 @@ function handle_failed_attempt($email) {
     }
 
     // Increment login attempts for each failed login
-    $login_attempts = ($login_attempts >= MAX_ATTEMPTS) ? 0 : $login_attempts + 1;
-    $locked_until = ($login_attempts >= MAX_ATTEMPTS) ? date("Y-m-d H:i:s", time() + COOLDOWN_TIME) : null;
+    if ($login_attempts >= MAX_ATTEMPTS) {
+        $locked_until = date("Y-m-d H:i:s", time() + COOLDOWN_TIME);  // Set the lockout time
+        $login_attempts = 0; // Reset attempts after reaching max
+    } else {
+        $login_attempts++;
+    }
 
-    $update_stmt = $pdo->prepare("UPDATE swx_users SET login_attempts = :login_attempts, locked_until = :locked_until WHERE username = :email");
-    $update_stmt->bindParam(':login_attempts', $login_attempts, PDO::PARAM_INT);
-    $update_stmt->bindParam(':locked_until', $locked_until);
-    $update_stmt->bindParam(':email', $email);
+    // Update the login attempts and locked_until in the database
+    if ($stmt->num_rows == 0) {
+        // User doesn't exist, handle as needed
+        echo "User not found.";
+        exit();
+    }
+
+    $update_stmt = $conn->prepare("UPDATE swx_users SET login_attempts = ?, locked_until = ? WHERE username = ?");
+    $update_stmt->bind_param("iss", $login_attempts, $locked_until, $email);
     $update_stmt->execute();
 
     // Inform the user about failed attempts
-    if ($locked_until) {
+    if ($login_attempts >= MAX_ATTEMPTS) {
         echo "Too many failed login attempts. You are locked out for 3 minutes.";
     } else {
         echo "Incorrect login details. You have " . (MAX_ATTEMPTS - $login_attempts) . " attempt(s) left.";

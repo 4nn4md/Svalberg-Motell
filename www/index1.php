@@ -1,13 +1,14 @@
 <?php 
 //session_start(); // Start sessionen
-
+include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php");
+print_r($_SESSION);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    session_destroy(); // Ødelegger sessionen og fjerner alle session-variabler
+    //session_destroy(); // Ødelegger sessionen og fjerner alle session-variabler
 
     // Start sessionen på nytt etter session_destroy, hvis du trenger å bruke session etterpå
-    session_start();
+    //session_start();
 
     // Lagre alle relevante data i session
     $_SESSION['location'] = $_POST['location'];
@@ -34,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Svalberg Motell</title>
-    <?php include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php"); ?>
+    <?php //include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php"); ?>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="http://localhost/Svalberg-Motell/www/assets/css/styles1.css" rel="stylesheet">
 </head>
