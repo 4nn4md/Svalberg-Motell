@@ -1,6 +1,6 @@
 <?php
 session_start();
-include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/config.php';
+include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 
 // Define max login attempts and the cooldown period (in seconds)
 define('MAX_ATTEMPTS', 3);
@@ -14,14 +14,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST['password'];
 
         // Check if the user exists in the 'staff' table (admin/staff users)
-        $stmt = $conn->prepare("SELECT staff_id, password, position, login_attempts, locked_until FROM staff WHERE email = ?");
+        $stmt = $conn->prepare("SELECT staff_id, password, position, login_attempts, locked_until FROM swx_staff WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $stmt->store_result();
 
         // If the email is not found in 'staff', check the 'users' table (guest users)
         if ($stmt->num_rows == 0) {
-            $stmt = $conn->prepare("SELECT user_id, password, login_attempts, locked_until FROM users WHERE username = ?");
+            $stmt = $conn->prepare("SELECT user_id, password, login_attempts, locked_until FROM swx_users WHERE username = ?");
             $stmt->bind_param("s", $email);
             $stmt->execute();
             $stmt->store_result();
@@ -70,10 +70,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Reset login attempts and lockout time in the database after a successful login
             if ($role == 'Admin' || $role == 'Staff') {
-                $update_stmt = $conn->prepare("UPDATE staff SET login_attempts = 0, locked_until = NULL WHERE email = ?");
+                $update_stmt = $conn->prepare("UPDATE swx_staff SET login_attempts = 0, locked_until = NULL WHERE email = ?");
                 $update_stmt->bind_param("s", $email);
             } else {
-                $update_stmt = $conn->prepare("UPDATE users SET login_attempts = 0, locked_until = NULL WHERE username = ?");
+                $update_stmt = $conn->prepare("UPDATE swx_users SET login_attempts = 0, locked_until = NULL WHERE username = ?");
                 $update_stmt->bind_param("s", $email);
             }
             $update_stmt->execute();
@@ -116,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Check if the email already exists in the users table (guests)
-        $stmt = $conn->prepare("SELECT user_id FROM users WHERE username = ?");
+        $stmt = $conn->prepare("SELECT user_id FROM swx_users WHERE username = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $stmt->store_result();
@@ -131,7 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         // Insert the new user into the 'users' table
-        $stmt = $conn->prepare("INSERT INTO users (firstName, lastName, tlf, username, password, role) VALUES (?, ?, ?, ?, ?, 'user')");
+        $stmt = $conn->prepare("INSERT INTO swx_users (firstName, lastName, tlf, username, password, role) VALUES (?, ?, ?, ?, ?, 'user')");
         $stmt->bind_param("ssiss", $firstName, $lastName, $phone, $email, $hashed_password);
 
         if ($stmt->execute()) {
@@ -154,7 +154,7 @@ function handle_failed_attempt($email) {
     global $conn;
 
     // Retrieve current failed attempts and locked_until for the user
-    $stmt = $conn->prepare("SELECT login_attempts, locked_until FROM users WHERE username = ?");
+    $stmt = $conn->prepare("SELECT login_attempts, locked_until FROM swx_users WHERE username = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
@@ -184,7 +184,7 @@ function handle_failed_attempt($email) {
         exit();
     }
 
-    $update_stmt = $conn->prepare("UPDATE users SET login_attempts = ?, locked_until = ? WHERE username = ?");
+    $update_stmt = $conn->prepare("UPDATE swx_users SET login_attempts = ?, locked_until = ? WHERE username = ?");
     $update_stmt->bind_param("iss", $login_attempts, $locked_until, $email);
     $update_stmt->execute();
 

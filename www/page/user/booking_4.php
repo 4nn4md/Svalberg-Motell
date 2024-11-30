@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->beginTransaction();
     
             // Insert to payment table
-            $stmt = $pdo->prepare("INSERT INTO payment (amount, payment_method, status) 
+            $stmt = $pdo->prepare("INSERT INTO swx_payment (amount, payment_method, status) 
                                    VALUES (:amount, :payment_method, :status)");
     
             // Insert payment record
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_SESSION['username'])) {
                 // Get user_id based on the username in session
                 $username = $_SESSION['username'];
-                $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = :username");
+                $stmt = $pdo->prepare("SELECT user_id FROM swx_users WHERE username = :username");
                 $stmt->execute([':username' => $username]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
     
             // Insert to booking table
-            $stmt = $pdo->prepare("INSERT INTO booking (user_id, room_id, payment_id, name, email, tlf, comments, check_in_date, check_out_date, number_of_guests) 
+            $stmt = $pdo->prepare("INSERT INTO swx_booking (user_id, room_id, payment_id, name, email, tlf, comments, check_in_date, check_out_date, number_of_guests) 
                                    VALUES (:user_id, :room_id, :payment_id, :name, :email, :tlf, :comments, :check_in_date, :check_out_date, :number_of_guests)");
     
             // Insert booking record
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
     
                 // Oppdater fakturabanen i databasen
-                $stmt = $pdo->prepare("UPDATE payment SET invoice_path = :invoice_path WHERE payment_id = :payment_id");
+                $stmt = $pdo->prepare("UPDATE swx_payment SET invoice_path = :invoice_path WHERE payment_id = :payment_id");
                 $stmt->execute([
                     ':invoice_path' => $invoiceFileName,
                     ':payment_id' => $payment_id

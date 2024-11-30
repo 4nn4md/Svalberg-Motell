@@ -1,6 +1,6 @@
 <?php
 session_start();
-include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/config.php';
+include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 
 
 // Ensure the user is an admin
@@ -8,14 +8,14 @@ if ($_SESSION['role'] !== 'Admin') {
     header("Location: login.php");
     exit();
 }
-
+// TO DO: SJEKK OM SPØRRINGEN ER RIKTIG NÅ. 
 // Fetch room data for editing
 if (isset($_GET['id'])) {
     $room_id = $_GET['id'];
     $roomQuery = "SELECT r.room_id, r.room_type, r.nearElevator, r.floor, r.availability, r.under_construction, 
                          rt.max_capacity, rt.price, rt.description
-                  FROM room r
-                  JOIN room_type rt ON r.room_type = rt.type_id
+                  FROM swx_room r
+                  JOIN swx_room_type rt ON r.room_type = rt.type_id
                   WHERE r.room_id = ?";
     $stmt = $conn->prepare($roomQuery);
     $stmt->bind_param("i", $room_id);
@@ -40,8 +40,8 @@ if (isset($_POST['edit_room'])) {
     $description = $_POST['description'];
 
     // Update the room data in the room and room_type tables
-    $updateQuery = "UPDATE room r
-                    JOIN room_type rt ON r.room_type = rt.type_id
+    $updateQuery = "UPDATE swx_room r
+                    JOIN swx_room_type rt ON r.room_type = rt.type_id
                     SET r.room_type = ?, r.nearElevator = ?, r.floor = ?, r.availability = ?, r.under_construction = ?,
                         rt.price = ?, rt.description = ?
                     WHERE r.room_id = ?";

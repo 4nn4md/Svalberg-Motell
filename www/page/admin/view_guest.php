@@ -1,6 +1,6 @@
 <?php
 session_start();
-include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/config.php';
+include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -12,7 +12,7 @@ if (isset($_GET['id'])) {
     $guest_id = $_GET['id'];
 
     // Fetch guest details
-    $guestQuery = "SELECT user_id, firstName, lastName, username, tlf FROM users WHERE user_id = ?";
+    $guestQuery = "SELECT user_id, firstName, lastName, username, tlf FROM swx_users WHERE user_id = ?";
     $stmt = $conn->prepare($guestQuery);
     $stmt->bind_param("i", $guest_id);
     $stmt->execute();
@@ -26,7 +26,7 @@ if (isset($_GET['id'])) {
 
     // Fetch the bookings for this guest
     $bookingQuery = "SELECT b.check_in_date, b.check_out_date, r.room_id, rt.type_name AS room_type
-                     FROM booking b
+                     FROM swx_booking b
                      JOIN room r ON b.room_id = r.room_id
                      JOIN room_type rt ON r.room_type = rt.type_id
                      WHERE b.user_id = ?";

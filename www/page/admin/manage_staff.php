@@ -1,6 +1,6 @@
 <?php
 session_start();
-include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/config.php';
+include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -9,7 +9,7 @@ if ($_SESSION['role'] !== 'Admin') {
 }
 
 // Fetch staff information
-$staffQuery = "SELECT staff_id, email, name, position FROM staff";
+$staffQuery = "SELECT staff_id, email, name, position FROM swx_staff";
 $staffResult = mysqli_query($conn, $staffQuery);
 if (!$staffResult) {
     die("Error executing staff query: " . mysqli_error($conn));
@@ -29,7 +29,7 @@ if (isset($_POST['add_staff'])) {
         $message_type = "error";
     } else {
         // Email validation: Check if email already exists
-        $duplicateEmailQuery = "SELECT staff_id FROM staff WHERE email = ?";
+        $duplicateEmailQuery = "SELECT staff_id FROM swx_staff WHERE email = ?";
         $stmt = $conn->prepare($duplicateEmailQuery);
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -41,7 +41,7 @@ if (isset($_POST['add_staff'])) {
             $message_type = "error";
         } else {
             // Email is valid, insert new staff into the database
-            $insertQuery = "INSERT INTO staff (email, password, position, name) VALUES (?, ?, ?, ?)";
+            $insertQuery = "INSERT INTO swx_staff (email, password, position, name) VALUES (?, ?, ?, ?)";
             $stmt = $conn->prepare($insertQuery);
             $stmt->bind_param("ssss", $email, $password, $position, $name);
             if ($stmt->execute()) {
@@ -59,7 +59,7 @@ if (isset($_POST['add_staff'])) {
 // Handle staff deletion
 if (isset($_GET['delete_id'])) {
     $delete_id = $_GET['delete_id'];
-    $deleteQuery = "DELETE FROM staff WHERE staff_id = ?";
+    $deleteQuery = "DELETE FROM swx_staff WHERE staff_id = ?";
     $stmt = $conn->prepare($deleteQuery);
     $stmt->bind_param("i", $delete_id);
     if ($stmt->execute()) {

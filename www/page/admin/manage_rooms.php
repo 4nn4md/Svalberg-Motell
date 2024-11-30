@@ -11,8 +11,8 @@ if ($_SESSION['role'] !== 'Admin') {
 // Fetch room information along with all necessary details, including max_capacity
 $roomQuery = "SELECT r.room_id, rt.type_name as room_type, r.nearElevator, r.floor, r.availability, r.under_construction, 
                      rt.max_capacity, r.created_at, r.updated_at
-              FROM room r
-              JOIN room_type rt ON r.room_type = rt.type_id";
+              FROM swx_room r
+              JOIN swx_room_type rt ON r.room_type = rt.type_id";
 $roomResult = mysqli_query($conn, $roomQuery);
 if (!$roomResult) {
     die("Error executing room query: " . mysqli_error($conn));
@@ -42,7 +42,7 @@ if (isset($_POST['add_room'])) {
 // Handle deleting room
 if (isset($_GET['delete_id'])) {
     $delete_id = $_GET['delete_id'];
-    $deleteQuery = "DELETE FROM room WHERE room_id = ?";
+    $deleteQuery = "DELETE FROM swx_room WHERE room_id = ?";
     $stmt = $conn->prepare($deleteQuery);
     $stmt->bind_param("i", $delete_id);
     if ($stmt->execute()) {

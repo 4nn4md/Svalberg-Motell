@@ -77,19 +77,19 @@ $total_guests = $adults + $children;
 
 // SQL query to fetch available rooms based on the given criteria
         $sql = "
-        SELECT DISTINCT room.room_id, room.*, room_type.type_name, room_type.description, room_type.price
-        FROM room
-        INNER JOIN room_type ON room.room_type = room_type.type_id
+        SELECT DISTINCT swx_room.room_id, swx_room.*, swx_room_type.type_name, swx_room_type.description, swx_room_type.price
+        FROM swx_room
+        INNER JOIN swx_room_type ON swx_room.room_type = swx_room_type.type_id
         WHERE 
-            room.room_id NOT IN (
-                SELECT room_id 
-                FROM booking 
+            swx_room.room_id NOT IN (
+                SELECT swx_room_id 
+                FROM swx_booking 
                 WHERE 
-                    booking.check_in_date < :checkout 
-                    AND booking.check_out_date > :checkin
+                    swx_booking.check_in_date < :checkout 
+                    AND swx_booking.check_out_date > :checkin
             )
-            AND room.under_construction = 'nei'
-            AND room_type.max_capacity >= :total_guests;
+            AND swx_room.under_construction = 'nei'
+            AND swx_room_type.max_capacity >= :total_guests;
         ";
 
 // Create an array to store the parameters for the SQL query
@@ -100,19 +100,19 @@ $params = [
 
 // If a room type is selected and stored in the session, add it to the SQL query
 if (!empty($_SESSION['room_type'])) {
-    $sql .= " AND room.room_type = :room_type";
+    $sql .= " AND swx_room.room_type = :room_type";
     $params[':room_type'] = $_SESSION['room_type'];;
 }
 
 // Filter the floors if it is selected 
 if (!empty($etasje)) {
-    $sql .= " AND room.floor = :floor";
+    $sql .= " AND swx_room.floor = :floor";
     $params[':floor'] = $etasje;
 }
 
 // Filter for elevator poximity if it is selected 
 if (!empty($heis)) {
-    $sql .= " AND room.nearElevator = :near_elevator";
+    $sql .= " AND swx_room.nearElevator = :near_elevator";
     $params[':near_elevator'] = ($heis == 'ja') ? 'ja' : 'nei'; 
 }
 
