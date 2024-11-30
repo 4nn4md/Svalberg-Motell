@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $_SESSION['checkout'] = $_POST['checkout'];
     $_SESSION['adults'] = $_POST['adults'];
     $_SESSION['children'] = $_POST['children'];
+   
 
     // Debugging: Vis session-innholdet etter at dataene er lagret
     // Dette vil vise innholdet i session etter at skjemaet er sendt
