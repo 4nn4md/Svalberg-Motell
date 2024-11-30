@@ -1,6 +1,6 @@
 <html>
     <head>
-    <?php include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header.php"); ?>    </head>
+    <?php include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php"); ?>    </head>
     </head>
     <body>
     <section style="margin-bottom: 0;">

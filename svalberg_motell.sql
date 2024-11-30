@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: 30. Nov, 2024 14:17 PM
+-- Generation Time: 30. Nov, 2024 17:25 PM
 -- Tjener-versjon: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -67,7 +67,9 @@ INSERT INTO `swx_booking` (`booking_id`, `user_id`, `room_id`, `payment_id`, `ch
 (21, NULL, 1, 24, '2024-11-30', '2024-12-01', 2, 'Michael buble', 'k.b@gmail.com', '4722222222', 'plz work', '2024-11-28 16:17:15', '2024-11-28 16:17:15'),
 (22, NULL, 1, 25, '2024-12-07', '2024-12-08', 2, 'Michael buble', 'k.b@gmail.com', '4712121212', 'ugh ny bug', '2024-11-28 16:22:56', '2024-11-28 16:22:56'),
 (23, NULL, 1, 26, '2024-11-30', '2024-12-01', 2, 'Michael buble', 'inea@uia.no', '4712121212', 'helllooo', '2024-11-28 17:32:45', '2024-11-28 17:32:45'),
-(24, NULL, 5, 27, '2024-11-30', '2024-12-10', 2, 'test test', 'inea@uia.no', '4711111111', 'test test ', '2024-11-28 19:50:33', '2024-11-28 19:50:33');
+(24, NULL, 5, 27, '2024-11-30', '2024-12-10', 2, 'test test', 'inea@uia.no', '4711111111', 'test test ', '2024-11-28 19:50:33', '2024-11-28 19:50:33'),
+(25, NULL, 3, 28, '2024-12-07', '2024-12-08', 2, 'andrine flydal', 'a.f@gmail.com', '4701100110', 'hei sann', '2024-11-30 16:14:08', '2024-11-30 16:14:08'),
+(26, NULL, 4, 29, '2024-12-07', '2024-12-08', 2, 'vinh v', 'vinh@hotmail.com', '4755555555', 'fem er mitt lykketall', '2024-11-30 16:18:16', '2024-11-30 16:18:16');
 
 -- --------------------------------------------------------
 
@@ -108,7 +110,9 @@ INSERT INTO `swx_payment` (`payment_id`, `amount`, `payment_date`, `payment_meth
 (24, 1300, '2024-11-28 16:17:15', 'invoice', 'faktura_24_1732810635.pdf', 'Completed'),
 (25, 1300, '2024-11-28 16:22:56', 'invoice', 'faktura_25_1732810976.pdf', 'Completed'),
 (26, 1300, '2024-11-28 17:32:45', 'invoice', 'faktura_26_1732815165.pdf', 'Completed'),
-(27, 3000, '2024-11-28 19:50:33', 'Vips', NULL, 'Completed');
+(27, 3000, '2024-11-28 19:50:33', 'Vips', NULL, 'Completed'),
+(28, 1800, '2024-11-30 16:14:08', 'Vips', NULL, 'Completed'),
+(29, 2000, '2024-11-30 16:18:16', 'Vips', NULL, 'Completed');
 
 -- --------------------------------------------------------
 
@@ -207,6 +211,7 @@ CREATE TABLE `swx_users` (
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` enum('user') NOT NULL,
+  `point` int(11) DEFAULT NULL,
   `login_attempts` int(11) NOT NULL DEFAULT 0,
   `locked_until` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -215,10 +220,11 @@ CREATE TABLE `swx_users` (
 -- Dataark for tabell `swx_users`
 --
 
-INSERT INTO `swx_users` (`user_id`, `firstName`, `lastName`, `tlf`, `username`, `password`, `role`, `login_attempts`, `locked_until`) VALUES
-(3, 'test', 'one', 12345678, 'test@hotmail.com', 'test123', 'user', 0, NULL),
-(4, 'bob', 'kåre', 11111111, 'ny.test@hotmail.com', 'test123', 'user', 0, NULL),
-(5, 'jane', 'doe', 22222222, 'ikke_innlogget@gmail.com', 'test123', 'user', 0, NULL);
+INSERT INTO `swx_users` (`user_id`, `firstName`, `lastName`, `tlf`, `username`, `password`, `role`, `point`, `login_attempts`, `locked_until`) VALUES
+(3, 'test', 'one', 12345678, 'test@hotmail.com', 'test123', 'user', NULL, 2, NULL),
+(4, 'bob', 'kåre', 11111111, 'ny.test@hotmail.com', 'test123', 'user', NULL, 0, NULL),
+(5, 'jane', 'doe', 22222222, 'ikke_innlogget@gmail.com', 'test123', 'user', NULL, 0, NULL),
+(6, 'test', 'test', 95451705, 'test@test.com', '$2y$10$IMjbILxh0VKdICqhBlO3W.576TypbG5kqVfmrHVbS3twWEUm7F6ry', 'user', NULL, 0, NULL);
 
 --
 -- Indexes for dumped tables
@@ -275,13 +281,13 @@ ALTER TABLE `swx_users`
 -- AUTO_INCREMENT for table `swx_booking`
 --
 ALTER TABLE `swx_booking`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `swx_payment`
 --
 ALTER TABLE `swx_payment`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `swx_room`
@@ -305,7 +311,7 @@ ALTER TABLE `swx_staff`
 -- AUTO_INCREMENT for table `swx_users`
 --
 ALTER TABLE `swx_users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Begrensninger for dumpede tabeller

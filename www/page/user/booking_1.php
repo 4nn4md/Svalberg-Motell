@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 // Query the database for available room types (to be used in the room selection filter dropdown)
-$roomTypes = $pdo->query("SELECT type_id, type_name FROM room_type")->fetchAll(PDO::FETCH_ASSOC);
+$roomTypes = $pdo->query("SELECT type_id, type_name FROM swx_room_type")->fetchAll(PDO::FETCH_ASSOC);
 
 // Update the variable after user have made changes in the search bar
 $location = $_SESSION['location'];
@@ -82,7 +82,7 @@ $total_guests = $adults + $children;
         INNER JOIN swx_room_type ON swx_room.room_type = swx_room_type.type_id
         WHERE 
             swx_room.room_id NOT IN (
-                SELECT swx_room_id 
+                SELECT room_id 
                 FROM swx_booking 
                 WHERE 
                     swx_booking.check_in_date < :checkout 

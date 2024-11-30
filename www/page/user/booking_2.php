@@ -1,3 +1,16 @@
+<?php
+session_start();
+error_log("SESSION at start of booking_2.php: " . print_r($_SESSION, true));
+
+if (isset($_GET['action']) && $_GET['action'] === 'login') {
+    if (!isset($_SESSION['user_id'])) {
+        $_SESSION['redirect_step'] = 'booking_3';
+        error_log("Redirect step set to: " . $_SESSION['redirect_step']);
+        header('Location: /Svalberg-Motell/www/login.php');
+        exit();
+    }
+}
+?>
 
 <html>
     <head>
@@ -21,7 +34,7 @@
                 <h1 class="text-center" style="margin: 50px auto 25px auto;">Kontakinformasjon</h1>
                 <div style="display: flex; flex-direction: column; align-items: center;">
                     <a href="#" class="btn msearch-btn w-50 mb-2">Bli medlem</a>
-                    <a href="#" class="btn msearch-btn w-50 mb-2">Logg inn</a>
+                    <a href="booking_2.php?action=login" class="btn msearch-btn w-50 mb-2">Logg inn</a>
                     <a href="booking_3.php" class="btn msearch-btn w-50 mb-5">Fortsett uten å logge inn</a>
                 </div>
             </div>
