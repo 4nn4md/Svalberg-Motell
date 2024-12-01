@@ -1,7 +1,7 @@
 <?php
 ob_start();
 include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php");
-
+print_r($_SESSION);
 // Enable error display for debugging purposes
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -75,45 +75,38 @@ $room_type = $_SESSION['room_type'];
 //variable for total guests
 $total_guests = $adults + $children;
 
-// SQL query to fetch available rooms based on the given criteria
-        $sql = "
-        SELECT DISTINCT swx_room.room_id, swx_room.*, swx_room_type.type_name, swx_room_type.description, swx_room_type.price
-        FROM swx_room
-        INNER JOIN swx_room_type ON swx_room.room_type = swx_room_type.type_id
+$sql = 
+    "SELECT swx_room.*, swx_room_type.type_name, swx_room_type.description, swx_room_type.price
+    FROM swx_room
+    INNER JOIN swx_room_type ON swx_room.room_type = swx_room_type.type_id
+    WHERE swx_room.room_id NOT IN (
+        SELECT room_id 
+        FROM swx_booking 
         WHERE 
-            swx_room.room_id NOT IN (
-                SELECT room_id 
-                FROM swx_booking 
-                WHERE 
-                    swx_booking.check_in_date < :checkout 
-                    AND swx_booking.check_out_date > :checkin
-            )
-            AND swx_room.under_construction = 'nei'
-            AND swx_room_type.max_capacity >= :total_guests;
-        ";
+            swx_booking.check_in_date < :checkout 
+            AND swx_booking.check_out_date > :checkin
+        )
+    AND swx_room.under_construction = 'nei'
+    AND swx_room_type.max_capacity >= :total_guests";
 
-// Create an array to store the parameters for the SQL query
 $params = [
-    ':checkin' => $checkin,
-    ':checkout' => $checkout,
-    ':total_guests' => $total_guests];
+    ':checkin' => $_SESSION['checkin'],
+    ':checkout' => $_SESSION['checkout'],
+    ':total_guests' => $_SESSION['adults'] + $_SESSION['children']
+];
 
-// If a room type is selected and stored in the session, add it to the SQL query
+// Legg til filtrene dynamisk
 if (!empty($_SESSION['room_type'])) {
     $sql .= " AND swx_room.room_type = :room_type";
-    $params[':room_type'] = $_SESSION['room_type'];;
+    $params[':room_type'] = $_SESSION['room_type'];
 }
-
-// Filter the floors if it is selected 
 if (!empty($etasje)) {
     $sql .= " AND swx_room.floor = :floor";
     $params[':floor'] = $etasje;
 }
-
-// Filter for elevator poximity if it is selected 
 if (!empty($heis)) {
     $sql .= " AND swx_room.nearElevator = :near_elevator";
-    $params[':near_elevator'] = ($heis == 'ja') ? 'ja' : 'nei'; 
+    $params[':near_elevator'] = ($heis === 'ja') ? 'ja' : 'nei';
 }
 
 // Prepare the SQL query
@@ -125,9 +118,6 @@ try {
 } catch (PDOException $E) {
     echo "Feil ved tilkobling: ". $E->getMessage();
 }
-
-
-
 ?>
 
 <html>
