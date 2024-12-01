@@ -1,4 +1,4 @@
-<?php 
+<?php
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 
@@ -7,6 +7,9 @@ if ($_SESSION['role'] !== 'Admin') {
     header("Location: login.php");
     exit();
 }
+
+// Initialize error messages
+$errors = [];
 
 // Get filter parameters from GET request
 $roomFilter = $_GET['room_filter'] ?? '';
@@ -41,7 +44,7 @@ $orderSql = "ORDER BY b.check_in_date $sortOrder"; // Default is ascending order
 
 // Fetch booking information with filters applied
 $bookingQuery = "
-    SELECT b.booking_id, rt.type_name AS room_name, u.firstName, u.lastName, u.username AS user_username, 
+    SELECT b.booking_id, b.room_id, rt.type_name AS room_name, u.firstName, u.lastName, u.username AS user_username, 
            b.check_in_date, b.check_out_date, b.number_of_guests, b.name AS guest_name, b.email AS guest_email, 
            b.tlf AS guest_phone, b.comments
     FROM swx_booking b
@@ -96,8 +99,8 @@ if (isset($_GET['delete_id'])) {
 }
 
 // Handle adding new booking
-if (isset($_POST['add_booking'])) {
-    // Get the form data
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_booking'])) {
+    // Get form data
     $room_id = $_POST['room_id'] ?? '';
     $user_id = $_POST['user_id'] ?? '';
     $check_in_date = $_POST['check_in_date'] ?? '';
@@ -108,9 +111,35 @@ if (isset($_POST['add_booking'])) {
     $guest_phone = $_POST['guest_phone'] ?? '';
     $comments = $_POST['comments'] ?? '';
 
-    // PHP Validation
-    if (empty($room_id) || empty($user_id) || empty($check_in_date) || empty($check_out_date) || empty($number_of_guests) || empty($guest_name)) {
-        $message = "All fields are required!";
+    // Basic validation
+    if (empty($room_id)) {
+        $errors[] = "Room ID is required.";
+    }
+    if (empty($user_id)) {
+        $errors[] = "User ID is required.";
+    }
+    if (empty($check_in_date) || !strtotime($check_in_date)) {
+        $errors[] = "Valid check-in date is required.";
+    }
+    if (empty($check_out_date) || !strtotime($check_out_date)) {
+        $errors[] = "Valid check-out date is required.";
+    }
+    if (empty($number_of_guests) || !is_numeric($number_of_guests)) {
+        $errors[] = "Number of guests is required and should be a number.";
+    }
+    if (empty($guest_name)) {
+        $errors[] = "Guest name is required.";
+    }
+    if (empty($guest_email) || !filter_var($guest_email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "A valid email address is required.";
+    }
+    if (empty($guest_phone) || !preg_match("/^[0-9]{8,15}$/", $guest_phone)) {
+        $errors[] = "A valid phone number is required.";
+    }
+
+    // If validation fails, show errors
+    if (!empty($errors)) {
+        $message = "Error: <br>" . implode("<br>", $errors);
         $message_type = "error";
     } else {
         // Insert the new booking data into the database
@@ -179,6 +208,7 @@ if (isset($_POST['add_booking'])) {
             <thead>
                 <tr>
                     <th>Booking ID</th>
+                    <th>Room ID</th> <!-- Added room_id to display -->
                     <th>Room</th>
                     <th>User</th>
                     <th>Guest Name</th>
@@ -192,7 +222,7 @@ if (isset($_POST['add_booking'])) {
             <tbody>
                 <?php if (empty($bookingResult)) { ?>
                     <tr>
-                        <td colspan="9" class="text-center">
+                        <td colspan="10" class="text-center">
                             No bookings found.
                         </td>
                     </tr>
@@ -200,6 +230,7 @@ if (isset($_POST['add_booking'])) {
                     <?php foreach ($bookingResult as $booking) { ?>
                         <tr>
                             <td><?php echo $booking['booking_id']; ?></td>
+                            <td><?php echo $booking['room_id']; ?></td> <!-- Display Room ID -->
                             <td><?php echo $booking['room_name']; ?></td>
                             <td><?php echo $booking['firstName'] . ' ' . $booking['lastName']; ?></td>
                             <td><?php echo $booking['guest_name']; ?></td>
