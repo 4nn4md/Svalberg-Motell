@@ -6,15 +6,14 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Start the session to store data across different pages
-//session_start();
-
 //including database and function file. 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php"); 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/ValidateController.php"); 
 
 // Check if the form was submitted using the POST method
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
     if (isset($_POST['type_name'])) {
         // Check if the 'type_name' POST data is set (the form for selecting a room was submitted)
         $_SESSION['location'] = $_POST['location'] ?? $_SESSION['location'];
@@ -135,31 +134,31 @@ try {
             <form method="POST" class="d-flex justify-content-center">
                 <div class="row w-100 no-gutters"> 
                     <div class="col-md-2">
-                        <label for="location" class="bold-label">Lokasjon</label>
+                        <label for="location" class="bold-label">Location</label>
                         <select class="form-control" id="location" name="location" required>
-                            <option value="" disabled <?php echo empty($location) ? 'selected' : ''; ?>>Velg lokasjon..</option>
+                            <option value="" disabled <?php echo empty($location) ? 'selected' : ''; ?>>Select location..</option>
                             <option value="Kristiansand" <?php echo ($location === "Kristiansand") ? 'selected' : ''; ?>>Kristiansand</option>
 
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label for="checkin" class="bold-label">Ankomst</label>
-                        <input type="date" value="<?php echo htmlspecialchars($checkin);?>" id="checkin" name="checkin" class="form-control" required>
+                        <label for="checkin" class="bold-label">Arrival</label>
+                        <input type="date" value="<?php echo htmlspecialchars($checkin);?>" id="checkin" name="checkin" class="form-control">
                     </div>
                     <div class="col-md-2">
-                        <label for="checkout" class="bold-label">Avreise</label>
-                        <input type="date" value="<?php echo htmlspecialchars($checkout);?>" id="checkout" name="checkout" class="form-control" required>
+                        <label for="checkout" class="bold-label">Departure</label>
+                        <input type="date" value="<?php echo htmlspecialchars($checkout);?>" id="checkout" name="checkout" class="form-control">
                     </div>
                     <div class="col-md-2">
-                        <label for="adults" class="bold-label">Antall voksne</label>
-                        <input type="number" min="0" value="<?php echo htmlspecialchars($adults);?>" id="adults" name="adults" class="form-control" min="1" value="1">
+                        <label for="adults" class="bold-label">Adults</label>
+                        <input type="number" min="0" value="<?php echo htmlspecialchars($adults);?>" id="adults" name="adults" class="form-control" value="1">
                     </div>
                     <div class="col-md-2">
-                        <label for="children" class="bold-label">Antall barn</label>
-                        <input type="number" min="0" value="<?php echo htmlspecialchars($children);?>"  id="children" name="children" class="form-control" min="0" value="0">
+                        <label for="children" class="bold-label">Children</label>
+                        <input type="number" min="0" value="<?php echo htmlspecialchars($children);?>"  id="children" name="children" class="form-control" value="0">
                     </div>
                     <div class="col-md-2 d-flex align-items-end"> 
-                        <button type="submit" id="submit" class="btn msearch-btn w-100" id="#MBtn">Søk</button>
+                        <button type="submit" id="submit" class="btn msearch-btn w-100" id="#MBtn">Search</button>
                     </div>
                 </div>
             </form>
@@ -176,28 +175,28 @@ try {
 
                 <div class="row w-100 no-gutters">
                     <div class="col">
-                        <label for="etasje" class="form-label">Etasje</label>
+                        <label for="etasje" class="form-label">Floor</label>
                         <select id="etasje" class="form-select" name="etasje">
-                            <option value="">Alle</option>
-                            <option value="1" <?php if ($etasje == "1") echo 'selected'; ?>>1. Etasje</option>
-                            <option value="2" <?php if ($etasje == "2") echo 'selected'; ?>>2. Etasje</option>  
+                            <option value="">All</option>
+                            <option value="1" <?php if ($etasje == "1") echo 'selected'; ?>>1. Floor</option>
+                            <option value="2" <?php if ($etasje == "2") echo 'selected'; ?>>2. Floor</option>  
                         </select>
                     </div>
 
                     <div class="col">
-                        <label for="heis" class="form-label">Nærhet til Heis</label>
+                        <label for="heis" class="form-label">Proximity to lift</label>
                         <select id="heis" class="form-select" name="heis">
-                            <option value="">Alle</option>
-                            <option value="ja" <?php if ($heis == "ja") echo 'selected'; ?>>Ja</option>
-                            <option value="nei" <?php if ($heis == "nei") echo 'selected'; ?>>Nei</option>
+                            <option value="">All</option>
+                            <option value="ja" <?php if ($heis == "ja") echo 'selected'; ?>>Yes</option>
+                            <option value="nei" <?php if ($heis == "nei") echo 'selected'; ?>>No</option>
                         </select>
                     </div>
 
                     <!-- Dropdown to filter rooms by type; populated with values from the database -->
                     <div class="col">
-                    <label for="room_type" class="form-label">Type rom</label>
+                    <label for="room_type" class="form-label">Type of room</label>
                         <select id="room_type" class="form-select" name="room_type">
-                            <option value="">Alle</option> 
+                            <option value="">All</option> 
                             <?php foreach ($roomTypes as $type): ?>
                                 <option value="<?php echo htmlspecialchars($type['type_id']); ?>" 
                                     <?php if (isset($_SESSION['room_type']) && $_SESSION['room_type'] == $type['type_id']) echo 'selected'; ?>>
@@ -207,7 +206,7 @@ try {
                         </select>
                     </div>
                     <div class="col d-flex align-items-end">
-                        <button type="submit" class="btn msearch-btn">Filtrer</button>
+                        <button type="submit" class="btn msearch-btn">Filters</button>
                     </div>
                 </div>
             </form>
@@ -245,13 +244,13 @@ try {
                                     <div class="row align-items-end mt-auto">
                                         <div class="col-5">
                                             <p class="card-text mb-0">
-                                                <strong>Etasje:</strong> <?php echo htmlspecialchars($row['floor']); ?><br> 
-                                                <strong>Nærhet til heis:</strong> <?php echo htmlspecialchars($row['nearElevator']); ?><br> 
+                                                <strong>Floor:</strong> <?php echo htmlspecialchars($row['floor']); ?><br> 
+                                                <strong>Proximity to lift:</strong> <?php echo htmlspecialchars($row['nearElevator']); ?><br> 
                                             </p>
                                         </div>
                                         <div class="col text-end"> 
                                             <p class="card-text mb-0">
-                                                <strong>Pris:</strong> <?php echo "Fra " . htmlspecialchars($total_price); ?> NOK per natt.
+                                                <strong>Price:</strong> <?php echo "Fra " . htmlspecialchars($total_price); ?> NOK per night.
                                             </p>
                                         </div>
                                         <div class="col-md-2 d-flex align-items-end"> 
@@ -270,7 +269,7 @@ try {
                                             <input type="hidden" name="checkout" value="<?php echo htmlspecialchars($checkout); ?>">
                                             <input type="hidden" name="base_price" value="<?php echo htmlspecialchars($row['price']); ?>">
 
-                                            <button type="submit" id="submit" class="btn msearch-btn w-100" id="#MBtn">Velg</button>
+                                            <button type="submit" id="submit" class="btn msearch-btn w-100" id="#MBtn">Select</button>
                                         </form>
                                         </div>
                                     </div>
@@ -281,7 +280,7 @@ try {
                 <?php endwhile; ?>
             <?php else: ?>
                 <!-- Message if no rooms are avaible -->
-                <p>Ingen ledige rom tilgjengelig.</p>
+                <p>No available rooms available.</p>
             <?php endif; ?>
         </div>
         <?php 

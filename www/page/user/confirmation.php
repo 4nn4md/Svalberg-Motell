@@ -73,18 +73,18 @@ if (isset($_GET['filnavn']) && isset($_GET['payment_id'])) {
     <div class="container mt-5">
         <div class="card">
             <div class="card-header text-center">
-                <h1>Gratulerer med bestillingen!</h1>
+                <h1>Congratulations on your order!</h1>
             </div>
             <div class="card-body text-center">
-                <p>Takk for at du valgte Svalberg Motell. Din bestilling er nå bekreftet.</p>
+                <p>Thank you for choosing Svalberg Motel. Your order is now confirmed.</p>
                 <?php if ($invoicePath && file_exists($invoicePath)): ?>
-                    <p>Du kan laste ned fakturaen ved å klikke på lenken nedenfor:</p>
-                    <a href="?filnavn=<?php echo urlencode(basename($invoicePath)); ?>&payment_id=<?php echo $payment_id; ?>" class="btn btn-success">Last ned faktura</a>
+                    <p>You can download the invoice by clicking on the link below:</p>
+                    <a href="?filnavn=<?php echo urlencode(basename($invoicePath)); ?>&payment_id=<?php echo $payment_id; ?>" class="btn btn-success">Download invoice</a>
                 <?php else: ?>
-                    <p>Din betaling ble behandlet med <?php echo htmlspecialchars($payment['payment_method']); ?>.</p>
+                    <p>Your payment was processed with <?php echo htmlspecialchars($payment['payment_method']); ?>.</p>
                 <?php endif; ?>
                 <form method="POST" class="mt-3">
-                    <button type="submit" name="done" class="btn btn-primary">Ferdig</button>
+                    <button type="submit" name="done" class="btn btn-primary">Ready</button>
                 </form>
             </div>
         </div>

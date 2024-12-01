@@ -3,13 +3,8 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-// Start session 
-//session_start(); 
-
 // Include functions 
 include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php");
-
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
 
 // This checks if information about the room is saved in the session
@@ -40,7 +35,6 @@ $checkout = date('d.m.Y', $checkout);
 
 
 ?>
-
 <html>
     <head>
     </head>
@@ -56,7 +50,7 @@ $checkout = date('d.m.Y', $checkout);
             </div>
             
             <div class="card bg-white" style="margin: 50px auto 25px auto;">
-                <h1 class="text-center" style="margin: 50px auto 25px auto;">Sammendrag</h1>
+                <h1 class="text-center" style="margin: 50px auto 25px auto;">Summary</h1>
                 <div class="row g-0 p-2">
                     <div class="col-md-4">    
                         <img
@@ -69,20 +63,20 @@ $checkout = date('d.m.Y', $checkout);
                             <div>
                                 <h5 class="card-title"><?php echo htmlspecialchars($type_name); ?></h5>
                                 <p class="card-text m-0 p-0">
-                                    <?php echo "Dato: " . htmlspecialchars($checkin) . " - " . htmlspecialchars($checkout); ?>
+                                    <?php echo "Date: " . htmlspecialchars($checkin) . " - " . htmlspecialchars($checkout); ?>
                                 </p>
                                 <p class="card-text m-0 p-0">
-                                    <?php echo "Antall voksen: " . htmlspecialchars($adults); ?>
+                                    <?php echo "Number of adults: " . htmlspecialchars($adults); ?>
                                 </p>
                                 <p class="card-text m-0 p-0">
-                                <?php echo "Antall barn: " . htmlspecialchars($children); ?>
+                                <?php echo "Number of children: " . htmlspecialchars($children); ?>
                                 </p>
                             </div>
                             <div class="row align-items-end mt-auto">
                                 <div class="col-5">
                                     <p class="card-text mb-0">
-                                        <strong>Etasje:</strong> <?php echo htmlspecialchars($floor); ?><br>
-                                        <strong>Nærhet til heis:</strong> <?php echo htmlspecialchars($nearElevator); ?><br>
+                                        <strong>Floor:</strong> <?php echo htmlspecialchars($floor); ?><br>
+                                        <strong>Proximity to lift:</strong> <?php echo htmlspecialchars($nearElevator); ?><br>
                                     </p>
                                 </div>
                             </div>
@@ -93,16 +87,16 @@ $checkout = date('d.m.Y', $checkout);
                     <table class="table">
                         <thead>
                             <tr>
-                                <th scope="col">Pris for rom</th>
+                                <th scope="col">Room price</th>
                                 <td class="text-end" scope="col"><?php echo htmlspecialchars($_SESSION['selected_room']['base_price']) . " NOK";?></td>              
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <!-- uses calculateMVA function -->
-                                <td scope="row"><?php echo "MVA 12%" . " NOK";?></td>
+                                <td scope="row"><?php echo "VAT 12%" . " NOK";?></td>
                                 <td class="text-end"><?php echo calculateMVA($_SESSION['selected_room']['base_price']) . " NOK";?>
-                                    <p>MVA er inkludert i prisen</p>
+                                    <p>VAT is included in the price</p>
                                 </td>
                             </tr>
                             <tr>
@@ -112,7 +106,7 @@ $checkout = date('d.m.Y', $checkout);
                         </tbody>
                     </table>
                     <div class="col d-flex justify-content-end">
-                        <a href="booking_4.php" class="btn msearch-btn w-50 mb-2">Neste</a>
+                        <a href="booking_4.php" class="btn msearch-btn w-50 mb-2">Next</a>
                     </div>
                 </div>
             </div>

@@ -31,11 +31,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
                 <div class="progress-bar bg-info" role="progressbar" style="width: 25%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
             </div> -->
             <div class="card w-75 bg-white" style="margin: 50px auto 25px auto;">
-                <h1 class="text-center" style="margin: 50px auto 25px auto;">Kontakinformasjon</h1>
+                <h1 class="text-center" style="margin: 50px auto 25px auto;">How do you want to proceed?</h1>
                 <div style="display: flex; flex-direction: column; align-items: center;">
-                    <a href="#" class="btn msearch-btn w-50 mb-2">Bli medlem</a>
-                    <a href="booking_2.php?action=login" class="btn msearch-btn w-50 mb-2">Logg inn</a>
-                    <a href="booking_3.php" class="btn msearch-btn w-50 mb-5">Fortsett uten å logge inn</a>
+                    <a href="#" class="btn msearch-btn w-50 mb-2">Become a member</a>
+                    <a href="booking_2.php?action=login" class="btn msearch-btn w-50 mb-2">Log in</a>
+                    <a href="booking_3.php" class="btn msearch-btn w-50 mb-5">Continue without logging in</a>
                 </div>
             </div>
         </div>
