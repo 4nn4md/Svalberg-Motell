@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bindParam(':password', $hashed_password);
 
             if ($stmt->execute()) {
-                echo "Registration successful! You can now log in.";
+               //echo "Registration successful! You can now log in.";
                 header("Location: login.php");
                 exit();
             } else {
