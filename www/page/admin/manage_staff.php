@@ -1,6 +1,7 @@
 <?php 
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -24,6 +25,10 @@ if (!$staffResult) {
 
 // Function to generate email based on first and last name with multiple formats, prioritizing certain options
 function generateEmail($firstName, $lastName, $pdo) {
+    // Sanitize the input first
+    $firstName = sanitize($firstName);
+    $lastName = sanitize($lastName);
+    
     // Primary Formats:
     // Format 1: First name + last name
     $email1 = strtolower($firstName) . strtolower($lastName) . '@svalberg.no';
@@ -82,11 +87,11 @@ function generateEmail($firstName, $lastName, $pdo) {
 
 // Handle adding new staff
 if (isset($_POST['add_staff'])) {
-    // Get form data
-    $firstName = $_POST['first_name'];
-    $lastName = $_POST['last_name'];
-    $position = $_POST['position'];
-    $password = $_POST['password'];
+    // Get form data and sanitize them
+    $firstName = sanitize($_POST['first_name']);
+    $lastName = sanitize($_POST['last_name']);
+    $position = sanitize($_POST['position']);
+    $password = sanitize($_POST['password']);
 
     // Generate email based on first and last name with multiple formats (and conflict resolution)
     $email = generateEmail($firstName, $lastName, $pdo);
@@ -135,7 +140,7 @@ if (isset($_POST['add_staff'])) {
 
 // Handle staff deletion
 if (isset($_GET['delete_id'])) {
-    $delete_id = $_GET['delete_id'];
+    $delete_id = sanitize($_GET['delete_id']); // Sanitize delete_id
     $deleteQuery = "DELETE FROM swx_staff WHERE staff_id = ?";
     $stmt = $pdo->prepare($deleteQuery);
     $stmt->bindParam(1, $delete_id, PDO::PARAM_INT);
@@ -242,12 +247,12 @@ if (isset($_GET['delete_id'])) {
             <tbody>
                 <?php while ($staff = $staffResult->fetch(PDO::FETCH_ASSOC)) { ?>
                     <tr>
-                        <td><?php echo $staff['email']; ?></td>
-                        <td><?php echo $staff['first_name'] . ' ' . $staff['last_name']; ?></td>
-                        <td><?php echo $staff['position']; ?></td>
+                        <td><?php echo htmlspecialchars($staff['email']); ?></td>
+                        <td><?php echo htmlspecialchars($staff['first_name']) . ' ' . htmlspecialchars($staff['last_name']); ?></td>
+                        <td><?php echo htmlspecialchars($staff['position']); ?></td>
                         <td>
-                            <a href="edit_staff.php?id=<?php echo $staff['staff_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="manage_staff.php?delete_id=<?php echo $staff['staff_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this staff member?')">Delete</a>
+                            <a href="edit_staff.php?id=<?php echo htmlspecialchars($staff['staff_id']); ?>" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="manage_staff.php?delete_id=<?php echo htmlspecialchars($staff['staff_id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this staff member?')">Delete</a>
                         </td>
                     </tr>
                 <?php } ?>
@@ -270,4 +275,4 @@ if (isset($_GET['delete_id'])) {
 </script>
 
 </body>
-</html>
+</html> 

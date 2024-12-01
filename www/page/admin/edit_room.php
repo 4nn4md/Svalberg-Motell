@@ -1,6 +1,7 @@
 <?php
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -10,7 +11,7 @@ if ($_SESSION['role'] !== 'Admin') {
 
 // Fetch room data for editing
 if (isset($_GET['id'])) {
-    $room_id = $_GET['id'];
+    $room_id = sanitize($_GET['id']); // Sanitize the room ID from the URL
     $roomQuery = "SELECT r.room_id, r.room_type, r.nearElevator, r.floor, r.availability, r.under_construction, 
                          rt.max_capacity, rt.price, rt.description
                   FROM swx_room r
@@ -27,14 +28,14 @@ if (isset($_GET['id'])) {
 
 // Handle editing the room
 if (isset($_POST['edit_room'])) {
-    // Get all the form values
-    $room_type = $_POST['room_type'];
-    $nearElevator = $_POST['nearElevator'];
-    $floor = $_POST['floor'];
-    $availability = $_POST['availability'];
-    $under_construction = $_POST['under_construction'];
-    $price = $_POST['price'];
-    $description = $_POST['description'];
+    // Get and sanitize all the form values
+    $room_type = sanitize($_POST['room_type']);
+    $nearElevator = sanitize($_POST['nearElevator']);
+    $floor = sanitize($_POST['floor']);
+    $availability = sanitize($_POST['availability']);
+    $under_construction = sanitize($_POST['under_construction']);
+    $price = sanitize($_POST['price']);
+    $description = sanitize($_POST['description']);
 
     // PHP Validation
     if (!in_array($floor, [1, 2])) {
@@ -114,12 +115,12 @@ if (isset($_POST['edit_room'])) {
     <!-- Edit Room Form -->
     <div class="card">
         <h3>Edit Room Information</h3>
-        <form method="POST" action="edit_room.php?id=<?php echo $roomResult['room_id']; ?>">
+        <form method="POST" action="edit_room.php?id=<?php echo sanitize($roomResult['room_id']); ?>">
 
             <!-- Room ID (Optional if you allow editing) -->
             <div class="mb-3">
                 <label for="room_id" class="form-label">Room ID</label>
-                <input type="text" class="form-control" id="room_id" name="room_id" value="<?php echo $roomResult['room_id']; ?>" readonly>
+                <input type="text" class="form-control" id="room_id" name="room_id" value="<?php echo sanitize($roomResult['room_id']); ?>" readonly>
             </div>
 
             <!-- Room Type -->
@@ -142,19 +143,19 @@ if (isset($_POST['edit_room'])) {
             <!-- Max Capacity (Readonly as it should be managed in room_type) -->
             <div class="mb-3">
                 <label for="max_capacity" class="form-label">Max Capacity</label>
-                <input type="number" class="form-control" id="max_capacity" name="max_capacity" value="<?php echo $roomResult['max_capacity']; ?>" readonly>
+                <input type="number" class="form-control" id="max_capacity" name="max_capacity" value="<?php echo sanitize($roomResult['max_capacity']); ?>" readonly>
             </div>
 
             <!-- Price -->
             <div class="mb-3">
                 <label for="price" class="form-label">Price</label>
-                <input type="number" class="form-control" id="price" name="price" value="<?php echo $roomResult['price']; ?>" required>
+                <input type="number" class="form-control" id="price" name="price" value="<?php echo sanitize($roomResult['price']); ?>" required>
             </div>
 
             <!-- Description -->
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="4" required><?php echo $roomResult['description']; ?></textarea>
+                <textarea class="form-control" id="description" name="description" rows="4" required><?php echo sanitize($roomResult['description']); ?></textarea>
             </div>
 
             <!-- Other Fields (Near Elevator, Floor, Availability, Under Construction) -->

@@ -1,12 +1,16 @@
 <?php
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
     header("Location: login.php");
     exit();
 }
+
+// Sanitize session data
+$role = sanitize($_SESSION['role']); // Example of sanitizing session data
 
 // Fetch room information
 $roomQuery = "SELECT COUNT(*) AS total_rooms, SUM(CASE WHEN availability = 'ledig' THEN 1 ELSE 0 END) AS available_rooms FROM swx_room";  
@@ -15,6 +19,10 @@ if (!$roomResult) {
     die("Error executing room query: " . $pdo->errorInfo()[2]);
 }
 $roomData = $roomResult->fetch(PDO::FETCH_ASSOC);
+
+// Sanitize room data (although it's already safe from SQL injection)
+$total_rooms = sanitize($roomData['total_rooms']);
+$available_rooms = sanitize($roomData['available_rooms']);
 
 // Fetch staff information (assuming 'staff' table)
 $staffQuery = "SELECT staff_id, email FROM swx_staff";  // Staff are stored in the 'staff' table
@@ -61,8 +69,8 @@ if (!$guestResult) {
         <div class="card">
             <i class="fas fa-bed"></i>
             <h3>Room Overview</h3>
-            <p>Total Rooms: <?php echo $roomData['total_rooms']; ?></p>
-            <p>Available Rooms: <?php echo $roomData['available_rooms']; ?></p>
+            <p>Total Rooms: <?php echo htmlspecialchars($total_rooms); ?></p>
+            <p>Available Rooms: <?php echo htmlspecialchars($available_rooms); ?></p>
             <a href="manage_rooms.php">Manage Rooms</a>
         </div>
 

@@ -1,10 +1,11 @@
 <?php
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Read the input data from the JavaScript request
 $inputData = json_decode(file_get_contents('php://input'), true);
-$firstName = $inputData['firstName'];
-$lastName = $inputData['lastName'];
+$firstName = sanitize($inputData['firstName']);  // Sanitize first name
+$lastName = sanitize($inputData['lastName']);    // Sanitize last name
 
 // Function to generate a random email based on multiple formats
 function generateEmail($firstName, $lastName, $pdo) {

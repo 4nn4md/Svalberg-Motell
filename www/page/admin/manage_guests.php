@@ -1,6 +1,7 @@
 <?php
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -61,11 +62,12 @@ try {
             <tbody>
                 <?php foreach ($guests as $guest) { ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($guest['username']); ?></td>
-                        <td><?php echo htmlspecialchars($guest['firstName'] . ' ' . $guest['lastName']); ?></td>
-                        <td><?php echo htmlspecialchars($guest['tlf']); ?></td>
+                        <!-- Sanitize guest data before outputting -->
+                        <td><?php echo htmlspecialchars(sanitize($guest['username'])); ?></td>
+                        <td><?php echo htmlspecialchars(sanitize($guest['firstName'])) . ' ' . htmlspecialchars(sanitize($guest['lastName'])); ?></td>
+                        <td><?php echo htmlspecialchars(sanitize($guest['tlf'])); ?></td>
                         <td>
-                            <a href="view_guest.php?id=<?php echo $guest['user_id']; ?>" class="btn btn-info btn-sm">View</a>
+                            <a href="view_guest.php?id=<?php echo htmlspecialchars(sanitize($guest['user_id'])); ?>" class="btn btn-info btn-sm">View</a>
                         </td>
                     </tr>
                 <?php } ?>

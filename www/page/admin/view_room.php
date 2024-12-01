@@ -1,6 +1,7 @@
 <?php 
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -12,7 +13,7 @@ if ($_SESSION['role'] !== 'Admin') {
 $today = date('Y-m-d');
 
 // Fetch room details based on room_id passed from URL (e.g., view_room.php?id=1)
-$roomId = $_GET['id'] ?? null;
+$roomId = isset($_GET['id']) ? sanitize($_GET['id']) : null; // Sanitize the room ID from the URL
 if (!$roomId) {
     echo "Room ID is required.";
     exit();
@@ -78,13 +79,13 @@ if (!empty($bookings)) {
 
     <div class="card">
         <div class="card-header">
-            <h3><?php echo htmlspecialchars($room['room_type']); ?> (Room ID: <?php echo $room['room_id']; ?>)</h3>
+            <h3><?php echo htmlspecialchars(sanitize($room['room_type'])); ?> (Room ID: <?php echo htmlspecialchars(sanitize($room['room_id'])); ?>)</h3>
         </div>
         <div class="card-body">
-            <p><strong>Floor:</strong> <?php echo htmlspecialchars($room['floor']); ?></p>
-            <p><strong>Near Elevator:</strong> <?php echo htmlspecialchars($room['nearElevator']); ?></p>
-            <p><strong>Max Capacity:</strong> <?php echo htmlspecialchars($room['max_capacity']); ?></p>
-            <p><strong>Availability:</strong> <?php echo $roomAvailability; ?></p>
+            <p><strong>Floor:</strong> <?php echo htmlspecialchars(sanitize($room['floor'])); ?></p>
+            <p><strong>Near Elevator:</strong> <?php echo htmlspecialchars(sanitize($room['nearElevator'])); ?></p>
+            <p><strong>Max Capacity:</strong> <?php echo htmlspecialchars(sanitize($room['max_capacity'])); ?></p>
+            <p><strong>Availability:</strong> <?php echo htmlspecialchars(sanitize($roomAvailability)); ?></p>
 
             <h4>Upcoming Bookings:</h4>
             <?php if (empty($bookings)) { ?>
@@ -102,10 +103,10 @@ if (!empty($bookings)) {
                     <tbody>
                         <?php foreach ($bookings as $booking) { ?>
                             <tr>
-                                <td><?php echo $booking['booking_id']; ?></td>
-                                <td><?php echo htmlspecialchars($booking['guest_name']); ?></td>
-                                <td><?php echo $booking['check_in_date']; ?></td>
-                                <td><?php echo $booking['check_out_date']; ?></td>
+                                <td><?php echo htmlspecialchars(sanitize($booking['booking_id'])); ?></td>
+                                <td><?php echo htmlspecialchars(sanitize($booking['guest_name'])); ?></td>
+                                <td><?php echo htmlspecialchars(sanitize($booking['check_in_date'])); ?></td>
+                                <td><?php echo htmlspecialchars(sanitize($booking['check_out_date'])); ?></td>
                             </tr>
                         <?php } ?>
                     </tbody>
@@ -117,4 +118,3 @@ if (!empty($bookings)) {
 
 </body>
 </html>
-
