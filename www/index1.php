@@ -94,8 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <!-- Second Section-->
 <section class="secondSection">
     <div class="container text-center">
-        <h2>Velkommen til Svalberg Motell!</h2>
-        <p>- ditt hjem ved havet og fjellene.</p>
+        <h2>Welcome to Svalberg Motel!</h2>
+        <p>- your home by the sea and the mountains.</p>
     </div>
 
     <div id="carouselExample" class="carousel slide">
@@ -103,22 +103,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="carousel-item active">
                 <img src="assets/image/index1/Hjem4.jpg" class="d-block w-100" alt="...">
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>Opplev roen</h5>
-                    <p>Unike naturopplevelser venter på deg.</p>
+                    <h5>Experience the peace</h5>
+                    <p>Unique nature experiences are waiting for you.</p>
                 </div>
             </div>
             <div class="carousel-item">
                 <img src="assets/image/index1/Hjem3.jpg" class="d-block w-100" alt="...">
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>Familieferie</h5>
-                    <p>Lag minner med de du elsker.</p>
+                    <h5>Family vacation</h5>
+                    <p>Create memories with those you love.</p>
                 </div>
             </div>
             <div class="carousel-item">
                 <img src="assets/image/index1/Hjem5.jpg" class="d-block w-100" alt="...">
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>Naturopplevelser</h5>
-                    <p>Oppdag den vakre naturen rundt oss.</p>
+                    <h5>Nature experiences</h5>
+                    <p>Discover the beautiful nature around us.</p>
                 </div>
             </div>
         </div>
@@ -142,17 +142,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <img src="assets/image/index1/Hjem7.jpg" class="img-fluid" alt="Image description">
             </div>
             <div class="col-md-6">
-                <h3>Oppdag våre fasiliteter</h3>
-                <p>Vi tilbyr komfortable rom, utendørs aktiviteter og fantastiske opplevelser. Vårt motell er det perfekte stedet for avslapning og eventyr.</p>
-                <button class="btn custom-btn mt-3">Les mer</button>
+                <h3>Discover our facilities</h3>
+                <p>We offer comfortable rooms, outdoor activities, and amazing experiences. Our motel is the perfect place for relaxation and adventure</p>
+                <button class="btn custom-btn mt-3">Read more</button>
             </div>
         </div>
 
         <div class="row align-items-center mb-4">
             <div class="col-md-6">
-                <h3>En uforglemmelig opplevelse</h3>
-                <p>Vi har et bredt utvalg av aktiviteter for hele familien. Uansett hva du leter etter, vil du finne det her.</p>
-                <button class="btn custom-btn mt-3">Les mer</button>
+                <h3>An unforgettable experience</h3>
+                <p>We have a wide range of activities for the whole family. Whatever you're looking for, you'll find it here.</p>
+                <button class="btn custom-btn mt-3">Read more</button>
             </div>
             <div class="col-md-6">
                 <img src="assets/image/index1/Hjem5.jpg" class="img-fluid" alt="Image description">
