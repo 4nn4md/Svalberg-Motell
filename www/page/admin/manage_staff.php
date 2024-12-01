@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 
@@ -8,50 +8,76 @@ if ($_SESSION['role'] !== 'Admin') {
     exit();
 }
 
+// Initialize error message variable
+$message = "";
+$message_type = "";
+
+// Define the $position variable to avoid the undefined variable error
+$position = ""; // Default empty value for the position
+
 // Fetch staff information
 $staffQuery = "SELECT staff_id, email, name, position FROM swx_staff";
-$staffResult = mysqli_query($conn, $staffQuery);
+$staffResult = $pdo->query($staffQuery); // Use PDO query method
 if (!$staffResult) {
-    die("Error executing staff query: " . mysqli_error($conn));
+    die("Error executing staff query: " . $pdo->errorInfo()[2]);
 }
 
 // Handle adding new staff
 if (isset($_POST['add_staff'])) {
+    // Get form data
     $email = $_POST['email'];
     $name = $_POST['name'];
-    $position = $_POST['position'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $position = $_POST['position'];  // Now we assign the position from the form input
+    $password = $_POST['password'];
 
-    // Email validation: Check if email ends with '@svalberg.no'
-    if (!preg_match("/^[a-zA-Z0-9._%+-]+@svalberg\.no$/", $email)) {
-        // If email doesn't match the required pattern, show an error message
+    // PHP Validation for fields
+    if (empty($email)) {
+        $message = "Email is required.";
+        $message_type = "error";
+    } elseif (!preg_match("/^[a-zA-Z0-9._%+-]+@svalberg\.no$/", $email)) {
         $message = "Error: The email must end with @svalberg.no.";
         $message_type = "error";
+    } elseif (empty($name)) {
+        $message = "Name is required.";
+        $message_type = "error";
+    } elseif (empty($password)) {
+        $message = "Password is required.";
+        $message_type = "error";
+    } elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d.*\d)(?=.*[\W_]).{9,}$/', $password)) {
+        $message = "Password must be at least 9 characters long, contain one uppercase letter, two digits, and one special character.";
+        $message_type = "error";
+    } elseif (empty($position)) {
+        $message = "Position is required.";
+        $message_type = "error";
     } else {
-        // Email validation: Check if email already exists
+        // Check if email already exists
         $duplicateEmailQuery = "SELECT staff_id FROM swx_staff WHERE email = ?";
-        $stmt = $conn->prepare($duplicateEmailQuery);
-        $stmt->bind_param("s", $email);
+        $stmt = $pdo->prepare($duplicateEmailQuery);
+        $stmt->bindParam(1, $email, PDO::PARAM_STR);
         $stmt->execute();
-        $stmt->store_result();
 
-        if ($stmt->num_rows > 0) {
-            // Duplicate email found
+        if ($stmt->rowCount() > 0) {
             $message = "Error: The email is already taken. Please choose a different email.";
             $message_type = "error";
         } else {
-            // Email is valid, insert new staff into the database
+            // Hash the password
+            $password_hashed = password_hash($password, PASSWORD_DEFAULT);
+
+            // Insert new staff into the database
             $insertQuery = "INSERT INTO swx_staff (email, password, position, name) VALUES (?, ?, ?, ?)";
-            $stmt = $conn->prepare($insertQuery);
-            $stmt->bind_param("ssss", $email, $password, $position, $name);
+            $stmt = $pdo->prepare($insertQuery);
+            $stmt->bindParam(1, $email, PDO::PARAM_STR);
+            $stmt->bindParam(2, $password_hashed, PDO::PARAM_STR);
+            $stmt->bindParam(3, $position, PDO::PARAM_STR);
+            $stmt->bindParam(4, $name, PDO::PARAM_STR);
+
             if ($stmt->execute()) {
                 $message = "Staff member added successfully!";
                 $message_type = "success";
             } else {
-                $message = "Error adding staff: " . mysqli_error($conn);
+                $message = "Error adding staff: " . $pdo->errorInfo()[2];
                 $message_type = "error";
             }
-            $stmt->close();
         }
     }
 }
@@ -60,20 +86,19 @@ if (isset($_POST['add_staff'])) {
 if (isset($_GET['delete_id'])) {
     $delete_id = $_GET['delete_id'];
     $deleteQuery = "DELETE FROM swx_staff WHERE staff_id = ?";
-    $stmt = $conn->prepare($deleteQuery);
-    $stmt->bind_param("i", $delete_id);
+    $stmt = $pdo->prepare($deleteQuery);
+    $stmt->bindParam(1, $delete_id, PDO::PARAM_INT);
     if ($stmt->execute()) {
         $message = "Staff member deleted successfully!";
         $message_type = "success";
     } else {
-        $message = "Error deleting staff: " . mysqli_error($conn);
+        $message = "Error deleting staff: " . $pdo->errorInfo()[2];
         $message_type = "error";
     }
-    $stmt->close();
 
     // Redirect to the same page after deletion to avoid re-triggering the deletion on back
-    header("Location: manage_staff.php"); // Redirect to the same page
-    exit(); // Ensure no further code is executed after redirect
+    header("Location: manage_staff.php");
+    exit();
 }
 ?>
 
@@ -108,33 +133,45 @@ if (isset($_GET['delete_id'])) {
     <!-- Button to toggle visibility of the Add Staff form -->
     <button class="btn btn-success add-button" onclick="toggleForm()">Add New Staff Member</button>
 
+    <!-- Show Message -->
+    <?php if ($message) { ?>
+        <div class="alert alert-<?php echo $message_type; ?> message">
+            <?php echo $message; ?>
+        </div>
+    <?php } ?>
+
     <!-- Add New Staff Form -->
     <div class="card" id="addStaffForm">
         <h3>Add New Staff Member</h3>
         <form method="POST" action="manage_staff.php">
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+                <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" placeholder="Enter email" required>
             </div>
+
             <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" name="name" required>
+                <input type="text" class="form-control" id="name" name="name" value="<?php echo htmlspecialchars($name ?? ''); ?>" placeholder="Enter name" required>
             </div>
+
             <div class="mb-3">
                 <label for="position" class="form-label">Position</label>
                 <select class="form-control" id="position" name="position" required>
-                    <option value="Admin">Admin</option>
-                    <option value="Staff">Staff</option>
-                    <option value="Manager">Manager</option>
-                    <option value="Receptionist">Receptionist</option>
-                    <option value="Housekeeper">Housekeeper</option>
-                    <option value="Maintenance">Maintenance</option>
+                    <option value="" disabled selected>Select Position</option>
+                    <option value="Admin" <?php echo ($position == 'Admin') ? 'selected' : ''; ?>>Admin</option>
+                    <option value="Staff" <?php echo ($position == 'Staff') ? 'selected' : ''; ?>>Staff</option>
+                    <option value="Manager" <?php echo ($position == 'Manager') ? 'selected' : ''; ?>>Manager</option>
+                    <option value="Receptionist" <?php echo ($position == 'Receptionist') ? 'selected' : ''; ?>>Receptionist</option>
+                    <option value="Housekeeper" <?php echo ($position == 'Housekeeper') ? 'selected' : ''; ?>>Housekeeper</option>
+                    <option value="Maintenance" <?php echo ($position == 'Maintenance') ? 'selected' : ''; ?>>Maintenance</option>
                 </select>
             </div>
+
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <input type="password" class="form-control" id="password" name="password" value="<?php echo htmlspecialchars($password ?? ''); ?>" placeholder="Enter password" required>
             </div>
+
             <button type="submit" name="add_staff" class="btn btn-primary">Add Staff</button>
         </form>
     </div>
@@ -152,13 +189,12 @@ if (isset($_GET['delete_id'])) {
                 </tr>
             </thead>
             <tbody>
-                <?php while ($staff = mysqli_fetch_assoc($staffResult)) { ?>
+                <?php while ($staff = $staffResult->fetch(PDO::FETCH_ASSOC)) { ?>
                     <tr>
                         <td><?php echo $staff['email']; ?></td>
                         <td><?php echo $staff['name']; ?></td>
                         <td><?php echo $staff['position']; ?></td>
                         <td>
-                            <!-- Edit and Delete buttons for staff -->
                             <a href="edit_staff.php?id=<?php echo $staff['staff_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
                             <a href="manage_staff.php?delete_id=<?php echo $staff['staff_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this staff member?')">Delete</a>
                         </td>
@@ -170,24 +206,6 @@ if (isset($_GET['delete_id'])) {
 
 </div>
 
-<!-- Modal for Success/Error Messages -->
-<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="messageModalLabel">Staff Management</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><?php echo isset($message) ? $message : ''; ?></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Bootstrap JS and Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
@@ -196,18 +214,8 @@ if (isset($_GET['delete_id'])) {
     // Function to toggle the visibility of the Add Staff Form
     function toggleForm() {
         var form = document.getElementById('addStaffForm');
-        if (form.style.display === "none" || form.style.display === "") {
-            form.style.display = "block";
-        } else {
-            form.style.display = "none";
-        }
+        form.style.display = form.style.display === "none" ? "block" : "none";
     }
-
-    // Show the modal if there is a message
-    <?php if (isset($message)) { ?>
-        var myModal = new bootstrap.Modal(document.getElementById('messageModal'));
-        myModal.show();
-    <?php } ?>
 </script>
 
 </body>

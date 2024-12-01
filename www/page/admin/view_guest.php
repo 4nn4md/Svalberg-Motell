@@ -11,15 +11,15 @@ if ($_SESSION['role'] !== 'Admin') {
 if (isset($_GET['id'])) {
     $guest_id = $_GET['id'];
 
-    // Fetch guest details
+    // Fetch guest details using PDO
     $guestQuery = "SELECT user_id, firstName, lastName, username, tlf FROM swx_users WHERE user_id = ?";
-    $stmt = $conn->prepare($guestQuery);
-    $stmt->bind_param("i", $guest_id);
+    $stmt = $pdo->prepare($guestQuery);
+    $stmt->bindParam(1, $guest_id, PDO::PARAM_INT);
     $stmt->execute();
-    $guestResult = $stmt->get_result();
+    $guestResult = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($guestResult->num_rows > 0) {
-        $guest = $guestResult->fetch_assoc();
+    if ($guestResult) {
+        $guest = $guestResult;
     } else {
         die("Guest not found.");
     }
@@ -27,13 +27,13 @@ if (isset($_GET['id'])) {
     // Fetch the bookings for this guest
     $bookingQuery = "SELECT b.check_in_date, b.check_out_date, r.room_id, rt.type_name AS room_type
                      FROM swx_booking b
-                     JOIN room r ON b.room_id = r.room_id
-                     JOIN room_type rt ON r.room_type = rt.type_id
+                     JOIN swx_room r ON b.room_id = r.room_id
+                     JOIN swx_room_type rt ON r.room_type = rt.type_id
                      WHERE b.user_id = ?";
-    $stmt = $conn->prepare($bookingQuery);
-    $stmt->bind_param("i", $guest_id);
+    $stmt = $pdo->prepare($bookingQuery);
+    $stmt->bindParam(1, $guest_id, PDO::PARAM_INT);
     $stmt->execute();
-    $bookingResult = $stmt->get_result();
+    $bookingResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
     die("No guest ID provided.");
 }
@@ -67,9 +67,9 @@ if (isset($_GET['id'])) {
 
     <div class="card">
         <h3>Guest Details</h3>
-        <p><strong>Name:</strong> <?php echo $guest['firstName'] . ' ' . $guest['lastName']; ?></p>
-        <p><strong>Username:</strong> <?php echo $guest['username']; ?></p>
-        <p><strong>Phone:</strong> <?php echo $guest['tlf']; ?></p>
+        <p><strong>Name:</strong> <?php echo htmlspecialchars($guest['firstName'] . ' ' . $guest['lastName']); ?></p>
+        <p><strong>Username:</strong> <?php echo htmlspecialchars($guest['username']); ?></p>
+        <p><strong>Phone:</strong> <?php echo htmlspecialchars($guest['tlf']); ?></p>
     </div>
 
     <div class="card">
@@ -85,13 +85,13 @@ if (isset($_GET['id'])) {
             </thead>
             <tbody>
                 <?php
-                if ($bookingResult->num_rows > 0) {
-                    while ($booking = $bookingResult->fetch_assoc()) {
+                if (count($bookingResult) > 0) {
+                    foreach ($bookingResult as $booking) {
                         echo "<tr>";
-                        echo "<td>" . $booking['room_number'] . "</td>";
-                        echo "<td>" . $booking['room_type'] . "</td>";
-                        echo "<td>" . $booking['check_in_date'] . "</td>";
-                        echo "<td>" . $booking['check_out_date'] . "</td>";
+                        echo "<td>" . htmlspecialchars($booking['room_id']) . "</td>";
+                        echo "<td>" . htmlspecialchars($booking['room_type']) . "</td>";
+                        echo "<td>" . htmlspecialchars($booking['check_in_date']) . "</td>";
+                        echo "<td>" . htmlspecialchars($booking['check_out_date']) . "</td>";
                         echo "</tr>";
                     }
                 } else {

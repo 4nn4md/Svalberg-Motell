@@ -8,13 +8,16 @@ if ($_SESSION['role'] !== 'Admin') {
     exit();
 }
 
-// Fetch guest information from the database
-$guestQuery = "SELECT user_id, firstName, lastName, username, tlf FROM swx_users"; // Changed 'email' to 'username'
-$guestResult = mysqli_query($conn, $guestQuery);
-if (!$guestResult) {
-    die("Error executing guest query: " . mysqli_error($conn));
-}
+// Fetch guest information from the database using PDO
+try {
+    $guestQuery = "SELECT user_id, firstName, lastName, username, tlf FROM swx_users";
+    $guestResult = $pdo->query($guestQuery); // Use PDO query method
 
+    // Fetch all guest data as associative array
+    $guests = $guestResult->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Error executing guest query: " . $e->getMessage());
+}
 ?>
 
 <!DOCTYPE html>
@@ -49,20 +52,19 @@ if (!$guestResult) {
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Username</th> <!-- Changed 'Email' to 'Username' -->
+                    <th>Username</th>
                     <th>Name</th>
                     <th>Phone</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php while ($guest = mysqli_fetch_assoc($guestResult)) { ?>
+                <?php foreach ($guests as $guest) { ?>
                     <tr>
-                        <td><?php echo $guest['username']; ?></td> <!-- Displaying 'username' instead of 'email' -->
-                        <td><?php echo $guest['firstName'] . ' ' . $guest['lastName']; ?></td>
-                        <td><?php echo $guest['tlf']; ?></td>
+                        <td><?php echo htmlspecialchars($guest['username']); ?></td>
+                        <td><?php echo htmlspecialchars($guest['firstName'] . ' ' . $guest['lastName']); ?></td>
+                        <td><?php echo htmlspecialchars($guest['tlf']); ?></td>
                         <td>
-                            <!-- Add any actions for the guests here -->
                             <a href="view_guest.php?id=<?php echo $guest['user_id']; ?>" class="btn btn-info btn-sm">View</a>
                         </td>
                     </tr>
