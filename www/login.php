@@ -114,16 +114,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 } elseif ($role == 'Maintenance') {
                     header("Location: maintenance_dashboard.php");
                 } else {
+                    if (isset($_SESSION['redirect_step'])) {
+                        error_log("Redirect step found: " . $_SESSION['redirect_step']);
+                        $redirect_step = $_SESSION['redirect_step'];
+                        unset($_SESSION['redirect_step']);
+                        header("Location: page/user/$redirect_step.php");
+                        exit();
+                    } else {
+                        error_log("No redirect step found. Redirecting to index1.php.");
                         header("Location: index1.php");
                         exit();
                     }
                 }
+                exit();
             } else {
                 // Handle failed login attempt
                 handle_failed_attempt($email);
             }
         }
     }
+}
 
 // Function to handle failed login attempts
 function handle_failed_attempt($email) {

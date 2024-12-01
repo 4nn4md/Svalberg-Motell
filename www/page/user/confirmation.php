@@ -17,28 +17,32 @@ $pdfDir = __DIR__ . '/../../tmp/';
 
 // Sjekk om `payment_id` er sendt via GET
 if (!isset($_GET['payment_id'])) {
-    die("Ingen betaling spesifisert.");
+    log_error(new Exception("No payment ID specified"));
+    echo "No payment specified.";
+    exit();
 }
 
 $payment_id = (int)$_GET['payment_id'];
 
 // Hent betalingsinformasjon fra databasen
-$stmt = $pdo->prepare("SELECT payment_method, invoice_path FROM swx_payment WHERE payment_id = :payment_id");
-$stmt->execute([':payment_id' => $payment_id]);
-$payment = $stmt->fetch(PDO::FETCH_ASSOC);
+try{
+    $stmt = $pdo->prepare("SELECT payment_method, invoice_path FROM swx_payment WHERE payment_id = :payment_id");
+    $stmt->execute([':payment_id' => $payment_id]);
+    $payment = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$payment) {
-    die("Betalingsinformasjon ikke funnet.");
+    if (!$payment) {
+        log_error(new Exception("Payment information not found for payment_id: $payment_id"));
+        echo "Payment information not found.";
+        exit();
+    }
+} catch (PDOException $e){
+    log_error($e);
+    echo "Database error occurred.";
+    exit;
 }
 
 // Fakturafilens sti
 $invoicePath = !empty($payment['invoice_path']) ? $pdfDir . sanitize($payment['invoice_path']) : null;
-
-// Feilsøk hvis lenken ikke vises
-/*var_dump($payment['invoice_path'], $invoicePath);
-if ($invoicePath && !file_exists($invoicePath)) {
-    die("Filen eksisterer ikke på stien: " . $invoicePath);
-}*/
 
 // Sjekk om en nedlastingsforespørsel er sendt via `filnavn`
 if (isset($_GET['filnavn']) && isset($_GET['payment_id'])) {
@@ -63,7 +67,9 @@ if (isset($_GET['filnavn']) && isset($_GET['payment_id'])) {
         readfile($filepath);
         exit();
     } else {
-        die("<h1>Feil: Filen \"$filename\" eksisterer ikke.</h1>");
+        log_error(new Exception("File \"$filename\" does not exist at path: $filepath"));
+        echo "Error: File \"$filename\" does not exist.";
+        exit;
     }
 }
 ?>

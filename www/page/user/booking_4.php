@@ -8,6 +8,8 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functi
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php");
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/ValidateController.php");
 
+$error_message = "";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get form data
     $fname = $_POST['fname'];
@@ -16,7 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $country_code = $_POST['country_code'];
     $mobile = $_POST['mobile'];
     $message = $_POST['message'];
-    $choosePayment = $_POST['choosePayment'];
+
+    if (!isset($_POST['choosePayment']) || empty($_POST['choosePayment'])){
+        $error_message = "Please choose a payment method.";
+    }else {
+        $choosePayment = $_POST['choosePayment'];
+    }
+    
     $total_price = $_SESSION['selected_room']['total_price']; // Use total_price from session
 
     // Combine country code and mobile number
@@ -124,10 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($pdo->inTransaction()) { // Check if a transaction is active
                 $pdo->rollBack();
             }
-    
-            // Log and display error message for debugging
-            error_log("Error: " . $e->getMessage());
-            echo "Error: " . $e->getMessage();
+            log_error($e);
         }
     }
   
@@ -191,6 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input class="form-check-input" type="radio" value="Invoice" id="flexCheckChecked" name="choosePayment">
                         <label class="form-check-label" for="flexCheckChecked">Faktura</label>
                     </div>
+                    <?php if($error_message) { echo "<p style='color: red;'>$error_message</p>";}?>
                     <div class="col-12">
                         <div >
                             <table class="table">

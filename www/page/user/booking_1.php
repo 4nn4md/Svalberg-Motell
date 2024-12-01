@@ -113,9 +113,13 @@ $q = $pdo->prepare($sql);
 
 // Execute the query with the parameters
 try {
-    $q->execute($params);
-} catch (PDOException $E) {
-    echo "Feil ved tilkobling: ". $E->getMessage();
+    foreach ($params as $key => $value){
+        $q->bindValue($key, $value);
+    }
+    $q->execute(); // Execute query
+} catch (PDOException $e) {
+    log_error($e);
+    echo "<br>Sorry, something went wrong. Please try again later.<br>";
 }
 ?>
 

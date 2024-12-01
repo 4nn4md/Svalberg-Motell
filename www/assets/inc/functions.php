@@ -45,4 +45,21 @@ function calculateMVA($base_price){
     return $base_priceMVA; 
 }
 
+function log_error($e) {
+    $error_message = "Error time: " . date('d-m-y H:i:s') . " - Error message: " . $e->getMessage() . "\n";
+    
+    // Path to the log file
+    $log_file = $_SERVER['DOCUMENT_ROOT'] . '/Svalberg-Motell/private/log/log.txt';
+
+    // Check if the directory is writable, if not, change permissions
+    if (!is_writable($log_file)) {
+        // Give full access (read, write, execute) to the log file
+        // Be careful with this in production as it gives full access to everyone
+        chmod($log_file, 0666);  // Change permissions to 666 (read/write for owner, group, and others)
+    }
+
+    // Write the error message to the log file
+    file_put_contents($log_file, $error_message, FILE_APPEND);
+}
+
 ?>
