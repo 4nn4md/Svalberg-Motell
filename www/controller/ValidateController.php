@@ -3,7 +3,40 @@
 class Validering{
     // All error message will be placed in this array
     private $validateError = [];
+    
+    // Validate for homepage
+    public function validereDato($arrival, $departure) {
+        $dagensDato = new DateTime();
+        $arrivalDate = DateTime::createFromFormat('Y-m-d', $arrival); 
+        $departureDate = DateTime::createFromFormat('Y-m-d', $departure); 
+        if ($arrivalDate < $dagensDato || $departureDate < $dagensDato) {
+            $this->validateError[] = "Selected date $arrival cannot be today or a past date.";
+        }
 
+        if ($arrivalDate == $departureDate){
+            $this->validateError[] = "Cant arrive and departure on the same day.";
+        }
+
+        if ($departureDate < $arrivalDate) {
+            $this->validateError[] = "Departure date cannot be earlier than arrival date.";
+        }
+    }
+
+    public function emptyInput($location, $checkin, $checkout, $adults, $children){
+        if (empty($location) || empty($checkin) || empty($checkout) || empty($adults) || empty($children)) {
+            $this->validateError[] = "No fields can be empty.";
+        }
+    }
+
+    public function hasToHaveAdult($adult){
+        if($adult < 1){
+            $this->validateError[] = "Has to at least have one adult.";
+        }
+    }
+
+
+
+    // -----------
     function validereFornavn($fname){
         // Checks if the name contains numbers
         if (!is_string($fname)){
@@ -81,7 +114,7 @@ class Validering{
         return $this->validateError;
     }
 
- 
+    
     
     
     

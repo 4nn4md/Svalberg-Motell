@@ -54,15 +54,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
             // Initialize user_id as NULL
             $user_id = NULL;
-            if (isset($_SESSION['username'])) {
+            if (isset($_SESSION['email'])) {
                 // Get user_id based on the username in session
-                $username = $_SESSION['username'];
-                $stmt = $pdo->prepare("SELECT user_id FROM swx_users WHERE username = :username");
+                $username = $_SESSION['email'];
+                $stmt = $pdo->prepare("SELECT user_id, point FROM swx_users WHERE username = :username");
                 $stmt->execute([':username' => $username]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
+                // This update the point colum in user table, to be used as a loyalty program later. 
                 if ($user) {
                     $user_id = $user['user_id'];
+
+                    $current_points = $user['point'];
+                    $new_points = $current_points + $total_price;
+
+                    $stmt = $pdo->prepare("UPDATE swx_users SET point = :point WHERE username = :username");
+                    $stmt->execute([
+                        ':point' => $new_points,
+                        ':username' => $username
+                    ]);
                 }
             }
     
