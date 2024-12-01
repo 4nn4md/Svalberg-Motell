@@ -41,9 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'checkout' => $_POST['checkout'],
             'base_price' => $_POST['base_price']
         ];
-
-        // Redirect to booking_2.php after selecting a room
-        header('Location: booking_2.php');
+        
+        if(isset($_SESSION['email']) && !empty($_SESSION['email'])){
+            header('Location: booking_3.php');
+            exit();
+        }else {
+            header('Location: booking_2.php');
+            exit();
+        }
         exit();
     } else {
         // This is for the filter form, staying on the same page (booking_1.php)
