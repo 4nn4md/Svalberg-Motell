@@ -36,12 +36,13 @@ if (!empty($whereClauses)) {
 $orderSql = "ORDER BY r.room_id $sortOrder"; // Default is ascending order
 
 // Fetch room information with filters applied
-$roomQuery = "SELECT r.room_id, rt.type_name as room_type, r.nearElevator, r.floor, r.availability, r.under_construction, 
-                     rt.max_capacity, r.created_at, r.updated_at
-              FROM swx_room r
-              JOIN swx_room_type rt ON r.room_type = rt.type_id
-              $whereSql $orderSql"; // Apply the WHERE and ORDER BY clause
-              
+$roomQuery = "
+    SELECT r.room_id, rt.type_name as room_type, r.nearElevator, r.floor, r.availability, r.under_construction, 
+           rt.max_capacity, r.created_at, r.updated_at
+    FROM swx_room r
+    JOIN swx_room_type rt ON r.room_type = rt.type_id
+    $whereSql $orderSql";  // Apply the WHERE and ORDER BY clause
+
 $stmt = $pdo->prepare($roomQuery);
 
 // Bind parameters if filters are applied
@@ -63,6 +64,27 @@ $roomResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 if (empty($roomResult)) {
     $message = "No rooms found with the selected filters.";
     $message_type = "info";
+}
+
+// Check if a room is occupied based on current bookings
+function checkRoomOccupancy($room_id, $pdo) {
+    // Get today's date
+    $today = date('Y-m-d');
+    
+    // Query to check if there are any ongoing or future bookings
+    $query = "
+        SELECT 1 
+        FROM swx_booking 
+        WHERE room_id = :room_id 
+        AND (check_in_date <= :today AND check_out_date >= :today)";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([
+        ':room_id' => $room_id,
+        ':today' => $today
+    ]);
+    
+    // If a booking is found, the room is occupied
+    return $stmt->rowCount() > 0;
 }
 
 // Handle adding new room
@@ -315,11 +337,18 @@ if (isset($_GET['delete_id'])) {
                             <td><?php echo $room['max_capacity']; ?></td>
                             <td><?php echo $room['nearElevator']; ?></td>
                             <td><?php echo $room['floor']; ?></td>
-                            <td><?php echo $room['availability']; ?></td>
+                            <td><?php 
+                                if (checkRoomOccupancy($room['room_id'], $pdo)) {
+                                    echo "opptatt"; // Occupied in Norwegian
+                                } else {
+                                    echo "ledig"; // Available in Norwegian
+                                }
+                            ?></td>
                             <td><?php echo $room['under_construction']; ?></td>
                             <td><?php echo $room['created_at']; ?></td>
                             <td><?php echo $room['updated_at']; ?></td>
                             <td>
+                                <a href="view_room.php?id=<?php echo $room['room_id']; ?>" class="btn btn-info btn-sm">View</a>
                                 <a href="edit_room.php?id=<?php echo $room['room_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
                                 <a href="manage_rooms.php?delete_id=<?php echo $room['room_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this room?')">Delete</a>
                             </td>
@@ -345,4 +374,4 @@ if (isset($_GET['delete_id'])) {
 </script>
 
 </body>
-</html>
+</html> 
