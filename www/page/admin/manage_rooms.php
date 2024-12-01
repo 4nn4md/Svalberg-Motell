@@ -12,6 +12,7 @@ if ($_SESSION['role'] !== 'Admin') {
 $roomTypeFilter = $_GET['room_type_filter'] ?? '';
 $nearElevatorFilter = $_GET['nearElevator_filter'] ?? '';
 $floorFilter = $_GET['floor_filter'] ?? '';
+$sortOrder = $_GET['sort_order'] ?? 'ASC'; // Default to ascending order
 
 // Build the WHERE clause
 $whereClauses = [];
@@ -25,17 +26,21 @@ if ($floorFilter) {
     $whereClauses[] = "r.floor = ?";
 }
 
+// Build the WHERE SQL part
 $whereSql = "";
 if (!empty($whereClauses)) {
     $whereSql = "WHERE " . implode(' AND ', $whereClauses);
 }
+
+// Build the ORDER BY clause based on the sort order
+$orderSql = "ORDER BY r.room_id $sortOrder"; // Default is ascending order
 
 // Fetch room information with filters applied
 $roomQuery = "SELECT r.room_id, rt.type_name as room_type, r.nearElevator, r.floor, r.availability, r.under_construction, 
                      rt.max_capacity, r.created_at, r.updated_at
               FROM swx_room r
               JOIN swx_room_type rt ON r.room_type = rt.type_id
-              $whereSql"; // Apply the WHERE clause
+              $whereSql $orderSql"; // Apply the WHERE and ORDER BY clause
               
 $stmt = $pdo->prepare($roomQuery);
 
@@ -60,16 +65,6 @@ if (empty($roomResult)) {
     $message_type = "info";
 }
 
-// Check the current number of rooms to ensure there are no more than 25
-$roomCountQuery = "SELECT COUNT(*) AS room_count FROM swx_room";
-$roomCountResult = $pdo->query($roomCountQuery);
-$roomCount = $roomCountResult->fetch(PDO::FETCH_ASSOC)['room_count'];
-
-if ($roomCount >= 25) {
-    $message = "Maximum room limit reached (25 rooms). Cannot add more rooms.";
-    $message_type = "error";
-}
-
 // Handle adding new room
 if (isset($_POST['add_room'])) {
     // Get the form data
@@ -80,6 +75,10 @@ if (isset($_POST['add_room'])) {
     $under_construction = $_POST['under_construction'] ?? '';
 
     // PHP Validation
+    $roomCountQuery = "SELECT COUNT(*) AS room_count FROM swx_room";
+    $roomCountResult = $pdo->query($roomCountQuery);
+    $roomCount = $roomCountResult->fetch(PDO::FETCH_ASSOC)['room_count'];
+
     if ($roomCount >= 25) {
         $message = "You cannot add more rooms as the maximum limit (25 rooms) has been reached.";
         $message_type = "error";
@@ -204,6 +203,14 @@ if (isset($_GET['delete_id'])) {
                     <option value="">All Floors</option>
                     <option value="1" <?php echo (isset($_GET['floor_filter']) && $_GET['floor_filter'] == '1') ? 'selected' : ''; ?>>Floor 1</option>
                     <option value="2" <?php echo (isset($_GET['floor_filter']) && $_GET['floor_filter'] == '2') ? 'selected' : ''; ?>>Floor 2</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label for="sort_order" class="form-label">Sort Order</label>
+                <select class="form-control" name="sort_order">
+                    <option value="ASC" <?php echo (isset($_GET['sort_order']) && $_GET['sort_order'] == 'ASC') ? 'selected' : ''; ?>>Ascending</option>
+                    <option value="DESC" <?php echo (isset($_GET['sort_order']) && $_GET['sort_order'] == 'DESC') ? 'selected' : ''; ?>>Descending</option>
                 </select>
             </div>
 

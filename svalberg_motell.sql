@@ -194,8 +194,8 @@ CREATE TABLE `swx_staff` (
 --
 
 INSERT INTO `swx_staff` (`staff_id`, `name`, `position`, `email`, `phone`, `hired_date`, `updated_at`, `login_attempts`, `locked_until`, `password`) VALUES
-(1, 'Admin', 'Admin', 'admin@svalberg.no', '77777777', '2024-11-27 21:03:35', '2024-11-27 21:42:43', 0, NULL, '$2y$10$8jTxLBX93K4jbZdG4KuK0euyPLNdyS2HR2LOeWeKmmX75Zog0kjJC'),
-(2, 'Staff', 'Staff', 'staff@svalberg.no', '12345678', '2024-11-27 21:03:35', '2024-11-27 21:03:35', 0, NULL, '$2y$10$J7dEQScFmNmNKFhLdZpQtOM6UiW5npd6lTGl6kV9kYbvkE.23ZZ9S');
+(1, 'Admin', 'Admin', 'admin@svalberg.no', '77777777', '2024-11-27 21:03:35', '2024-11-27 21:42:43', 0, NULL, '$2y$10$tVRPfzSBWGL4WLXhgIM8Ae1R5T8yFUKw7qvVyqfrsCCR3cLZUtO7S'),
+(2, 'Staff', 'Staff', 'staff@svalberg.no', '12345678', '2024-11-27 21:03:35', '2024-11-27 21:03:35', 0, NULL, '$2y$10$tVRPfzSBWGL4WLXhgIM8Ae1R5T8yFUKw7qvVyqfrsCCR3cLZUtO7S');
 
 -- --------------------------------------------------------
 
