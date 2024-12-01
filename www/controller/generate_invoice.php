@@ -47,13 +47,22 @@ function generateInvoice($fname, $lname, $productName, $totalPrice, $payment_id)
     $pdf->Cell(0, 10, $totalPrice, 0, 1); 
     
     $tmpDir = __DIR__ . '/../tmp';
-        if (!is_dir($tmpDir)) {
-            mkdir($tmpDir, 0755, true);
+    if (!is_dir($tmpDir)) {
+        if (!mkdir($tmpDir, 0755, true)) {
+            throw new Exception("Failed to create tmp directory: " . $tmpDir);
         }
-        $invoiceFileName = 'faktura_' . $payment_id . '_' . time() . '.pdf';
-        $filePath = $tmpDir . '/' . $invoiceFileName;
-        $pdf->Output("F", $filePath);
-    
-        return $invoiceFileName; // Returner filnavnet
     }
+    
+    // Sjekk om mappen er skrivbar
+    if (!is_writable($tmpDir)) {
+        throw new Exception("Tmp directory is not writable: " . $tmpDir);
+    }
+    
+    // Lag PDF-filen
+    $invoiceFileName = 'faktura_' . $payment_id . '_' . time() . '.pdf';
+    $filePath = $tmpDir . '/' . $invoiceFileName;
+    $pdf->Output("F", $filePath);
+    
+    return $invoiceFileName;
+}
 ?>

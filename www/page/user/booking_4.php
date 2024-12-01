@@ -7,7 +7,7 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php");
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/ValidateController.php");
-
+print_r($_SESSION);
 $error_message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -86,12 +86,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
             // Insert to booking table
             $stmt = $pdo->prepare("INSERT INTO swx_booking (user_id, room_id, payment_id, name, email, tlf, comments, check_in_date, check_out_date, number_of_guests) 
-                                   VALUES (:user_id, :room_id, :payment_id, :name, :email, :tlf, :comments, :check_in_date, :check_out_date, :number_of_guests)");
-    
-            // Insert booking record
+                       VALUES (:user_id, :room_id, :payment_id, :name, :email, :tlf, :comments, :check_in_date, :check_out_date, :number_of_guests)");
+
+            // Bruk room_id direkte fra session
             $stmt->execute([
                 ':user_id' => $user_id,
-                ':room_id' => $_SESSION['selected_room']['room_id'],
+                ':room_id' => $_SESSION['selected_room']['room_id'], // Ingen ekstra konvertering nødvendig
                 ':payment_id' => $payment_id,
                 ':name' => $fname . " " . $lname,
                 ':email' => $email,
@@ -137,6 +137,144 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        // Start transaction
+        $pdo->beginTransaction();
+
+        // Get and sanitize form data
+        $fname = sanitize($_POST['fname']);
+        $lname = sanitize($_POST['lname']);
+        $email = sanitize($_POST['epost']);
+        $country_code = sanitize($_POST['country_code']);
+        $mobile = sanitize($_POST['mobile']);
+        $message = sanitize($_POST['message']);
+
+        // Combine country code and mobile number
+        $phone = $country_code . $mobile;
+
+        // Validate form inputs
+        $validation = new Validering();
+        $validation->validereFornavn($fname);
+        $validation->validereEtternavn($lname);
+        $validation->validereEpost($email);
+        $validation->validereMobilnummer($country_code, $mobile);
+        $validation->validereMessage($message);
+
+        if (!empty($validation->getValidateError())) {
+            throw new Exception("Validation failed: " . implode(", ", $validation->getValidateError()));
+        }
+
+        // Validate payment method
+        if (!isset($_POST['choosePayment']) || empty($_POST['choosePayment'])) {
+            throw new Exception("Please choose a payment method.");
+        }
+        $choosePayment = sanitize($_POST['choosePayment']);
+
+        // Validate session data
+        if (!isset($_SESSION['selected_room']['room_id']) || empty($_SESSION['selected_room']['room_id'])) {
+            throw new Exception("Room ID is missing or invalid.");
+        }
+
+        $room_id = $_SESSION['selected_room']['room_id']; // Use room_id from session
+
+        // Validate room_id against the database
+        $stmt = $pdo->prepare("SELECT room_id FROM swx_room WHERE room_id = :room_id");
+        $stmt->execute([':room_id' => $room_id]);
+        if ($stmt->rowCount() === 0) {
+            throw new Exception("The selected room ID does not exist in the database.");
+        }
+
+        // Insert into payment table
+        $stmt = $pdo->prepare("INSERT INTO swx_payment (amount, payment_method, status) 
+                               VALUES (:amount, :payment_method, :status)");
+        $stmt->execute([
+            ':amount' => $_SESSION['selected_room']['total_price'],
+            ':payment_method' => $choosePayment,
+            ':status' => 'Completed' // Default status
+        ]);
+
+        // Get payment_id for the inserted record
+        $payment_id = $pdo->lastInsertId();
+
+        // Initialize user_id as NULL
+        $user_id = NULL;
+        if (isset($_SESSION['email'])) {
+            // Get user_id based on the username in session
+            $username = sanitize($_SESSION['email']);
+            $stmt = $pdo->prepare("SELECT user_id, point FROM swx_users WHERE username = :username");
+            $stmt->execute([':username' => $username]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Update points for loyalty program
+            if ($user) {
+                $user_id = $user['user_id'];
+                $current_points = $user['point'];
+                $new_points = $current_points + $_SESSION['selected_room']['total_price'];
+
+                $stmt = $pdo->prepare("UPDATE swx_users SET point = :point WHERE username = :username");
+                $stmt->execute([
+                    ':point' => $new_points,
+                    ':username' => $username
+                ]);
+            }
+        }
+
+        // Insert into booking table
+        $stmt = $pdo->prepare("INSERT INTO swx_booking (user_id, room_id, payment_id, name, email, tlf, comments, check_in_date, check_out_date, number_of_guests) 
+                               VALUES (:user_id, :room_id, :payment_id, :name, :email, :tlf, :comments, :check_in_date, :check_out_date, :number_of_guests)");
+        $stmt->execute([
+            ':user_id' => $user_id,
+            ':room_id' => $room_id,
+            ':payment_id' => $payment_id,
+            ':name' => $fname . " " . $lname,
+            ':email' => $email,
+            ':tlf' => $phone,
+            ':comments' => $message,
+            ':check_in_date' => $_SESSION['checkin'],
+            ':check_out_date' => $_SESSION['checkout'],
+            ':number_of_guests' => $_SESSION['adults'] + $_SESSION['children']
+        ]);
+
+        // If payment method is Invoice, generate invoice
+        if ($choosePayment === 'Invoice') {
+            require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/generate_invoice.php");
+
+            $invoiceFileName = generateInvoice(
+                $fname,
+                $lname,
+                $_SESSION['selected_room']['type_name'],
+                $_SESSION['selected_room']['total_price'],
+                $payment_id
+            );
+
+            // Update invoice path in payment table
+            $stmt = $pdo->prepare("UPDATE swx_payment SET invoice_path = :invoice_path WHERE payment_id = :payment_id");
+            $stmt->execute([
+                ':invoice_path' => $invoiceFileName,
+                ':payment_id' => $payment_id
+            ]);
+        }
+
+        // Commit the transaction
+        $pdo->commit();
+
+        // Redirect to confirmation page
+        header("Location: confirmation.php?payment_id=$payment_id");
+        exit();
+
+    } catch (Exception $e) {
+        // Rollback in case of error
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        log_error($e);
+        echo "<br>Sorry, something went wrong. Please try again later.<br>";
+    }
+}
+
+
 ?>
 
 <html>
