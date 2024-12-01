@@ -27,13 +27,13 @@ session_start(); // Start the session to access $_SESSION variables
                 <div class="offcanvas-body">
                     <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="index1.php">Home</a>
+                            <a class="nav-link active" aria-current="page" href="/Svalberg-Motell/www/index1.php">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="omMotellet.php">About the Motel</a>
+                            <a class="nav-link mx-lg-2" href="/Svalberg-Motell/www/omMotellet.php">About the Motel</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="room.php">Our Rooms</a>
+                            <a class="nav-link mx-lg-2" href="/Svalberg-Motell/www/room.php">Our Rooms</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link mx-lg-2" href="#">Services</a>
@@ -41,6 +41,11 @@ session_start(); // Start the session to access $_SESSION variables
                         <li class="nav-item">
                             <a class="nav-link mx-lg-2" href="#">Contact</a>
                         </li>
+                        <?php if (isset($_SESSION['email']) && !empty($_SESSION['email'])): ?>
+                            <li class="nav-item">
+                                <a class="nav-link mx-lg-2" href="/Svalberg-Motell/www/page/user/user_profile_two.php">My Profile</a>
+                            </li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </div>
