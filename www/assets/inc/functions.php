@@ -47,17 +47,13 @@ function calculateMVA($base_price){
 
 function log_error($e) {
     $error_message = "Error time: " . date('d-m-y H:i:s') . " - Error message: " . $e->getMessage() . "\n";
-    
     // Path to the log file
     $log_file = $_SERVER['DOCUMENT_ROOT'] . '/Svalberg-Motell/private/log/log.txt';
 
     // Check if the directory is writable, if not, change permissions
-    /*if (!is_writable($log_file)) {
-        // Give full access (read, write, execute) to the log file
-        // Be careful with this in production as it gives full access to everyone
-        chmod($log_file, 0666);  // Change permissions to 666 (read/write for owner, group, and others)
-    }*/
-
+    if (!is_writable($log_file)) {
+        chmod($log_file, 0666);  
+    }
     // Write the error message to the log file
     file_put_contents($log_file, $error_message, FILE_APPEND);
 }
@@ -70,5 +66,51 @@ function sanitize($var) {
     $var = htmlspecialchars($var);
     return basename($var); // Sørg for at bare filnavnet returneres, forhindrer directory traversal
 }
+
+function calculatePriceWithPoints($price, $points){
+    $pointValue = 0.20;
+    $maxDiscount = $points * $pointValue;
+    if ($maxDiscount >= $price) {
+        // Hele prisen dekkes av poengene
+        $pointsUsed = ceil($price / $pointValue); // Beregn hvor mange poeng som faktisk trengs
+        $pointsLeft = $points - $pointsUsed; // Poeng som blir igjen
+        return [
+            'price' => 0.0, // Hele prisen dekkes
+            'pointsLeft' => $pointsLeft
+        ];
+    }
+    $newPrice = $price - $maxDiscount; // Ny pris etter rabatt
+    return [
+        'price' => $newPrice,
+        'pointsLeft' => 0 // Ingen poeng igjen
+    ];
+}
+
+/*function log_error($e) {
+    $error_message = "Error time: " . date('d-m-y H:i:s') . " - Error message: " . $e->getMessage() . "\n";
+    
+    // Path to the log file
+    $log_file = $_SERVER['DOCUMENT_ROOT'] . '/Svalberg-Motell/private/log/log.txt';
+    $log_dir = dirname($log_file);
+
+    // Sjekk om mappen eksisterer, hvis ikke, opprett den
+    if (!file_exists($log_dir)) {
+        mkdir($log_dir, 0777, true); // Opprett mappen med full tilgang (lesing/skriving)
+    }
+
+    // Sjekk om loggfilen eksisterer, hvis ikke, opprett den
+    if (!file_exists($log_file)) {
+        file_put_contents($log_file, "Log file created on: " . date('d-m-y H:i:s') . "\n"); // Opprett filen
+        chmod($log_file, 0666); // Sett tillatelser for lesing og skriving
+    }
+
+    // Sjekk om loggfilen kan skrives til, og logg feilen
+    if (is_writable($log_file)) {
+        file_put_contents($log_file, $error_message, FILE_APPEND);
+    } else {
+        // Hvis det ikke er mulig å skrive til filen, bruk PHPs innebygde feillogg
+        error_log("Failed to write to log file: $log_file. Error: " . $e->getMessage());
+    }
+}*/
 
 ?>
