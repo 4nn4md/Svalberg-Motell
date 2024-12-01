@@ -22,3 +22,5 @@ Error time: 01-12-24 17:25:27 - Error message: FPDF error: Unable to create outp
 Error time: 01-12-24 17:25:27 - Error message: FPDF error: Unable to create output file: /Applications/XAMPP/xamppfiles/htdocs/Svalberg-Motell/www/controller/../../tmp/faktura_46_1733070327.pdf
 Error time: 01-12-24 17:26:24 - Error message: FPDF error: Unable to create output file: /Applications/XAMPP/xamppfiles/htdocs/Svalberg-Motell/www/controller/../../tmp/faktura_47_1733070384.pdf
 Error time: 01-12-24 17:26:24 - Error message: FPDF error: Unable to create output file: /Applications/XAMPP/xamppfiles/htdocs/Svalberg-Motell/www/controller/../../tmp/faktura_48_1733070384.pdf
+Error time: 01-12-24 19:03:03 - Error message: SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'payment_method' cannot be null
+Error time: 01-12-24 19:03:03 - Error message: Please choose a payment method.
