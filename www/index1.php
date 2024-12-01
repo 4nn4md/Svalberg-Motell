@@ -1,30 +1,23 @@
 <?php 
-// session_start(); // Start session
+//session_start(); // Start sessionen
 include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php");
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/ValidateController.php");
 print_r($_SESSION);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Sanitize and validate inputs
-    $location = filter_var(trim($_POST['location']), FILTER_SANITIZE_STRING);
-    $checkin = filter_var($_POST['checkin'], FILTER_SANITIZE_STRING);
-    $checkout = filter_var($_POST['checkout'], FILTER_SANITIZE_STRING);
-    $adults = filter_var($_POST['adults'], FILTER_SANITIZE_NUMBER_INT);
-    $children = filter_var($_POST['children'], FILTER_SANITIZE_NUMBER_INT);
-
-    // Store sanitized data in session
-    $_SESSION['location'] = $location;
-    $_SESSION['checkin'] = $checkin;
-    $_SESSION['checkout'] = $checkout;
-    $_SESSION['adults'] = $adults;
-    $_SESSION['children'] = $children;
+    // Lagre alle relevante data i session
+    $_SESSION['location'] = $_POST['location'];
+    $_SESSION['checkin'] = $_POST['checkin'];
+    $_SESSION['checkout'] = $_POST['checkout'];
+    $_SESSION['adults'] = $_POST['adults'];
+    $_SESSION['children'] = $_POST['children'];
 
     $validation = new Validering();
 
-    // Validate the sanitized data
-    $validation->validereDato($checkin, $checkout);
-    $validation->emptyInput($location, $checkin, $checkout, $adults);
-    $validation->hasToHaveAdult($adults);
+    // Validering
+    $validation->validereDato($_POST['checkin'], $_POST['checkout']);
+    $validation->emptyInput($_POST['location'], $_POST['checkin'], $_POST['checkout'], $_POST['adults']);
+    $validation->hasToHaveAdult($_POST['adults']);
 
     $errorMessages = $validation->getValidateError();
     if (empty($errorMessages)) {
@@ -34,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="no-nb">
 
@@ -41,13 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Svalberg Motel</title>
+    <?php //include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php"); ?>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="http://localhost/Svalberg-Motell/www/assets/css/styles1.css" rel="stylesheet">
 </head>
-
+<!-- action="page/user/booking_1.php" -->
 <body>
-<!-- First Section -->
-<section class="firstSection">
+<!--First Section-->
+<section class=firstSection>
     <div class="mainImage">
         <img src="assets/image/index1/Hjem1.jpg" class="d-block w-100" alt="fjordenTilSvalbergMotel">
         <div class="booking-form">
@@ -94,13 +89,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </section>
-<!-- End of First Section -->
+<!-- End of First Section-->
 
-<!-- Second Section -->
+<!-- Second Section-->
 <section class="secondSection">
     <div class="container text-center">
         <h2>Welcome to Svalberg Motel!</h2>
-        <p>- your home between the sea and mountains.</p>
+        <p>- your home by the sea and the mountains.</p>
     </div>
 
     <div id="carouselExample" class="carousel slide">
@@ -147,9 +142,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <img src="assets/image/index1/Hjem7.jpg" class="img-fluid" alt="Image description">
             </div>
             <div class="col-md-6">
-                <h3> Discover our facilities</h3>
-                <p>We offer comfortable rooms, outdoor activities, and amazing experiences. Our motel is the perfect place for relaxation and adventure.</p>
-                <button class="btn custom-btn mt-3">Les mer</button>
+                <h3>Discover our facilities</h3>
+                <p>We offer comfortable rooms, outdoor activities, and amazing experiences. Our motel is the perfect place for relaxation and adventure</p>
+                <button class="btn custom-btn mt-3">Read more</button>
             </div>
         </div>
 
@@ -157,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="col-md-6">
                 <h3>An unforgettable experience</h3>
                 <p>We have a wide range of activities for the whole family. Whatever you're looking for, you'll find it here.</p>
-                <button class="btn custom-btn mt-3">Les mer</button>
+                <button class="btn custom-btn mt-3">Read more</button>
             </div>
             <div class="col-md-6">
                 <img src="assets/image/index1/Hjem5.jpg" class="img-fluid" alt="Image description">
@@ -165,10 +160,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </section>
-<!-- End of Third Section -->
+<!-- End of Third Section-->
+</body>
 
 <?php include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/footer1.php"); ?>
-
-</body>
 
 </html>

@@ -30,10 +30,10 @@ session_start(); // Start the session to access $_SESSION variables
                             <a class="nav-link active" aria-current="page" href="/Svalberg-Motell/www/index1.php">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="/Svalberg-Motell/www/aboutMotel.php">About the Motel</a>
+                            <a class="nav-link mx-lg-2" href="/Svalberg-Motell/www/about.php">About the Motel</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="/Svalberg-Motell/www/ourRooms.php">Our Rooms</a>
+                            <a class="nav-link mx-lg-2" href="/Svalberg-Motell/www/rooms.php">Our Rooms</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link mx-lg-2" href="#">Services</a>
