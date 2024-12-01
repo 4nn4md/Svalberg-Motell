@@ -81,9 +81,10 @@ $historyQuery = $pdo->prepare(
                             <img src="http://localhost/Svalberg-Motell/www/assets/image/profile-pic.webp"
                                  alt="Generic placeholder image" class="img-fluid img-thumbnail mt-4 mb-2"
                                  style="width: 150px; z-index: 1">
-                            <button type="button" class="btn btn-outline-dark text-body edit-profile" style="z-index: 1;">
-                                Edit profile
-                            </button>
+                                 <a href="edit_profile.php" class="btn btn-outline-dark text-body" style="z-index: 1;">
+                                    Edit profile
+                                </a>
+
                         </div>
                         <div class="ms-3" style="margin-top: 130px;">
                             <h5 style="color: #B3D8F2;"><?php echo "$firstName $lastName"; ?></h5>
@@ -144,7 +145,7 @@ $historyQuery = $pdo->prepare(
                                       <td><?php echo htmlspecialchars($reservation['check_out_date']); ?></td>
                                       <td><?php echo htmlspecialchars($reservation['total_price']); ?> NOK</td>
                                       <td>
-                                          <button class="btn btn-primary toggle-details" data-target=".details-row<?php echo $reservation['booking_id']; ?>">Vis romdetaljer</button>
+                                          <button class="btn btn-primary toggle-details" data-target=".details-row<?php echo $reservation['booking_id']; ?>">Show more details</button>
                                       </td>
                                   </tr>
                                   <tr class="collapse details-row<?php echo $reservation['booking_id']; ?>">
