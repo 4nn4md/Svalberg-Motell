@@ -2,6 +2,6 @@
 session_start();
 session_unset();  // Remove all session variables
 session_destroy();  // Destroy the session
-header("Location: index1.php");  // Redirect to the login page
+header("Location: /Svalberg-Motell/www/index1.php");  // Redirect to the login page
 exit();
 ?>

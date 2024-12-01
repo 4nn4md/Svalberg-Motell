@@ -62,4 +62,13 @@ function log_error($e) {
     file_put_contents($log_file, $error_message, FILE_APPEND);
 }
 
+function sanitize($var) {
+    $var = strip_tags($var); // Fjern HTML-tagger
+    $var = htmlentities($var); // Konverter spesialtegn til HTML-enheter
+    $var = trim($var);
+    $var = stripslashes($var);
+    $var = htmlspecialchars($var);
+    return basename($var); // Sørg for at bare filnavnet returneres, forhindrer directory traversal
+}
+
 ?>
