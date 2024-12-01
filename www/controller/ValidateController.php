@@ -22,8 +22,8 @@ class Validering{
         }
     }
 
-    public function emptyInput($location, $checkin, $checkout, $adults, $children){
-        if (empty($location) || empty($checkin) || empty($checkout) || empty($adults) || empty($children)) {
+    public function emptyInput($location, $checkin, $checkout, $adults){
+        if (empty($location) || empty($checkin) || empty($checkout) || empty($adults)) {
             $this->validateError[] = "No fields can be empty.";
         }
     }

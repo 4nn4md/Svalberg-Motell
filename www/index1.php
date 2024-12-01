@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Validering
     $validation->validereDato($_POST['checkin'], $_POST['checkout']);
-    $validation->emptyInput($_POST['location'], $_POST['checkin'], $_POST['checkout'], $_POST['adults'], $_POST['children']);
+    $validation->emptyInput($_POST['location'], $_POST['checkin'], $_POST['checkout'], $_POST['adults']);
     $validation->hasToHaveAdult($_POST['adults']);
 
     $errorMessages = $validation->getValidateError();
