@@ -1,4 +1,4 @@
-<?php 
+<?php
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
@@ -9,8 +9,41 @@ if ($_SESSION['role'] !== 'Admin') {
     exit();
 }
 
-// Get today's date in Y-m-d format
+// Get today's date, first day of the week (Monday), and first day of the month
 $today = date('Y-m-d');
+$firstDayOfMonth = date('Y-m-01');
+$firstDayOfThisWeek = date('Y-m-d', strtotime('monday this week')); // Start of this week (Monday)
+$lastDayOfThisWeek = date('Y-m-d', strtotime('sunday this week')); // End of this week (Sunday)
+$firstDayOfNextWeek = date('Y-m-d', strtotime('next monday')); // Start of next week (Monday)
+$lastDayOfNextWeek = date('Y-m-d', strtotime('next sunday')); // End of next week (Sunday)
+
+// Initialize the filter parameters
+$startOfRange = $today;
+$endOfRange = $today;
+
+// Check for filter selection from the form (validate and sanitize inputs)
+if (isset($_GET['filter'])) {
+    $filter = sanitize($_GET['filter']); // Sanitize filter
+    switch ($filter) {
+        case 'this_week':
+            // Get the start and end date of this week (Monday to Sunday)
+            $startOfRange = $firstDayOfThisWeek; // Start of this week (Monday)
+            $endOfRange = $lastDayOfThisWeek; // End of this week (Sunday)
+            break;
+        case 'this_month':
+            // Filter for this month's bookings
+            $startOfRange = $firstDayOfMonth; // First day of the current month
+            $endOfRange = date('Y-m-t'); // Last day of the current month
+            break;
+        default:
+            $startOfRange = $today;
+            $endOfRange = $today;
+    }
+} else {
+    // Default to today's date range if no filter is set
+    $startOfRange = $today;
+    $endOfRange = $today;
+}
 
 // Fetch room details based on room_id passed from URL (e.g., view_room.php?id=1)
 $roomId = isset($_GET['id']) ? sanitize($_GET['id']) : null; // Sanitize the room ID from the URL
@@ -36,20 +69,14 @@ if (!$room) {
     exit();
 }
 
-// Check for bookings that overlap with today's date
+// Modify the booking query to filter bookings based on the selected range
 $bookingQuery = "
     SELECT b.booking_id, b.check_in_date, b.check_out_date, b.name AS guest_name
     FROM swx_booking b
-    WHERE b.room_id = ? AND (b.check_in_date <= ? AND b.check_out_date >= ?)";
+    WHERE b.room_id = ? AND b.check_in_date >= ? AND b.check_out_date <= ?";
 $stmt = $pdo->prepare($bookingQuery);
-$stmt->execute([$roomId, $today, $today]);
+$stmt->execute([$roomId, $startOfRange, $endOfRange]);
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Determine room availability
-$roomAvailability = 'Available';
-if (!empty($bookings)) {
-    $roomAvailability = 'Occupied';
-}
 
 ?>
 
@@ -67,11 +94,14 @@ if (!empty($bookings)) {
             top: 10px;
             left: 10px;
         }
+        .container {
+            margin-top: 50px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container mt-5">
+<div class="container">
     <!-- Back button placed in the top-left corner -->
     <a href="manage_rooms.php" class="btn btn-primary back-button">Back to Manage Rooms</a>
 
@@ -85,33 +115,49 @@ if (!empty($bookings)) {
             <p><strong>Floor:</strong> <?php echo htmlspecialchars(sanitize($room['floor'])); ?></p>
             <p><strong>Near Elevator:</strong> <?php echo htmlspecialchars(sanitize($room['nearElevator'])); ?></p>
             <p><strong>Max Capacity:</strong> <?php echo htmlspecialchars(sanitize($room['max_capacity'])); ?></p>
-            <p><strong>Availability:</strong> <?php echo htmlspecialchars(sanitize($roomAvailability)); ?></p>
+            <p><strong>Availability:</strong> <?php echo htmlspecialchars(sanitize($room['availability'])); ?></p>
 
             <h4>Upcoming Bookings:</h4>
-            <?php if (empty($bookings)) { ?>
-                <p>No bookings for this room today or in the future.</p>
-            <?php } else { ?>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Booking ID</th>
-                            <th>Guest Name</th>
-                            <th>Check-in Date</th>
-                            <th>Check-out Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($bookings as $booking) { ?>
+
+            <!-- Filter Form -->
+            <form method="GET" action="">
+                <input type="hidden" name="id" value="<?php echo htmlspecialchars($roomId); ?>" />
+                <div class="form-group">
+                    <label for="filter">Filter Bookings:</label>
+                    <select class="form-control" name="filter" id="filter" onchange="this.form.submit()">
+                        <option value="this_week" <?php echo (isset($_GET['filter']) && $_GET['filter'] === 'this_week') ? 'selected' : ''; ?>>This Week</option>
+                        <option value="this_month" <?php echo (isset($_GET['filter']) && $_GET['filter'] === 'this_month') ? 'selected' : ''; ?>>This Month</option>
+                    </select>
+                </div>
+            </form>
+
+            <!-- Bookings Table -->
+            <table class="table table-striped mt-4">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Guest Name</th>
+                        <th>Check-in Date</th>
+                        <th>Check-out Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (count($bookings) > 0): ?>
+                        <?php foreach ($bookings as $booking): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars(sanitize($booking['booking_id'])); ?></td>
                                 <td><?php echo htmlspecialchars(sanitize($booking['guest_name'])); ?></td>
                                 <td><?php echo htmlspecialchars(sanitize($booking['check_in_date'])); ?></td>
                                 <td><?php echo htmlspecialchars(sanitize($booking['check_out_date'])); ?></td>
                             </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            <?php } ?>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="4">No bookings found for this date range.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
