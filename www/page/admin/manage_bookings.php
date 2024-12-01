@@ -1,6 +1,7 @@
 <?php
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -11,12 +12,12 @@ if ($_SESSION['role'] !== 'Admin') {
 // Initialize error messages
 $errors = [];
 
-// Get filter parameters from GET request
-$roomFilter = $_GET['room_filter'] ?? '';
-$userFilter = $_GET['user_filter'] ?? '';
-$checkInDateFilter = $_GET['check_in_date_filter'] ?? '';
-$checkOutDateFilter = $_GET['check_out_date_filter'] ?? '';
-$sortOrder = $_GET['sort_order'] ?? 'ASC'; // Default to ascending order
+// Sanitize filter parameters from GET request
+$roomFilter = sanitize($_GET['room_filter'] ?? '');
+$userFilter = sanitize($_GET['user_filter'] ?? '');
+$checkInDateFilter = sanitize($_GET['check_in_date_filter'] ?? '');
+$checkOutDateFilter = sanitize($_GET['check_out_date_filter'] ?? '');
+$sortOrder = sanitize($_GET['sort_order'] ?? 'ASC'); // Default to ascending order
 
 // Build the WHERE clause based on the filters
 $whereClauses = [];
@@ -81,7 +82,7 @@ if (empty($bookingResult)) {
 
 // Handle deleting booking
 if (isset($_GET['delete_id'])) {
-    $delete_id = $_GET['delete_id'];
+    $delete_id = sanitize($_GET['delete_id']); // Sanitize delete_id
     $deleteQuery = "DELETE FROM swx_booking WHERE booking_id = ?";
     $stmt = $pdo->prepare($deleteQuery);
     $stmt->bindParam(1, $delete_id, PDO::PARAM_INT);
@@ -100,16 +101,16 @@ if (isset($_GET['delete_id'])) {
 
 // Handle adding new booking
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_booking'])) {
-    // Get form data
-    $room_id = $_POST['room_id'] ?? '';
-    $user_id = $_POST['user_id'] ?? '';
-    $check_in_date = $_POST['check_in_date'] ?? '';
-    $check_out_date = $_POST['check_out_date'] ?? '';
-    $number_of_guests = $_POST['number_of_guests'] ?? '';
-    $guest_name = $_POST['guest_name'] ?? '';
-    $guest_email = $_POST['guest_email'] ?? '';
-    $guest_phone = $_POST['guest_phone'] ?? '';
-    $comments = $_POST['comments'] ?? '';
+    // Get form data and sanitize them
+    $room_id = sanitize($_POST['room_id'] ?? '');
+    $user_id = sanitize($_POST['user_id'] ?? '');
+    $check_in_date = sanitize($_POST['check_in_date'] ?? '');
+    $check_out_date = sanitize($_POST['check_out_date'] ?? '');
+    $number_of_guests = sanitize($_POST['number_of_guests'] ?? '');
+    $guest_name = sanitize($_POST['guest_name'] ?? '');
+    $guest_email = sanitize($_POST['guest_email'] ?? '');
+    $guest_phone = sanitize($_POST['guest_phone'] ?? '');
+    $comments = sanitize($_POST['comments'] ?? '');
 
     // Basic validation
     if (empty($room_id)) {
@@ -229,17 +230,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_booking'])) {
                 <?php } else { ?>
                     <?php foreach ($bookingResult as $booking) { ?>
                         <tr>
-                            <td><?php echo $booking['booking_id']; ?></td>
-                            <td><?php echo $booking['room_id']; ?></td> <!-- Display Room ID -->
-                            <td><?php echo $booking['room_name']; ?></td>
-                            <td><?php echo $booking['firstName'] . ' ' . $booking['lastName']; ?></td>
-                            <td><?php echo $booking['guest_name']; ?></td>
-                            <td><?php echo $booking['guest_email']; ?></td>
-                            <td><?php echo $booking['check_in_date']; ?></td>
-                            <td><?php echo $booking['check_out_date']; ?></td>
-                            <td><?php echo $booking['number_of_guests']; ?></td>
+                            <td><?php echo htmlspecialchars($booking['booking_id']); ?></td>
+                            <td><?php echo htmlspecialchars($booking['room_id']); ?></td> <!-- Display Room ID -->
+                            <td><?php echo htmlspecialchars($booking['room_name']); ?></td>
+                            <td><?php echo htmlspecialchars($booking['firstName']) . ' ' . htmlspecialchars($booking['lastName']); ?></td>
+                            <td><?php echo htmlspecialchars($booking['guest_name']); ?></td>
+                            <td><?php echo htmlspecialchars($booking['guest_email']); ?></td>
+                            <td><?php echo htmlspecialchars($booking['check_in_date']); ?></td>
+                            <td><?php echo htmlspecialchars($booking['check_out_date']); ?></td>
+                            <td><?php echo htmlspecialchars($booking['number_of_guests']); ?></td>
                             <td>
-                                <a href="manage_bookings.php?delete_id=<?php echo $booking['booking_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this booking?')">Delete</a>
+                                <a href="manage_bookings.php?delete_id=<?php echo htmlspecialchars($booking['booking_id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this booking?')">Delete</a>
                             </td>
                         </tr>
                     <?php } ?>

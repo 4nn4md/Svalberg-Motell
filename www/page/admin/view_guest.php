@@ -1,6 +1,7 @@
 <?php
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -9,7 +10,7 @@ if ($_SESSION['role'] !== 'Admin') {
 }
 
 if (isset($_GET['id'])) {
-    $guest_id = $_GET['id'];
+    $guest_id = sanitize($_GET['id']); // Sanitize the guest ID from the URL
 
     // Fetch guest details using PDO
     $guestQuery = "SELECT user_id, firstName, lastName, username, tlf FROM swx_users WHERE user_id = ?";
@@ -67,9 +68,9 @@ if (isset($_GET['id'])) {
 
     <div class="card">
         <h3>Guest Details</h3>
-        <p><strong>Name:</strong> <?php echo htmlspecialchars($guest['firstName'] . ' ' . $guest['lastName']); ?></p>
-        <p><strong>Username:</strong> <?php echo htmlspecialchars($guest['username']); ?></p>
-        <p><strong>Phone:</strong> <?php echo htmlspecialchars($guest['tlf']); ?></p>
+        <p><strong>Name:</strong> <?php echo htmlspecialchars(sanitize($guest['firstName'] . ' ' . $guest['lastName'])); ?></p>
+        <p><strong>Username:</strong> <?php echo htmlspecialchars(sanitize($guest['username'])); ?></p>
+        <p><strong>Phone:</strong> <?php echo htmlspecialchars(sanitize($guest['tlf'])); ?></p>
     </div>
 
     <div class="card">
@@ -88,10 +89,10 @@ if (isset($_GET['id'])) {
                 if (count($bookingResult) > 0) {
                     foreach ($bookingResult as $booking) {
                         echo "<tr>";
-                        echo "<td>" . htmlspecialchars($booking['room_id']) . "</td>";
-                        echo "<td>" . htmlspecialchars($booking['room_type']) . "</td>";
-                        echo "<td>" . htmlspecialchars($booking['check_in_date']) . "</td>";
-                        echo "<td>" . htmlspecialchars($booking['check_out_date']) . "</td>";
+                        echo "<td>" . htmlspecialchars(sanitize($booking['room_id'])) . "</td>";
+                        echo "<td>" . htmlspecialchars(sanitize($booking['room_type'])) . "</td>";
+                        echo "<td>" . htmlspecialchars(sanitize($booking['check_in_date'])) . "</td>";
+                        echo "<td>" . htmlspecialchars(sanitize($booking['check_out_date'])) . "</td>";
                         echo "</tr>";
                     }
                 } else {

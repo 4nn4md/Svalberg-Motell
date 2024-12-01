@@ -1,6 +1,7 @@
 <?php 
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -8,11 +9,11 @@ if ($_SESSION['role'] !== 'Admin') {
     exit();
 }
 
-// Get filter parameters from GET request
-$roomTypeFilter = $_GET['room_type_filter'] ?? '';
-$nearElevatorFilter = $_GET['nearElevator_filter'] ?? '';
-$floorFilter = $_GET['floor_filter'] ?? '';
-$sortOrder = $_GET['sort_order'] ?? 'ASC'; // Default to ascending order
+// Sanitize filter parameters from GET request
+$roomTypeFilter = sanitize($_GET['room_type_filter'] ?? '');
+$nearElevatorFilter = sanitize($_GET['nearElevator_filter'] ?? '');
+$floorFilter = sanitize($_GET['floor_filter'] ?? '');
+$sortOrder = sanitize($_GET['sort_order'] ?? 'ASC'); // Default to ascending order
 
 // Build the WHERE clause
 $whereClauses = [];
@@ -89,12 +90,12 @@ function checkRoomOccupancy($room_id, $pdo) {
 
 // Handle adding new room
 if (isset($_POST['add_room'])) {
-    // Get the form data
-    $room_type = $_POST['room_type'] ?? '';
-    $nearElevator = $_POST['nearElevator'] ?? '';
-    $floor = $_POST['floor'] ?? '';
-    $availability = $_POST['availability'] ?? '';
-    $under_construction = $_POST['under_construction'] ?? '';
+    // Sanitize form data
+    $room_type = sanitize($_POST['room_type'] ?? '');
+    $nearElevator = sanitize($_POST['nearElevator'] ?? '');
+    $floor = sanitize($_POST['floor'] ?? '');
+    $availability = sanitize($_POST['availability'] ?? '');
+    $under_construction = sanitize($_POST['under_construction'] ?? '');
 
     // PHP Validation
     $roomCountQuery = "SELECT COUNT(*) AS room_count FROM swx_room";
@@ -138,7 +139,7 @@ if (isset($_POST['add_room'])) {
 
 // Handle deleting room
 if (isset($_GET['delete_id'])) {
-    $delete_id = $_GET['delete_id'];
+    $delete_id = sanitize($_GET['delete_id']); // Sanitize delete_id
     $deleteQuery = "DELETE FROM swx_room WHERE room_id = ?";
     $stmt = $pdo->prepare($deleteQuery);
     $stmt->bindParam(1, $delete_id, PDO::PARAM_INT);
@@ -332,11 +333,11 @@ if (isset($_GET['delete_id'])) {
                 <?php } else { ?>
                     <?php foreach ($roomResult as $room) { ?>
                         <tr>
-                            <td><?php echo $room['room_id']; ?></td>
-                            <td><?php echo $room['room_type']; ?></td>
-                            <td><?php echo $room['max_capacity']; ?></td>
-                            <td><?php echo $room['nearElevator']; ?></td>
-                            <td><?php echo $room['floor']; ?></td>
+                            <td><?php echo htmlspecialchars($room['room_id']); ?></td>
+                            <td><?php echo htmlspecialchars($room['room_type']); ?></td>
+                            <td><?php echo htmlspecialchars($room['max_capacity']); ?></td>
+                            <td><?php echo htmlspecialchars($room['nearElevator']); ?></td>
+                            <td><?php echo htmlspecialchars($room['floor']); ?></td>
                             <td><?php 
                                 if (checkRoomOccupancy($room['room_id'], $pdo)) {
                                     echo "opptatt"; // Occupied in Norwegian
@@ -344,13 +345,13 @@ if (isset($_GET['delete_id'])) {
                                     echo "ledig"; // Available in Norwegian
                                 }
                             ?></td>
-                            <td><?php echo $room['under_construction']; ?></td>
-                            <td><?php echo $room['created_at']; ?></td>
-                            <td><?php echo $room['updated_at']; ?></td>
+                            <td><?php echo htmlspecialchars($room['under_construction']); ?></td>
+                            <td><?php echo htmlspecialchars($room['created_at']); ?></td>
+                            <td><?php echo htmlspecialchars($room['updated_at']); ?></td>
                             <td>
-                                <a href="view_room.php?id=<?php echo $room['room_id']; ?>" class="btn btn-info btn-sm">View</a>
-                                <a href="edit_room.php?id=<?php echo $room['room_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="manage_rooms.php?delete_id=<?php echo $room['room_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this room?')">Delete</a>
+                                <a href="view_room.php?id=<?php echo htmlspecialchars($room['room_id']); ?>" class="btn btn-info btn-sm">View</a>
+                                <a href="edit_room.php?id=<?php echo htmlspecialchars($room['room_id']); ?>" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="manage_rooms.php?delete_id=<?php echo htmlspecialchars($room['room_id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this room?')">Delete</a>
                             </td>
                         </tr>
                     <?php } ?>

@@ -1,6 +1,7 @@
 <?php 
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -10,7 +11,7 @@ if ($_SESSION['role'] !== 'Admin') {
 
 // Fetch staff data for editing
 if (isset($_GET['id'])) {
-    $staffId = $_GET['id'];
+    $staffId = sanitize($_GET['id']); // Sanitize the staff ID from the URL
     $staffQuery = "SELECT staff_id, email, first_name, last_name, position FROM swx_staff WHERE staff_id = ?";
     $stmt = $pdo->prepare($staffQuery);  // Use PDO here
     $stmt->bindParam(1, $staffId, PDO::PARAM_INT);
@@ -28,11 +29,12 @@ $validPassword = true; // Flag for password validity
 
 // Handle staff update
 if (isset($_POST['update_staff'])) {
-    $email = $_POST['email'];
-    $firstName = $_POST['first_name'];
-    $lastName = $_POST['last_name'];
-    $position = $_POST['position'];  // Get the selected position
-    $password = $_POST['password'];
+    // Sanitize form data
+    $email = sanitize($_POST['email']);
+    $firstName = sanitize($_POST['first_name']);
+    $lastName = sanitize($_POST['last_name']);
+    $position = sanitize($_POST['position']);  // Get the selected position
+    $password = sanitize($_POST['password']);
 
     // Email validation: Check if email already exists (other than the current staff's email)
     $duplicateEmailQuery = "SELECT staff_id FROM swx_staff WHERE email = ? AND staff_id != ?";
@@ -133,22 +135,22 @@ if (isset($_POST['update_staff'])) {
     <!-- Edit Staff Form -->
     <div class="card">
         <h3>Edit Staff Information</h3>
-        <form method="POST" action="edit_staff.php?id=<?php echo $staff['staff_id']; ?>">
+        <form method="POST" action="edit_staff.php?id=<?php echo sanitize($staff['staff_id']); ?>">
 
             <div class="mb-3 email-container">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="<?php echo $staff['email']; ?>" required>
+                <input type="email" class="form-control" id="email" name="email" value="<?php echo sanitize($staff['email']); ?>" required>
                 <button type="button" class="btn btn-secondary generate-btn" onclick="generateNewEmail()">Generate New Email</button>
             </div>
 
             <div class="mb-3">
                 <label for="first_name" class="form-label">First Name</label>
-                <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo $staff['first_name']; ?>" required>
+                <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo sanitize($staff['first_name']); ?>" required>
             </div>
 
             <div class="mb-3">
                 <label for="last_name" class="form-label">Last Name</label>
-                <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo $staff['last_name']; ?>" required>
+                <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo sanitize($staff['last_name']); ?>" required>
             </div>
 
             <div class="mb-3">
