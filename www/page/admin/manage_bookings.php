@@ -202,6 +202,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_booking'])) {
         </div>
     <?php } ?>
 
+    <!-- Filter Form -->
+    <form method="get" action="manage_bookings.php" class="mb-4">
+        <div class="row">
+            <div class="col">
+                <input type="date" name="check_in_date_filter" class="form-control" value="<?php echo htmlspecialchars($checkInDateFilter); ?>" placeholder="Check-in Date">
+            </div>
+            <div class="col">
+                <input type="date" name="check_out_date_filter" class="form-control" value="<?php echo htmlspecialchars($checkOutDateFilter); ?>" placeholder="Check-out Date">
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </form>
+
     <!-- Booking List Table -->
     <div class="card">
         <h3>Booking List</h3>
