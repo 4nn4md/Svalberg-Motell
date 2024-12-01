@@ -59,30 +59,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <form action="" method="POST" class="d-flex justify-content-center">
                 <div class="row w-100 no-gutters"> <!-- Remove gutters for spacing -->
                     <div class="col-md-2">
-                        <label for="location" class="bold-label">Lokasjon</label>
+                        <label for="location" class="bold-label">Location</label>
                         <select class="form-control" id="location" name="location">
-                            <option value="" disabled selected>Velg lokasjon..</option>
+                            <option value="" disabled selected>Choose location..</option>
                             <option value="Kristiansand">Kristiansand</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label for="checkin" class="bold-label">Ankomst</label>
-                        <input type="date" id="checkin" name="checkin" class="form-control">
+                        <label for="checkin" class="bold-label">Arrival</label>
+                        <input type="date" id="checkin" name="checkin" class="form-control" value="<?php echo htmlspecialchars($checkin ?? ''); ?>">
                     </div>
                     <div class="col-md-2">
-                        <label for="checkout" class="bold-label">Avreise</label>
-                        <input type="date" id="checkout" name="checkout" class="form-control">
+                        <label for="checkout" class="bold-label">Departure</label>
+                        <input type="date" id="checkout" name="checkout" class="form-control" value="<?php echo htmlspecialchars($checkout ?? ''); ?>">
                     </div>
                     <div class="col-md-2">
-                        <label for="adults" class="bold-label">Antall voksne</label>
-                        <input type="number" id="adults" name="adults" class="form-control" value="1">
+                        <label for="adults" class="bold-label">Number of adults</label>
+                        <input type="number" id="adults" name="adults" class="form-control" value="<?php echo htmlspecialchars($adults ?? '1'); ?>" min="1">
                     </div>
                     <div class="col-md-2">
-                        <label for="children" class="bold-label">Antall barn</label>
-                        <input type="number" id="children" name="children" class="form-control" value="0">
+                        <label for="children" class="bold-label">Number of children</label>
+                        <input type="number" id="children" name="children" class="form-control" value="<?php echo htmlspecialchars($children ?? '0'); ?>" min="0">
                     </div>
                     <div class="col-md-2 d-flex align-items-end"> <!-- Align button vertically -->
-                        <button type="submit" id="submit" class="btn msearch-btn w-100" id="#MBtn">Søk</button>
+                        <button type="submit" id="submit" class="btn msearch-btn w-100" id="#MBtn">Search</button>
                     </div>
                 </div>
             </form>
