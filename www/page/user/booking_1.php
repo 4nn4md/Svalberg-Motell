@@ -1,7 +1,6 @@
 <?php
 ob_start();
 include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php");
-print_r($_SESSION);
 // Enable error display for debugging purposes
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -68,9 +67,9 @@ $checkin = $_SESSION['checkin'];
 $checkout = $_SESSION['checkout'];
 $adults = $_SESSION['adults'];
 $children = $_SESSION['children'];
-$etasje = $_SESSION['etasje'];
-$heis = $_SESSION['heis'];
-$room_type = $_SESSION['room_type'];
+$etasje = $_SESSION['etasje'] ?? '';
+$heis = $_SESSION['heis'] ?? '';
+$room_type = $_SESSION['room_type'] ?? '';
 
 //variable for total guests
 $total_guests = $adults + $children;
