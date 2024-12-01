@@ -59,10 +59,21 @@ if (!empty($bookings)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Room Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Style to move the "Back" button to the top-left corner */
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container mt-5">
+    <!-- Back button placed in the top-left corner -->
+    <a href="manage_rooms.php" class="btn btn-primary back-button">Back to Manage Rooms</a>
+
     <h1>Room Details</h1>
 
     <div class="card">
@@ -102,9 +113,8 @@ if (!empty($bookings)) {
             <?php } ?>
         </div>
     </div>
-
-    <a href="manage_rooms.php" class="btn btn-primary mt-3">Back to Manage Rooms</a>
 </div>
 
 </body>
 </html>
+
