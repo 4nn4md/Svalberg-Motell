@@ -8,14 +8,56 @@ if ($_SESSION['role'] !== 'Admin') {
     exit();
 }
 
-// Fetch room information along with all necessary details, including max_capacity
+// Get filter parameters from GET request
+$roomTypeFilter = $_GET['room_type_filter'] ?? '';
+$nearElevatorFilter = $_GET['nearElevator_filter'] ?? '';
+$floorFilter = $_GET['floor_filter'] ?? '';
+
+// Build the WHERE clause
+$whereClauses = [];
+if ($roomTypeFilter) {
+    $whereClauses[] = "r.room_type = ?";
+}
+if ($nearElevatorFilter) {
+    $whereClauses[] = "r.nearElevator = ?";
+}
+if ($floorFilter) {
+    $whereClauses[] = "r.floor = ?";
+}
+
+$whereSql = "";
+if (!empty($whereClauses)) {
+    $whereSql = "WHERE " . implode(' AND ', $whereClauses);
+}
+
+// Fetch room information with filters applied
 $roomQuery = "SELECT r.room_id, rt.type_name as room_type, r.nearElevator, r.floor, r.availability, r.under_construction, 
                      rt.max_capacity, r.created_at, r.updated_at
               FROM swx_room r
-              JOIN swx_room_type rt ON r.room_type = rt.type_id";
-$roomResult = $pdo->query($roomQuery); // Use PDO query method
-if (!$roomResult) {
-    die("Error executing room query: " . $pdo->errorInfo()[2]);
+              JOIN swx_room_type rt ON r.room_type = rt.type_id
+              $whereSql"; // Apply the WHERE clause
+              
+$stmt = $pdo->prepare($roomQuery);
+
+// Bind parameters if filters are applied
+$paramIndex = 1;
+if ($roomTypeFilter) {
+    $stmt->bindParam($paramIndex++, $roomTypeFilter, PDO::PARAM_INT);
+}
+if ($nearElevatorFilter) {
+    $stmt->bindParam($paramIndex++, $nearElevatorFilter, PDO::PARAM_STR);
+}
+if ($floorFilter) {
+    $stmt->bindParam($paramIndex++, $floorFilter, PDO::PARAM_INT);
+}
+
+$stmt->execute();
+$roomResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Check if no rooms are found
+if (empty($roomResult)) {
+    $message = "No rooms found with the selected filters.";
+    $message_type = "info";
 }
 
 // Check the current number of rooms to ensure there are no more than 25
@@ -128,6 +170,49 @@ if (isset($_GET['delete_id'])) {
         </div>
     <?php } ?>
 
+    <!-- Filter Form -->
+    <form method="GET" action="manage_rooms.php" class="mb-3">
+        <div class="row">
+            <div class="col">
+                <label for="room_type_filter" class="form-label">Room Type</label>
+                <select class="form-control" name="room_type_filter">
+                    <option value="">All Room Types</option>
+                    <?php
+                    // Fetch room types for filter dropdown
+                    $roomTypeQuery = "SELECT type_id, type_name FROM swx_room_type";
+                    $roomTypeResult = $pdo->query($roomTypeQuery);
+                    while ($roomType = $roomTypeResult->fetch(PDO::FETCH_ASSOC)) {
+                        $selected = (isset($_GET['room_type_filter']) && $_GET['room_type_filter'] == $roomType['type_id']) ? 'selected' : '';
+                        echo "<option value='{$roomType['type_id']}' {$selected}>{$roomType['type_name']}</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div class="col">
+                <label for="nearElevator_filter" class="form-label">Near Elevator</label>
+                <select class="form-control" name="nearElevator_filter">
+                    <option value="">All</option>
+                    <option value="Ja" <?php echo (isset($_GET['nearElevator_filter']) && $_GET['nearElevator_filter'] == 'Ja') ? 'selected' : ''; ?>>Yes</option>
+                    <option value="Nei" <?php echo (isset($_GET['nearElevator_filter']) && $_GET['nearElevator_filter'] == 'Nei') ? 'selected' : ''; ?>>No</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label for="floor_filter" class="form-label">Floor</label>
+                <select class="form-control" name="floor_filter">
+                    <option value="">All Floors</option>
+                    <option value="1" <?php echo (isset($_GET['floor_filter']) && $_GET['floor_filter'] == '1') ? 'selected' : ''; ?>>Floor 1</option>
+                    <option value="2" <?php echo (isset($_GET['floor_filter']) && $_GET['floor_filter'] == '2') ? 'selected' : ''; ?>>Floor 2</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <button type="submit" class="btn btn-primary mt-4">Filter</button>
+            </div>
+        </div>
+    </form>
+
     <!-- Button to toggle visibility of the Add Room form -->
     <button class="btn btn-success add-button" onclick="toggleForm()">Add New Room</button>
 
@@ -137,8 +222,8 @@ if (isset($_GET['delete_id'])) {
         <form method="POST" action="manage_rooms.php">
             <div class="mb-3">
                 <label for="room_type" class="form-label">Room Type</label>
-                <select class="form-control" name="room_type" required>
-                    <option value="" disabled selected>Select Room Type</option>
+                <select class="form-control" name="room_type">
+                    <option value="">Select Room Type</option>
                     <?php
                     // Fetch room types for dropdown
                     $roomTypeQuery = "SELECT type_id, type_name FROM swx_room_type";
@@ -152,8 +237,8 @@ if (isset($_GET['delete_id'])) {
 
             <div class="mb-3">
                 <label for="nearElevator" class="form-label">Near Elevator</label>
-                <select class="form-control" name="nearElevator" required>
-                    <option value="" disabled selected>Select Option</option>
+                <select class="form-control" name="nearElevator">
+                    <option value="">Select Option</option>
                     <option value="Ja">Yes</option>
                     <option value="Nei">No</option>
                 </select>
@@ -161,8 +246,8 @@ if (isset($_GET['delete_id'])) {
 
             <div class="mb-3">
                 <label for="floor" class="form-label">Floor</label>
-                <select class="form-control" name="floor" required>
-                    <option value="" disabled selected>Select Floor</option>
+                <select class="form-control" name="floor">
+                    <option value="">Select Floor</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                 </select>
@@ -170,8 +255,8 @@ if (isset($_GET['delete_id'])) {
 
             <div class="mb-3">
                 <label for="availability" class="form-label">Availability</label>
-                <select class="form-control" name="availability" required>
-                    <option value="" disabled selected>Select Availability</option>
+                <select class="form-control" name="availability">
+                    <option value="">Select Availability</option>
                     <option value="ledig">Available</option>
                     <option value="opptatt">Occupied</option>
                 </select>
@@ -179,8 +264,8 @@ if (isset($_GET['delete_id'])) {
 
             <div class="mb-3">
                 <label for="under_construction" class="form-label">Under Construction</label>
-                <select class="form-control" name="under_construction" required>
-                    <option value="" disabled selected>Select Option</option>
+                <select class="form-control" name="under_construction">
+                    <option value="">Select Option</option>
                     <option value="Ja">Yes</option>
                     <option value="Nei">No</option>
                 </select>
@@ -209,23 +294,30 @@ if (isset($_GET['delete_id'])) {
                 </tr>
             </thead>
             <tbody>
-                <?php while ($room = $roomResult->fetch(PDO::FETCH_ASSOC)) { ?>
+                <?php if (isset($message)) { ?>
                     <tr>
-                        <td><?php echo $room['room_id']; ?></td>
-                        <td><?php echo $room['room_type']; ?></td>
-                        <td><?php echo $room['max_capacity']; ?></td>
-                        <td><?php echo $room['nearElevator']; ?></td>
-                        <td><?php echo $room['floor']; ?></td>
-                        <td><?php echo $room['availability']; ?></td>
-                        <td><?php echo $room['under_construction']; ?></td>
-                        <td><?php echo $room['created_at']; ?></td>
-                        <td><?php echo $room['updated_at']; ?></td>
-                        <td>
-                            <!-- Edit and Delete buttons -->
-                            <a href="edit_room.php?id=<?php echo $room['room_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="manage_rooms.php?delete_id=<?php echo $room['room_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this room?')">Delete</a>
+                        <td colspan="10" class="text-center">
+                            <div class="alert alert-<?php echo $message_type; ?>"><?php echo $message; ?></div>
                         </td>
                     </tr>
+                <?php } else { ?>
+                    <?php foreach ($roomResult as $room) { ?>
+                        <tr>
+                            <td><?php echo $room['room_id']; ?></td>
+                            <td><?php echo $room['room_type']; ?></td>
+                            <td><?php echo $room['max_capacity']; ?></td>
+                            <td><?php echo $room['nearElevator']; ?></td>
+                            <td><?php echo $room['floor']; ?></td>
+                            <td><?php echo $room['availability']; ?></td>
+                            <td><?php echo $room['under_construction']; ?></td>
+                            <td><?php echo $room['created_at']; ?></td>
+                            <td><?php echo $room['updated_at']; ?></td>
+                            <td>
+                                <a href="edit_room.php?id=<?php echo $room['room_id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="manage_rooms.php?delete_id=<?php echo $room['room_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this room?')">Delete</a>
+                            </td>
+                        </tr>
+                    <?php } ?>
                 <?php } ?>
             </tbody>
         </table>
