@@ -51,7 +51,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bindParam(':email', $email);
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-<<<<<<< Updated upstream
 
             // If the email is not found in 'staff', check the 'users' table (guest users)
             if (!$result) {
@@ -140,8 +139,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Handle failed login attempt
                 handle_failed_attempt($email);
             }
-=======
->>>>>>> Stashed changes
         }
 
         // Initialize variables
