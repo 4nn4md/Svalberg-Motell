@@ -16,19 +16,80 @@ $message_type = "";
 $position = ""; // Default empty value for the position
 
 // Fetch staff information
-$staffQuery = "SELECT staff_id, email, name, position FROM swx_staff";
+$staffQuery = "SELECT staff_id, email, first_name, last_name, position FROM swx_staff";
 $staffResult = $pdo->query($staffQuery); // Use PDO query method
 if (!$staffResult) {
     die("Error executing staff query: " . $pdo->errorInfo()[2]);
 }
 
+// Function to generate email based on first and last name with multiple formats, prioritizing certain options
+function generateEmail($firstName, $lastName, $pdo) {
+    // Primary Formats:
+    // Format 1: First name + last name
+    $email1 = strtolower($firstName) . strtolower($lastName) . '@svalberg.no';
+    
+    // Format 2: First letter of first name + last name
+    $email2 = strtolower(substr($firstName, 0, 1)) . strtolower($lastName) . '@svalberg.no';
+    
+    // Format 3: First name + last name + number (e.g., JohnDoe1@svalberg.no)
+    $email6 = strtolower($firstName) . strtolower($lastName) . '1' . '@svalberg.no'; // This is now a primary format
+    
+    // Store all primary email formats in an array
+    $emailFormats = [$email6, $email1, $email2]; // Prioritize the first three options
+    
+    // Secondary Formats (used only if primary options conflict):
+    // Format 4: First name only
+    $email4 = strtolower($firstName) . '@svalberg.no';
+    
+    // Format 5: Last name only
+    $email5 = strtolower($lastName) . '@svalberg.no';
+    
+    // Format 7: First name + dot + last name
+    $email7 = strtolower($firstName) . '.' . strtolower($lastName) . '@svalberg.no';
+
+    // Merge secondary formats into the primary formats array
+    $emailFormats = array_merge($emailFormats, [$email4, $email5, $email7]);
+
+    // Shuffle the array to randomize the order for selection (this isn't necessary since we prioritized the formats)
+    shuffle($emailFormats);
+    
+    // Start with the first random format
+    $email = $emailFormats[0];
+    
+    // Check if the email already exists in the database
+    $duplicateEmailQuery = "SELECT staff_id FROM swx_staff WHERE email = ?";
+    $stmt = $pdo->prepare($duplicateEmailQuery);
+    $stmt->bindParam(1, $email, PDO::PARAM_STR);
+    $stmt->execute();
+    
+    // If the email exists, append a number to make it unique
+    $counter = 1;
+    while ($stmt->rowCount() > 0) {
+        // Check if we are dealing with one of the primary formats (email1, email2, email6)
+        if (in_array($email, [$email1, $email2, $email6])) {
+            // If the email is from the primary formats (first name + last name variants), keep appending a number
+            $email = strtolower($firstName) . strtolower($lastName) . $counter . '@svalberg.no';
+        } else {
+            // Otherwise, append a number to the selected format (secondary formats like first name, last name, etc.)
+            $email = preg_replace('/@/', $counter . '@', $email); // Add counter before '@'
+        }
+        $stmt->execute();  // Re-run the query to check if the new email is unique
+        $counter++;
+    }
+    
+    return $email;
+}
+
 // Handle adding new staff
 if (isset($_POST['add_staff'])) {
     // Get form data
-    $email = $_POST['email'];
-    $name = $_POST['name'];
-    $position = $_POST['position'];  // Now we assign the position from the form input
+    $firstName = $_POST['first_name'];
+    $lastName = $_POST['last_name'];
+    $position = $_POST['position'];
     $password = $_POST['password'];
+
+    // Generate email based on first and last name with multiple formats (and conflict resolution)
+    $email = generateEmail($firstName, $lastName, $pdo);
 
     // PHP Validation for fields
     if (empty($email)) {
@@ -37,8 +98,8 @@ if (isset($_POST['add_staff'])) {
     } elseif (!preg_match("/^[a-zA-Z0-9._%+-]+@svalberg\.no$/", $email)) {
         $message = "Error: The email must end with @svalberg.no.";
         $message_type = "error";
-    } elseif (empty($name)) {
-        $message = "Name is required.";
+    } elseif (empty($firstName) || empty($lastName)) {
+        $message = "First and Last Name are required.";
         $message_type = "error";
     } elseif (empty($password)) {
         $message = "Password is required.";
@@ -50,34 +111,24 @@ if (isset($_POST['add_staff'])) {
         $message = "Position is required.";
         $message_type = "error";
     } else {
-        // Check if email already exists
-        $duplicateEmailQuery = "SELECT staff_id FROM swx_staff WHERE email = ?";
-        $stmt = $pdo->prepare($duplicateEmailQuery);
+        // Hash the password
+        $password_hashed = password_hash($password, PASSWORD_DEFAULT);
+
+        // Insert new staff into the database
+        $insertQuery = "INSERT INTO swx_staff (email, password, position, first_name, last_name) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $pdo->prepare($insertQuery);
         $stmt->bindParam(1, $email, PDO::PARAM_STR);
-        $stmt->execute();
+        $stmt->bindParam(2, $password_hashed, PDO::PARAM_STR);
+        $stmt->bindParam(3, $position, PDO::PARAM_STR);
+        $stmt->bindParam(4, $firstName, PDO::PARAM_STR);
+        $stmt->bindParam(5, $lastName, PDO::PARAM_STR);
 
-        if ($stmt->rowCount() > 0) {
-            $message = "Error: The email is already taken. Please choose a different email.";
-            $message_type = "error";
+        if ($stmt->execute()) {
+            $message = "Staff member added successfully!";
+            $message_type = "success";
         } else {
-            // Hash the password
-            $password_hashed = password_hash($password, PASSWORD_DEFAULT);
-
-            // Insert new staff into the database
-            $insertQuery = "INSERT INTO swx_staff (email, password, position, name) VALUES (?, ?, ?, ?)";
-            $stmt = $pdo->prepare($insertQuery);
-            $stmt->bindParam(1, $email, PDO::PARAM_STR);
-            $stmt->bindParam(2, $password_hashed, PDO::PARAM_STR);
-            $stmt->bindParam(3, $position, PDO::PARAM_STR);
-            $stmt->bindParam(4, $name, PDO::PARAM_STR);
-
-            if ($stmt->execute()) {
-                $message = "Staff member added successfully!";
-                $message_type = "success";
-            } else {
-                $message = "Error adding staff: " . $pdo->errorInfo()[2];
-                $message_type = "error";
-            }
+            $message = "Error adding staff: " . $pdo->errorInfo()[2];
+            $message_type = "error";
         }
     }
 }
@@ -145,13 +196,13 @@ if (isset($_GET['delete_id'])) {
         <h3>Add New Staff Member</h3>
         <form method="POST" action="manage_staff.php">
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" placeholder="Enter email" required>
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo htmlspecialchars($firstName ?? ''); ?>" placeholder="Enter first name" required>
             </div>
 
             <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" name="name" value="<?php echo htmlspecialchars($name ?? ''); ?>" placeholder="Enter name" required>
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo htmlspecialchars($lastName ?? ''); ?>" placeholder="Enter last name" required>
             </div>
 
             <div class="mb-3">
@@ -192,7 +243,7 @@ if (isset($_GET['delete_id'])) {
                 <?php while ($staff = $staffResult->fetch(PDO::FETCH_ASSOC)) { ?>
                     <tr>
                         <td><?php echo $staff['email']; ?></td>
-                        <td><?php echo $staff['name']; ?></td>
+                        <td><?php echo $staff['first_name'] . ' ' . $staff['last_name']; ?></td>
                         <td><?php echo $staff['position']; ?></td>
                         <td>
                             <a href="edit_staff.php?id=<?php echo $staff['staff_id']; ?>" class="btn btn-warning btn-sm">Edit</a>

@@ -11,7 +11,7 @@ if ($_SESSION['role'] !== 'Admin') {
 // Fetch staff data for editing
 if (isset($_GET['id'])) {
     $staffId = $_GET['id'];
-    $staffQuery = "SELECT staff_id, email, name, position FROM swx_staff WHERE staff_id = ?";
+    $staffQuery = "SELECT staff_id, email, first_name, last_name, position FROM swx_staff WHERE staff_id = ?";
     $stmt = $pdo->prepare($staffQuery);  // Use PDO here
     $stmt->bindParam(1, $staffId, PDO::PARAM_INT);
     $stmt->execute();
@@ -24,13 +24,13 @@ if (isset($_GET['id'])) {
 // Initialize message variable
 $message = '';
 $message_type = '';
-
 $validPassword = true; // Flag for password validity
 
 // Handle staff update
 if (isset($_POST['update_staff'])) {
     $email = $_POST['email'];
-    $name = $_POST['name'];
+    $firstName = $_POST['first_name'];
+    $lastName = $_POST['last_name'];
     $position = $_POST['position'];  // Get the selected position
     $password = $_POST['password'];
 
@@ -63,21 +63,23 @@ if (isset($_POST['update_staff'])) {
         if ($validPassword) {
             // If password is valid or not provided, update the staff details
             if (!empty($password)) {
-                $updateQuery = "UPDATE swx_staff SET email = ?, name = ?, position = ?, password = ? WHERE staff_id = ?";
+                $updateQuery = "UPDATE swx_staff SET email = ?, first_name = ?, last_name = ?, position = ?, password = ? WHERE staff_id = ?";
                 $stmt = $pdo->prepare($updateQuery);  // Use PDO here
                 $stmt->bindParam(1, $email, PDO::PARAM_STR);
-                $stmt->bindParam(2, $name, PDO::PARAM_STR);
-                $stmt->bindParam(3, $position, PDO::PARAM_STR);
-                $stmt->bindParam(4, $password, PDO::PARAM_STR);
-                $stmt->bindParam(5, $staffId, PDO::PARAM_INT);
+                $stmt->bindParam(2, $firstName, PDO::PARAM_STR);
+                $stmt->bindParam(3, $lastName, PDO::PARAM_STR);
+                $stmt->bindParam(4, $position, PDO::PARAM_STR);
+                $stmt->bindParam(5, $password, PDO::PARAM_STR);
+                $stmt->bindParam(6, $staffId, PDO::PARAM_INT);
             } else {
-                // If no password change, just update email, name, and position
-                $updateQuery = "UPDATE swx_staff SET email = ?, name = ?, position = ? WHERE staff_id = ?";
+                // If no password change, just update email, first name, last name, and position
+                $updateQuery = "UPDATE swx_staff SET email = ?, first_name = ?, last_name = ?, position = ? WHERE staff_id = ?";
                 $stmt = $pdo->prepare($updateQuery);  // Use PDO here
                 $stmt->bindParam(1, $email, PDO::PARAM_STR);
-                $stmt->bindParam(2, $name, PDO::PARAM_STR);
-                $stmt->bindParam(3, $position, PDO::PARAM_STR);
-                $stmt->bindParam(4, $staffId, PDO::PARAM_INT);
+                $stmt->bindParam(2, $firstName, PDO::PARAM_STR);
+                $stmt->bindParam(3, $lastName, PDO::PARAM_STR);
+                $stmt->bindParam(4, $position, PDO::PARAM_STR);
+                $stmt->bindParam(5, $staffId, PDO::PARAM_INT);
             }
 
             // Execute the update query only if password is valid
@@ -106,6 +108,8 @@ if (isset($_POST['update_staff'])) {
         .card { background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: 20px; padding: 20px; }
         .logout-button { position: absolute; top: 10px; right: 10px; padding: 10px 20px; background: #dc3545; color: white; text-decoration: none; border-radius: 5px; }
         .back-button { position: absolute; top: 10px; left: 10px; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; }
+        .email-container { display: flex; align-items: center; }
+        .generate-btn { margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -131,14 +135,20 @@ if (isset($_POST['update_staff'])) {
         <h3>Edit Staff Information</h3>
         <form method="POST" action="edit_staff.php?id=<?php echo $staff['staff_id']; ?>">
 
-            <div class="mb-3">
+            <div class="mb-3 email-container">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" name="email" value="<?php echo $staff['email']; ?>" required>
+                <button type="button" class="btn btn-secondary generate-btn" onclick="generateNewEmail()">Generate New Email</button>
             </div>
 
             <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" name="name" value="<?php echo $staff['name']; ?>" required>
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo $staff['first_name']; ?>" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo $staff['last_name']; ?>" required>
             </div>
 
             <div class="mb-3">
@@ -167,6 +177,35 @@ if (isset($_POST['update_staff'])) {
 <!-- Bootstrap JS and Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+
+<script>
+// Function to generate a new email based on first and last name
+function generateNewEmail() {
+    var firstName = document.getElementById('first_name').value;
+    var lastName = document.getElementById('last_name').value;
+
+    // Clear the current email field (optional)
+    document.getElementById('email').value = '';
+
+    // Send data to PHP to generate a new email
+    fetch('generate_email.php', {
+        method: 'POST',
+        body: JSON.stringify({ firstName: firstName, lastName: lastName }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('email').value = data.email; // Set the new email in the input field
+        } else {
+            alert('Error generating email: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Error generating email: ' + error);
+    });
+}
+</script>
 
 </body>
 </html>
