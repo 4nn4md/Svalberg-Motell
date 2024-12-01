@@ -1,9 +1,18 @@
 <?php 
 include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php");
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php");
-$email = $_SESSION['email'];
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
-// Hent brukerinfo
+// Ensure the session email is available
+$email = isset($_SESSION['email']) ? $_SESSION['email'] : null;
+
+// If email is missing, redirect to login or handle the error
+if (empty($email)) {
+    header("Location: login.php");  // Redirect to login page if email is not found
+    exit;
+}
+
+// Fetch user info securely using prepared statements
 $sql = $pdo->prepare(
   "SELECT 
     user_id, 
@@ -17,13 +26,22 @@ $sql = $pdo->prepare(
 $sql->execute([':email' => $email]);
 $user = $sql->fetch(PDO::FETCH_ASSOC);
 
-$firstName = $user['firstName'];
-$lastName = $user['lastName'];
-$phone = $user['tlf'];
-$point = $user['point'];
-$user_id = $user['user_id'];
+if (!$user) {
+    echo "User not found.";
+    exit;
+}
 
-// Hent kommende reservasjoner (der `check_in_date` er i fremtiden)
+// Use your custom sanitize function for sanitizing the user input
+$firstName = sanitize($user['firstName']);
+$lastName = sanitize($user['lastName']);
+$phone = sanitize($user['tlf']);
+$point = (int)$user['point']; // Cast to integer to ensure it's a valid number
+$user_id = (int)$user['user_id']; // Cast to integer for safety
+
+// Generate the avatar URL dynamically based on the first letter of first name and last name
+$avatarUrl = "https://ui-avatars.com/api/?name=" . urlencode($firstName[0] . $lastName[0]) . "&size=256&background=4e73df&color=ffffff&rounded=true";
+
+// Fetch upcoming reservations (future check-in dates)
 $upcomingQuery = $pdo->prepare(
   "SELECT 
     b.booking_id, 
@@ -43,7 +61,7 @@ $upcomingQuery = $pdo->prepare(
 $upcomingQuery->execute([':user_id' => $user_id]);
 $upcomingReservations = $upcomingQuery->fetchAll(PDO::FETCH_ASSOC);
 
-// Hent alle reservasjoner (historikk)
+// Fetch booking history (past check-out dates)
 $historyQuery = $pdo->prepare(
   "SELECT 
     b.booking_id, 
@@ -65,8 +83,8 @@ $historyQuery = $pdo->prepare(
   ORDER BY 
     b.check_in_date DESC");
 
-    $historyQuery->execute([':user_id' => $user_id]);
-    $bookingHistory = $historyQuery->fetchAll(PDO::FETCH_ASSOC);
+$historyQuery->execute([':user_id' => $user_id]);
+$bookingHistory = $historyQuery->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <html>
@@ -78,13 +96,14 @@ $historyQuery = $pdo->prepare(
                 <div class="card">
                     <div class="rounded-top text-white d-flex flex-row" style="background-color: #0A3D62; height:200px;">
                         <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
-                            <img src="http://localhost/Svalberg-Motell/www/assets/image/profile-pic.webp"
-                                 alt="Generic placeholder image" class="img-fluid img-thumbnail mt-4 mb-2"
+                            <!-- Dynamically set the src of the profile picture -->
+                            <img src="<?php echo $avatarUrl; ?>"
+                                 alt="Profile picture of <?php echo $firstName . ' ' . $lastName; ?>"
+                                 class="img-fluid img-thumbnail mt-4 mb-2"
                                  style="width: 150px; z-index: 1">
                                  <a href="edit_profile.php" class="btn btn-outline-dark text-body" style="z-index: 1;">
                                     Edit profile
                                 </a>
-
                         </div>
                         <div class="ms-3" style="margin-top: 130px;">
                             <h5 style="color: #B3D8F2;"><?php echo "$firstName $lastName"; ?></h5>
@@ -141,9 +160,9 @@ $historyQuery = $pdo->prepare(
                           <?php if (!empty($upcomingReservations)) : ?>
                               <?php foreach ($upcomingReservations as $reservation) : ?>
                                   <tr>
-                                      <td><?php echo htmlspecialchars($reservation['check_in_date']); ?></td>
-                                      <td><?php echo htmlspecialchars($reservation['check_out_date']); ?></td>
-                                      <td><?php echo htmlspecialchars($reservation['total_price']); ?> NOK</td>
+                                      <td><?php echo sanitize($reservation['check_in_date']); ?></td>
+                                      <td><?php echo sanitize($reservation['check_out_date']); ?></td>
+                                      <td><?php echo sanitize($reservation['total_price']); ?> NOK</td>
                                       <td>
                                           <button class="btn btn-primary toggle-details" data-target=".details-row<?php echo $reservation['booking_id']; ?>">Show more details</button>
                                       </td>
@@ -151,9 +170,9 @@ $historyQuery = $pdo->prepare(
                                   <tr class="collapse details-row<?php echo $reservation['booking_id']; ?>">
                                       <td colspan="4">
                                           <div class="card card-body">
-                                              <p><strong>Navn:</strong> <?php echo htmlspecialchars($reservation['name']); ?></p>
-                                              <p><strong>Antall personer:</strong> <?php echo htmlspecialchars($reservation['number_of_guests']); ?></p>
-                                              <p><strong>Kommentarer:</strong> <?php echo htmlspecialchars($reservation['comments']); ?></p>
+                                              <p><strong>Navn:</strong> <?php echo sanitize($reservation['name']); ?></p>
+                                              <p><strong>Antall personer:</strong> <?php echo sanitize($reservation['number_of_guests']); ?></p>
+                                              <p><strong>Kommentarer:</strong> <?php echo sanitize($reservation['comments']); ?></p>
                                           </div>
                                       </td>
                                   </tr>
@@ -183,12 +202,12 @@ $historyQuery = $pdo->prepare(
                         <?php if (!empty($bookingHistory)): ?>
                             <?php foreach ($bookingHistory as $history): ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($history['name']); ?></td> 
-                                    <td><?php echo htmlspecialchars($history['email']); ?></td> 
-                                    <td><?php echo htmlspecialchars($history['tlf']); ?></td> 
-                                    <td><?php echo htmlspecialchars($history['check_in_date']); ?></td>
-                                    <td><?php echo htmlspecialchars($history['check_out_date']); ?></td>
-                                    <td><?php echo htmlspecialchars($history['total_price']); ?> NOK</td>
+                                    <td><?php echo sanitize($history['name']); ?></td> 
+                                    <td><?php echo sanitize($history['email']); ?></td> 
+                                    <td><?php echo sanitize($history['tlf']); ?></td> 
+                                    <td><?php echo sanitize($history['check_in_date']); ?></td>
+                                    <td><?php echo sanitize($history['check_out_date']); ?></td>
+                                    <td><?php echo sanitize($history['total_price']); ?> NOK</td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
