@@ -4,45 +4,54 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 include_once($_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
 
 // Define max login attempts and the cooldown period (in seconds)
 define('MAX_ATTEMPTS', 3);
 define('COOLDOWN_TIME', 180); // 180 seconds = 3 minutes
 
-// Handle login
+// Initialize variables for form data and error messages
+$email = $password = "";
+$email_err = $password_err = "";
+
+// Handle login when the form is submitted via POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $password = "";
-    $email_err = $password_err = "";
-
-    if (isset($_POST['login'])) {
-        // Validate email
-        if (empty($_POST['email'])) {
-            $email_err = "Email is required.";
-        } else {
-            $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $email_err = "Invalid email format.";
-            }
+    // Sanitize and validate email
+    if (empty($_POST['email'])) {
+        $email_err = "Email is required.";
+    } else {
+        $email = sanitize($_POST['email']);  // Sanitize email input
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $email_err = "Invalid email format.";
         }
+    }
 
-        // Validate password
-        if (empty($_POST['password'])) {
-            $password_err = "Password is required.";
-        } else {
-            $password = trim($_POST['password']);
-            // Regular expression to check for at least one uppercase letter, two digits, one special character, and minimum length of 9
-            if (!preg_match('/^(?=.*[A-Z])(?=.*\d.*\d)(?=.*[\W_]).{9,}$/', $password)) {
-                $password_err = "Incorrect password, try again.";
-            }
+    // Validate password (ensure it meets strength requirements)
+    if (empty($_POST['password'])) {
+        $password_err = "Password is required.";
+    } else {
+        $password = sanitize($_POST['password']);  // Sanitize password input
+        // Regular expression to check for at least one uppercase letter, two digits, one special character, and minimum length of 9
+        if (!preg_match('/^(?=.*[A-Z])(?=.*\d.*\d)(?=.*[\W_]).{9,}$/', $password)) {
+            $password_err = "Password does not meet the criteria.";
         }
+    }
 
-        // Proceed if no errors
-        if (empty($email_err) && empty($password_err)) {
-            // Check if the user exists in the 'staff' table (admin/staff users)
-            $stmt = $pdo->prepare("SELECT staff_id, password, position, login_attempts, locked_until FROM swx_staff WHERE email = :email");
+    // Proceed with login attempt logic only if both email and password are valid
+    if (empty($email_err) && empty($password_err)) {
+        // Check if the user exists in the 'staff' table (admin/staff users)
+        $stmt = $pdo->prepare("SELECT staff_id, password, position, login_attempts, locked_until FROM swx_staff WHERE email = :email");
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // If the email is not found in 'staff', check the 'users' table (guest users)
+        if (!$result) {
+            $stmt = $pdo->prepare("SELECT user_id, password, login_attempts, locked_until FROM swx_users WHERE username = :email");
             $stmt->bindParam(':email', $email);
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
+<<<<<<< Updated upstream
 
             // If the email is not found in 'staff', check the 'users' table (guest users)
             if (!$result) {
@@ -131,7 +140,96 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Handle failed login attempt
                 handle_failed_attempt($email);
             }
+=======
+>>>>>>> Stashed changes
         }
+
+        // Initialize variables
+        $role = null; // For guests, no role exists
+        $hashed_password = null; // To hold the password hash from DB
+        $login_attempts = null; // For login attempt tracking
+        $locked_until = null; // For lockout time
+
+        // If a result is found, assign values
+        if ($result) {
+            $user_id = $result['staff_id'] ?? $result['user_id'];
+            $hashed_password = $result['password'];
+            $login_attempts = $result['login_attempts'];
+            $locked_until = $result['locked_until'];
+            $role = $result['position'] ?? 'user';
+        } else {
+            // No user found, handle error
+            $email_err = "User not found.";
+            exit();
+        }
+
+        $current_time = time();
+
+        // If the user is locked out, show the lockout time
+        if ($locked_until && strtotime($locked_until) > $current_time) {
+            $time_remaining = strtotime($locked_until) - $current_time;
+            $minutes_remaining = ceil($time_remaining / 60);
+            $email_err = "You are locked out. Please try again in $minutes_remaining minute(s).";
+            exit();
+        }
+
+        // If the email is found and password matches, proceed
+        if (password_verify($password, $hashed_password)) {
+            session_regenerate_id(true); // Regenerate session ID to prevent session fixation
+
+            $_SESSION['user_id'] = $user_id;
+            $_SESSION['email'] = $email;
+            $_SESSION['role'] = $role; // Set role as 'admin', 'staff', or 'user'
+            $_SESSION['attempts'] = 0; // Reset attempts on successful login
+            $_SESSION['locked_until'] = null; // Clear locked time on success
+
+            // Set secure cookies for persistent login
+            setcookie('user_id', $user_id, time() + 3600, '/', '', true, true); // 1 hour expiry, HttpOnly and Secure flags
+            setcookie('email', $email, time() + 3600, '/', '', true, true); // 1 hour expiry, HttpOnly and Secure flags
+
+            // Reset login attempts and lockout time in the database after a successful login
+            if ($role == 'Admin' || $role == 'Staff') {
+                $update_stmt = $pdo->prepare("UPDATE swx_staff SET login_attempts = 0, locked_until = NULL WHERE email = :email");
+            } else {
+                $update_stmt = $pdo->prepare("UPDATE swx_users SET login_attempts = 0, locked_until = NULL WHERE username = :email");
+            }
+            $update_stmt->bindParam(':email', $email);
+            $update_stmt->execute();
+
+            // Redirect based on user role
+            if ($role == 'Admin') {
+                header("Location: page/admin/adminIndex.php");
+            } elseif ($role == 'Staff') {
+                header("Location: staff_dashboard.php");
+            } elseif ($role == 'Manager') {
+                header("Location: manager_dashboard.php");
+            } elseif ($role == 'Receptionist') {
+                header("Location: receptionist_dashboard.php");
+            } elseif ($role == 'Housekeeper') {
+                header("Location: housekeeper_dashboard.php");
+            } elseif ($role == 'Maintenance') {
+                header("Location: maintenance_dashboard.php");
+            } else {
+                if (isset($_SESSION['redirect_step'])) {
+                    error_log("Redirect step found: " . $_SESSION['redirect_step']);
+                    $redirect_step = $_SESSION['redirect_step'];
+                    unset($_SESSION['redirect_step']);
+                    header("Location: page/user/$redirect_step.php");
+                    exit();
+                } else {
+                    error_log("No redirect step found. Redirecting to index1.php.");
+                    header("Location: index1.php");
+                    exit();
+                }
+            }
+            exit();
+        } else {
+            // Handle failed login attempt
+            handle_failed_attempt($email);
+        }
+    } else {
+        // If there were any errors in form validation, we can still show the number of attempts left
+        handle_failed_attempt($email);  // Increment failed attempts due to validation errors (this happens even if email or password is incorrect)
     }
 }
 
@@ -165,7 +263,7 @@ function handle_failed_attempt($email) {
     if ($locked_until && strtotime($locked_until) > time()) {
         $time_remaining = strtotime($locked_until) - time();
         $minutes_remaining = ceil($time_remaining / 60);
-        echo "Too many failed login attempts. Please try again in $minutes_remaining minute(s).";
+        echo "Too many failed login attempts. You are locked out for $minutes_remaining minute(s).";
         exit();
     }
 
@@ -186,13 +284,16 @@ function handle_failed_attempt($email) {
 
     // Inform the user about failed attempts
     if ($locked_until) {
-        echo "Too many failed login attempts. You are locked out for 3 minutes.";
+        $time_remaining = strtotime($locked_until) - time();
+        $minutes_remaining = ceil($time_remaining / 60);
+        echo "Too many failed login attempts. You are locked out for $minutes_remaining minute(s).";
     } else {
         echo "Incorrect login details. You have " . (MAX_ATTEMPTS - $login_attempts) . " attempt(s) left.";
     }
 }
 ?>
 
+<!-- HTML Code for Login Form -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
