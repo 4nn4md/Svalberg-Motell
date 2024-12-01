@@ -172,46 +172,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <div class="card bg-white" style="margin: 50px auto 25px auto;">
-                <h1 class="text-center" style="margin: 50px auto 25px auto;">Kontakt og betalingsdetaljer</h1>
+                <h1 class="text-center" style="margin: 50px auto 25px auto;">Contact and payment details</h1>
                 <form method="POST" action="" class="row g-3 w-75" style="margin: 0 auto 25px auto;">    
                     <div class="col-md-6">
-                        <label for="fname" class="form-label">Fornavn</label>
+                        <label for="fname" class="form-label">First name</label>
                         <input type="text" class="form-control" id="fname" name="fname">
                     </div>
                     <div class="col-md-6">
-                        <label for="lname" class="form-label">Etternavn</label>
+                        <label for="lname" class="form-label">Last name</label>
                         <input type="text" class="form-control" id="lname" name="lname">
                     </div>
                     <div class="col-md-6">
-                        <label for="epost" class="form-label">Epost</label>
+                        <label for="epost" class="form-label">Email</label>
                         <input type="text" class="form-control" id="epost" name="epost">
                     </div>
                     <div class="col-md-2">
-                        <label for="country_code" class="form-label">Landskode</label>
+                        <label for="country_code" class="form-label">Country code</label>
                         <div class="input-group">
                             <span class="input-group-text">+</span>
                             <input type="tel" class="form-control" id="country_code" name="country_code" placeholder="47">
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label for="mobile" class="form-label">Mobil</label>
+                        <label for="mobile" class="form-label">Phone</label>
                         <input type="tel" class="form-control" id="mobile" name="mobile">
                     </div>
                     <div class="col-12">
-                        <label for="message" class="form-label">Beskjed</label>
+                        <label for="message" class="form-label">Message</label>
                         <textarea class="form-control" id="message" name="message" placeholder="..." rows="4"></textarea>
                     </div>
                     <div class="col-12">
-                        <h3>Brukerpoeng</h3>
-                        <p>Du har <strong id="userPoints"><?php echo $user_points; ?></strong> poeng.</p>
-                        <p>Dette gir deg en maksimal rabatt på <strong id="discountAmount"><?php echo number_format($discount_amount, 2); ?></strong> NOK.</p>
+                        <h3>User point</h3>
+                        <p>You have <strong id="userPoints"><?php echo $user_points; ?></strong> points.</p>
+                        <p>This gives you a maximum discount on <strong id="discountAmount"><?php echo number_format($discount_amount, 2); ?></strong> NOK.</p>
                     </div>
                     <div class="col-12">
-                        <h3>Velg betalingsmetode</h3>
+                        <h3>Select payment method</h3>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="usePointsCheckbox" name="usePoints">
-                        <label class="form-check-label" for="usePointsCheckbox">Bruk poengene mine</label>
+                        <label class="form-check-label" for="usePointsCheckbox">Use my points</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" value="Vips" id="flexCheckDefault" name="choosePayment" >
@@ -219,11 +219,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" value="Credit Card" id="flexCheckDefault" name="choosePayment">
-                        <label class="form-check-label" for="flexCheckDefault">Kort</label>
+                        <label class="form-check-label" for="flexCheckDefault">Card</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" value="Invoice" id="flexCheckChecked" name="choosePayment">
-                        <label class="form-check-label" for="flexCheckChecked">Faktura</label>
+                        <label class="form-check-label" for="flexCheckChecked">Invoice</label>
                     </div>
                     <?php if($error_message) { echo "<p style='color: red;'>$error_message</p>";}?>
                     <div class="col-12">
@@ -231,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th scope="col">Pris for rom</th>
+                                        <th scope="col">Price for room</th>
                                         <td class="text-end" scope="col"><?php echo htmlspecialchars($_SESSION['selected_room']['base_price']) . " NOK";?></td>              
                                     </tr>
                                 </thead>
@@ -239,9 +239,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <tbody>
                                     <tr>
                                         <!-- uses calculateMVA function -->
-                                        <td scope="row"><?php echo "MVA 12%" . " NOK";?></td>
+                                        <td scope="row"><?php echo "VAT 12%" . " NOK";?></td>
                                         <td class="text-end"><?php echo calculateMVA($_SESSION['selected_room']['base_price']) . " NOK";?>
-                                            <p>MVA er inkludert i prisen</p>
+                                            <p>VAT is included in the price</p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -254,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </table>
                             <input type="hidden" id="finalPriceInput" name="final_price" value="<?php echo htmlspecialchars($_SESSION['selected_room']['total_price']); ?>">
                             <div class="col d-flex justify-content-end">
-                                <button type="submit" class="btn msearch-btn w-50 mb-2">Godkjenn & betal nå</button>
+                                <button type="submit" class="btn msearch-btn w-50 mb-2">Approve & pay now</button>
                             </div>
                         </div>
                     </div>
