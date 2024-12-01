@@ -74,11 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <input type="date" id="checkout" name="checkout" class="form-control" value="<?php echo htmlspecialchars($checkout ?? ''); ?>">
                     </div>
                     <div class="col-md-2">
-                        <label for="adults" class="bold-label">Number of adults</label>
+                        <label for="adults" class="bold-label">Adults</label>
                         <input type="number" id="adults" name="adults" class="form-control" value="<?php echo htmlspecialchars($adults ?? '1'); ?>" min="1">
                     </div>
                     <div class="col-md-2">
-                        <label for="children" class="bold-label">Number of children</label>
+                        <label for="children" class="bold-label">Children</label>
                         <input type="number" id="children" name="children" class="form-control" value="<?php echo htmlspecialchars($children ?? '0'); ?>" min="0">
                     </div>
                     <div class="col-md-2 d-flex align-items-end"> <!-- Align button vertically -->
