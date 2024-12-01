@@ -10,24 +10,24 @@ if ($_SESSION['role'] !== 'Admin') {
 
 // Fetch room information
 $roomQuery = "SELECT COUNT(*) AS total_rooms, SUM(CASE WHEN availability = 'ledig' THEN 1 ELSE 0 END) AS available_rooms FROM swx_room";  
-$roomResult = mysqli_query($conn, $roomQuery);
+$roomResult = $pdo->query($roomQuery); // Use PDO query method
 if (!$roomResult) {
-    die("Error executing room query: " . mysqli_error($conn));
+    die("Error executing room query: " . $pdo->errorInfo()[2]);
 }
-$roomData = mysqli_fetch_assoc($roomResult);
+$roomData = $roomResult->fetch(PDO::FETCH_ASSOC);
 
 // Fetch staff information (assuming 'staff' table)
 $staffQuery = "SELECT staff_id, email FROM swx_staff";  // Staff are stored in the 'staff' table
-$staffResult = mysqli_query($conn, $staffQuery);
+$staffResult = $pdo->query($staffQuery); // Use PDO query method
 if (!$staffResult) {
-    die("Error executing staff query: " . mysqli_error($conn));
+    die("Error executing staff query: " . $pdo->errorInfo()[2]);
 }
 
 // Fetch guest information (users are guests in this case)
 $guestQuery = "SELECT user_id, username FROM swx_users";  // Guests are stored in the 'users' table
-$guestResult = mysqli_query($conn, $guestQuery);
+$guestResult = $pdo->query($guestQuery); // Use PDO query method
 if (!$guestResult) {
-    die("Error executing guest query: " . mysqli_error($conn));
+    die("Error executing guest query: " . $pdo->errorInfo()[2]);
 }
 
 ?>
@@ -69,14 +69,14 @@ if (!$guestResult) {
         <div class="card">
             <i class="fas fa-users"></i>
             <h3>Staff Overview</h3>
-            <p>Total Staff: <?php echo mysqli_num_rows($staffResult); ?></p>
+            <p>Total Staff: <?php echo $staffResult->rowCount(); ?></p> <!-- Use PDO rowCount() -->
             <a href="manage_staff.php">Manage Staff</a>
         </div>
 
         <div class="card">
             <i class="fas fa-user"></i>
             <h3>Guest Overview</h3>
-            <p>Total Guests: <?php echo mysqli_num_rows($guestResult); ?></p>
+            <p>Total Guests: <?php echo $guestResult->rowCount(); ?></p> <!-- Use PDO rowCount() -->
             <a href="manage_guests.php">Manage Guests</a>
         </div>
 

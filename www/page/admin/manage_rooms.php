@@ -1,6 +1,6 @@
-<?php
+<?php 
 session_start();
-include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/config.php';
+include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -13,46 +13,79 @@ $roomQuery = "SELECT r.room_id, rt.type_name as room_type, r.nearElevator, r.flo
                      rt.max_capacity, r.created_at, r.updated_at
               FROM swx_room r
               JOIN swx_room_type rt ON r.room_type = rt.type_id";
-$roomResult = mysqli_query($conn, $roomQuery);
+$roomResult = $pdo->query($roomQuery); // Use PDO query method
 if (!$roomResult) {
-    die("Error executing room query: " . mysqli_error($conn));
+    die("Error executing room query: " . $pdo->errorInfo()[2]);
+}
+
+// Check the current number of rooms to ensure there are no more than 25
+$roomCountQuery = "SELECT COUNT(*) AS room_count FROM swx_room";
+$roomCountResult = $pdo->query($roomCountQuery);
+$roomCount = $roomCountResult->fetch(PDO::FETCH_ASSOC)['room_count'];
+
+if ($roomCount >= 25) {
+    $message = "Maximum room limit reached (25 rooms). Cannot add more rooms.";
+    $message_type = "error";
 }
 
 // Handle adding new room
 if (isset($_POST['add_room'])) {
-    $room_type = $_POST['room_type'];
-    $nearElevator = $_POST['nearElevator'];
-    $floor = $_POST['floor'];
-    $availability = $_POST['availability'];
-    $under_construction = $_POST['under_construction'];
+    // Get the form data
+    $room_type = $_POST['room_type'] ?? '';
+    $nearElevator = $_POST['nearElevator'] ?? '';
+    $floor = $_POST['floor'] ?? '';
+    $availability = $_POST['availability'] ?? '';
+    $under_construction = $_POST['under_construction'] ?? '';
 
-    $insertQuery = "INSERT INTO room (room_type, nearElevator, floor, availability, under_construction) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($insertQuery);
-    $stmt->bind_param("issss", $room_type, $nearElevator, $floor, $availability, $under_construction);
-    if ($stmt->execute()) {
-        $message = "Room added successfully!";
-        $message_type = "success";
-    } else {
-        $message = "Error adding room: " . mysqli_error($conn);
+    // PHP Validation
+    if ($roomCount >= 25) {
+        $message = "You cannot add more rooms as the maximum limit (25 rooms) has been reached.";
         $message_type = "error";
+    } elseif (!in_array($floor, [1, 2])) {
+        $message = "Floor must be either 1 or 2!";
+        $message_type = "error";
+    } elseif (empty($room_type) || empty($nearElevator) || empty($availability) || empty($under_construction)) {
+        $message = "All fields are required!";
+        $message_type = "error";
+    } else {
+        // If "Under Construction" is "Yes", set "Availability" to "Occupied"
+        if ($under_construction == 'Ja') {
+            $availability = 'opptatt'; // Automatically set Availability to "Occupied"
+        }
+
+        // Insert the new room data into the database
+        $insertQuery = "INSERT INTO swx_room (room_type, nearElevator, floor, availability, under_construction) 
+                        VALUES (?, ?, ?, ?, ?)";
+        $stmt = $pdo->prepare($insertQuery);
+        $stmt->bindParam(1, $room_type, PDO::PARAM_STR);
+        $stmt->bindParam(2, $nearElevator, PDO::PARAM_STR);
+        $stmt->bindParam(3, $floor, PDO::PARAM_INT);
+        $stmt->bindParam(4, $availability, PDO::PARAM_STR);
+        $stmt->bindParam(5, $under_construction, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            $message = "Room added successfully!";
+            $message_type = "success";
+        } else {
+            $message = "Error adding room: " . $pdo->errorInfo()[2];
+            $message_type = "error";
+        }
     }
-    $stmt->close();
 }
 
 // Handle deleting room
 if (isset($_GET['delete_id'])) {
     $delete_id = $_GET['delete_id'];
     $deleteQuery = "DELETE FROM swx_room WHERE room_id = ?";
-    $stmt = $conn->prepare($deleteQuery);
-    $stmt->bind_param("i", $delete_id);
+    $stmt = $pdo->prepare($deleteQuery);
+    $stmt->bindParam(1, $delete_id, PDO::PARAM_INT);
     if ($stmt->execute()) {
         $message = "Room deleted successfully!";
         $message_type = "success";
     } else {
-        $message = "Error deleting room: " . mysqli_error($conn);
+        $message = "Error deleting room: " . $pdo->errorInfo()[2];
         $message_type = "error";
     }
-    $stmt->close();
 
     // Redirect to the same page after deletion to avoid re-triggering the deletion on back
     header("Location: manage_rooms.php");
@@ -72,7 +105,6 @@ if (isset($_GET['delete_id'])) {
         .container { width: 80%; margin: auto; padding: 20px; }
         .card { background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: 20px; padding: 20px; }
         .logout-button { position: absolute; top: 10px; right: 10px; padding: 10px 20px; background: #dc3545; color: white; text-decoration: none; border-radius: 5px; }
-        .logout-button:hover { background: #c82333; }
         .back-button { position: absolute; top: 10px; left: 10px; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; }
         .add-button { margin-top: 20px; margin-bottom: 20px; }
         #addRoomForm { display: none; } /* Initially hide the form */
@@ -89,6 +121,13 @@ if (isset($_GET['delete_id'])) {
 <div class="container">
     <h1>Manage Rooms</h1>
 
+    <!-- Message (if any) -->
+    <?php if (isset($message)) { ?>
+        <div class="alert alert-<?php echo $message_type; ?>">
+            <?php echo $message; ?>
+        </div>
+    <?php } ?>
+
     <!-- Button to toggle visibility of the Add Room form -->
     <button class="btn btn-success add-button" onclick="toggleForm()">Add New Room</button>
 
@@ -98,42 +137,55 @@ if (isset($_GET['delete_id'])) {
         <form method="POST" action="manage_rooms.php">
             <div class="mb-3">
                 <label for="room_type" class="form-label">Room Type</label>
-                <select class="form-control" name="room_type" id="room_type" required>
+                <select class="form-control" name="room_type" required>
+                    <option value="" disabled selected>Select Room Type</option>
                     <?php
                     // Fetch room types for dropdown
-                    $roomTypeQuery = "SELECT type_id, type_name FROM room_type";
-                    $roomTypeResult = mysqli_query($conn, $roomTypeQuery);
-                    while ($roomType = mysqli_fetch_assoc($roomTypeResult)) {
+                    $roomTypeQuery = "SELECT type_id, type_name FROM swx_room_type";
+                    $roomTypeResult = $pdo->query($roomTypeQuery);
+                    while ($roomType = $roomTypeResult->fetch(PDO::FETCH_ASSOC)) {
                         echo "<option value='{$roomType['type_id']}'>{$roomType['type_name']}</option>";
                     }
                     ?>
                 </select>
             </div>
+
             <div class="mb-3">
                 <label for="nearElevator" class="form-label">Near Elevator</label>
-                <select class="form-control" name="nearElevator" id="nearElevator" required>
+                <select class="form-control" name="nearElevator" required>
+                    <option value="" disabled selected>Select Option</option>
                     <option value="Ja">Yes</option>
                     <option value="Nei">No</option>
                 </select>
             </div>
+
             <div class="mb-3">
                 <label for="floor" class="form-label">Floor</label>
-                <input type="number" class="form-control" name="floor" id="floor" required>
+                <select class="form-control" name="floor" required>
+                    <option value="" disabled selected>Select Floor</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                </select>
             </div>
+
             <div class="mb-3">
                 <label for="availability" class="form-label">Availability</label>
-                <select class="form-control" name="availability" id="availability" required>
+                <select class="form-control" name="availability" required>
+                    <option value="" disabled selected>Select Availability</option>
                     <option value="ledig">Available</option>
                     <option value="opptatt">Occupied</option>
                 </select>
             </div>
+
             <div class="mb-3">
                 <label for="under_construction" class="form-label">Under Construction</label>
-                <select class="form-control" name="under_construction" id="under_construction" required>
+                <select class="form-control" name="under_construction" required>
+                    <option value="" disabled selected>Select Option</option>
                     <option value="Ja">Yes</option>
                     <option value="Nei">No</option>
                 </select>
             </div>
+
             <button type="submit" name="add_room" class="btn btn-success">Add Room</button>
         </form>
     </div>
@@ -157,7 +209,7 @@ if (isset($_GET['delete_id'])) {
                 </tr>
             </thead>
             <tbody>
-                <?php while ($room = mysqli_fetch_assoc($roomResult)) { ?>
+                <?php while ($room = $roomResult->fetch(PDO::FETCH_ASSOC)) { ?>
                     <tr>
                         <td><?php echo $room['room_id']; ?></td>
                         <td><?php echo $room['room_type']; ?></td>
@@ -185,41 +237,11 @@ if (isset($_GET['delete_id'])) {
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
 
-<!-- Modal for Success/Error Messages -->
-<?php if (isset($message)) { ?>
-    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="messageModalLabel">Room Management</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p><?php echo $message; ?></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Show the modal if there is a message
-        var myModal = new bootstrap.Modal(document.getElementById('messageModal'));
-        myModal.show();
-    </script>
-<?php } ?>
-
 <script>
     // Function to toggle the visibility of the Add Room Form
     function toggleForm() {
         var form = document.getElementById('addRoomForm');
-        if (form.style.display === "none" || form.style.display === "") {
-            form.style.display = "block";
-        } else {
-            form.style.display = "none";
-        }
+        form.style.display = form.style.display === "none" ? "block" : "none";
     }
 </script>
 
