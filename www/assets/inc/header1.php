@@ -53,10 +53,10 @@ session_start(); // Start the session to access $_SESSION variables
             <!-- Check if user is logged in and show Login or Logout accordingly -->
             <?php if (isset($_SESSION['email'])): ?>
                 <!-- Show logout button if the user is logged in -->
-                <a href="logout.php" class="login-button">Logout</a>
+                <a href="/Svalberg-Motell/www/logout.php" class="login-button">Logout</a>
             <?php else: ?>
                 <!-- Show login button if the user is not logged in -->
-                <a href="login.php" class="login-button">Login</a>
+                <a href="/Svalberg-Motell/www/login.php" class="login-button">Login</a>
             <?php endif; ?>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">

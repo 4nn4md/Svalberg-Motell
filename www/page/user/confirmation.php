@@ -4,13 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php");
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php");
-
-// Funksjon for å rense brukerinput og sikre sikkerhet
-function sanitize($var) {
-    $var = strip_tags($var); // Fjern HTML-tagger
-    $var = htmlentities($var, ENT_QUOTES, 'UTF-8'); // Konverter spesialtegn til HTML-enheter
-    return basename($var); // Sørg for at bare filnavnet returneres, forhindrer directory traversal
-}
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
 
 // Sti til katalogen der PDF-filene lagres
 $pdfDir = __DIR__ . '/../../tmp/';
