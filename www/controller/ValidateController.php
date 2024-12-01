@@ -33,10 +33,8 @@ class Validering{
             $this->validateError[] = "Has to at least have one adult.";
         }
     }
-
-
-
     // -----------
+
     function validereFornavn($fname){
         // Checks if the name contains numbers
         if (!is_string($fname)){
@@ -50,7 +48,6 @@ class Validering{
     }
 
     function validereEtternavn($lname){
-
         // Checks if the name contains numbers
         if (!is_string($lname)){
             $this->validateError[] = "Kan ikke inneholde tall";
@@ -70,7 +67,6 @@ class Validering{
     }
 
     function validereMobilnummer($country_code, $mobile){
-
         if (preg_match('/^\+/', $country_code)) {
             // Fjern pluss-tegnet hvis det finnes
             $country_code = substr($country_code, 1);
@@ -97,7 +93,6 @@ class Validering{
     }
 
     function validereMessage($message){
-        
         // Can not be more than 160 characters 
         if (strlen($message) > 160) {
             $this->validateError[] = "Meldingen kan ikke være lengre enn 160 tegn";
@@ -113,11 +108,7 @@ class Validering{
     function getValidateError() {
         return $this->validateError;
     }
-
-    
-    
-    
-    
+   
 }
 
 ?>
