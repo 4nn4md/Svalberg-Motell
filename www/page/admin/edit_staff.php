@@ -12,16 +12,20 @@ if ($_SESSION['role'] !== 'Admin') {
 if (isset($_GET['id'])) {
     $staffId = $_GET['id'];
     $staffQuery = "SELECT staff_id, email, name, position FROM swx_staff WHERE staff_id = ?";
-    $stmt = $conn->prepare($staffQuery);
-    $stmt->bind_param("i", $staffId);
+    $stmt = $pdo->prepare($staffQuery);  // Use PDO here
+    $stmt->bindParam(1, $staffId, PDO::PARAM_INT);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $staff = $result->fetch_assoc();
-    $stmt->close();
+    $staff = $stmt->fetch(PDO::FETCH_ASSOC);  // Fetch data directly from the query result
 } else {
     header("Location: manage_staff.php");
     exit();
 }
+
+// Initialize message variable
+$message = '';
+$message_type = '';
+
+$validPassword = true; // Flag for password validity
 
 // Handle staff update
 if (isset($_POST['update_staff'])) {
@@ -32,38 +36,59 @@ if (isset($_POST['update_staff'])) {
 
     // Email validation: Check if email already exists (other than the current staff's email)
     $duplicateEmailQuery = "SELECT staff_id FROM swx_staff WHERE email = ? AND staff_id != ?";
-    $stmt = $conn->prepare($duplicateEmailQuery);
-    $stmt->bind_param("si", $email, $staffId);
+    $stmt = $pdo->prepare($duplicateEmailQuery);  // Use PDO here
+    $stmt->bindParam(1, $email, PDO::PARAM_STR);
+    $stmt->bindParam(2, $staffId, PDO::PARAM_INT);
     $stmt->execute();
-    $stmt->store_result();
 
-    if ($stmt->num_rows > 0) {
+    if ($stmt->rowCount() > 0) {
         // Duplicate email found
         $message = "Error: The email is already taken. Please choose a different email.";
         $message_type = "error";
     } else {
-        // Update staff details
+        // Password validation (if provided)
         if (!empty($password)) {
-            // If password is provided, hash and update it
-            $password = password_hash($password, PASSWORD_DEFAULT);
-            $updateQuery = "UPDATE swx_taff SET email = ?, name = ?, position = ?, password = ? WHERE staff_id = ?";
-            $stmt = $conn->prepare($updateQuery);
-            $stmt->bind_param("ssssi", $email, $name, $position, $password, $staffId);
-        } else {
-            // If no password change, just update email, name, and position
-            $updateQuery = "UPDATE swx_staff SET email = ?, name = ?, position = ? WHERE staff_id = ?";
-            $stmt = $conn->prepare($updateQuery);
-            $stmt->bind_param("sssi", $email, $name, $position, $staffId);
+            // Check password with regex (at least 9 characters, one uppercase, two digits, one special character)
+            if (!preg_match('/^(?=.*[A-Z])(?=.*\d.*\d)(?=.*[\W_]).{9,}$/', $password)) {
+                // Password doesn't meet the criteria
+                $validPassword = false; // Set flag to false
+                $message = "Password must be at least 9 characters long, contain one uppercase letter, two digits, and one special character.";
+                $message_type = "error";
+            } else {
+                // If password is valid, hash and update it
+                $password = password_hash($password, PASSWORD_DEFAULT);
+            }
         }
 
-        if ($stmt->execute()) {
-            $message = "Staff member updated successfully!";
-            $message_type = "success";
-        } else {
-            $message = "Error updating staff: " . mysqli_error($conn);
-            $message_type = "error";
+        if ($validPassword) {
+            // If password is valid or not provided, update the staff details
+            if (!empty($password)) {
+                $updateQuery = "UPDATE swx_staff SET email = ?, name = ?, position = ?, password = ? WHERE staff_id = ?";
+                $stmt = $pdo->prepare($updateQuery);  // Use PDO here
+                $stmt->bindParam(1, $email, PDO::PARAM_STR);
+                $stmt->bindParam(2, $name, PDO::PARAM_STR);
+                $stmt->bindParam(3, $position, PDO::PARAM_STR);
+                $stmt->bindParam(4, $password, PDO::PARAM_STR);
+                $stmt->bindParam(5, $staffId, PDO::PARAM_INT);
+            } else {
+                // If no password change, just update email, name, and position
+                $updateQuery = "UPDATE swx_staff SET email = ?, name = ?, position = ? WHERE staff_id = ?";
+                $stmt = $pdo->prepare($updateQuery);  // Use PDO here
+                $stmt->bindParam(1, $email, PDO::PARAM_STR);
+                $stmt->bindParam(2, $name, PDO::PARAM_STR);
+                $stmt->bindParam(3, $position, PDO::PARAM_STR);
+                $stmt->bindParam(4, $staffId, PDO::PARAM_INT);
+            }
+
+            // Execute the update query only if password is valid
+            if (isset($stmt) && $stmt->execute()) {
+                $message = "Staff member updated successfully!";
+                $message_type = "success";
+            } else {
+                $message = "Error updating staff: " . $pdo->errorInfo()[2];
+                $message_type = "error";
+            }
         }
-        $stmt->close();
     }
 }
 ?>
@@ -94,18 +119,28 @@ if (isset($_POST['update_staff'])) {
 <div class="container">
     <h1>Edit Staff Member</h1>
 
+    <!-- Show Message -->
+    <?php if (isset($message)) { ?>
+        <div class="alert alert-<?php echo $message_type; ?>">
+            <?php echo $message; ?>
+        </div>
+    <?php } ?>
+
     <!-- Edit Staff Form -->
     <div class="card">
         <h3>Edit Staff Information</h3>
         <form method="POST" action="edit_staff.php?id=<?php echo $staff['staff_id']; ?>">
+
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" name="email" value="<?php echo $staff['email']; ?>" required>
             </div>
+
             <div class="mb-3">
                 <label for="name" class="form-label">Name</label>
                 <input type="text" class="form-control" id="name" name="name" value="<?php echo $staff['name']; ?>" required>
             </div>
+
             <div class="mb-3">
                 <label for="position" class="form-label">Position</label>
                 <select class="form-control" id="position" name="position" required>
@@ -117,45 +152,21 @@ if (isset($_POST['update_staff'])) {
                     <option value="Maintenance" <?php echo $staff['position'] == 'Maintenance' ? 'selected' : ''; ?>>Maintenance</option>
                 </select>
             </div>
+
             <div class="mb-3">
                 <label for="password" class="form-label">New Password (Leave blank if not changing)</label>
                 <input type="password" class="form-control" id="password" name="password">
             </div>
+
             <button type="submit" name="update_staff" class="btn btn-primary">Update Staff</button>
         </form>
     </div>
 
 </div>
 
-<!-- Modal for Success/Error Messages -->
-<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="messageModalLabel">Staff Management</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><?php echo isset($message) ? $message : ''; ?></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Bootstrap JS and Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
-
-<script>
-    // Show the modal if there is a message
-    <?php if (isset($message)) { ?>
-        var myModal = new bootstrap.Modal(document.getElementById('messageModal'));
-        myModal.show();
-    <?php } ?>
-</script>
 
 </body>
 </html>
