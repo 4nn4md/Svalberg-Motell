@@ -36,10 +36,10 @@ session_start(); // Start the session to access $_SESSION variables
                             <a class="nav-link mx-lg-2" href="/Svalberg-Motell/www/rooms.php">Our Rooms</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="#">Services</a>
+                            <a class="nav-link mx-lg-2" href="/Svalberg-Motell/www/error.php">Services</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="#">Contact</a>
+                            <a class="nav-link mx-lg-2" href="/Svalberg-Motell/www/error.php">Contact</a>
                         </li>
                         <?php if (isset($_SESSION['email']) && !empty($_SESSION['email'])): ?>
                             <li class="nav-item">
