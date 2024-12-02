@@ -3,15 +3,15 @@ require __DIR__ . '/../../vendor/autoload.php'; // Autoload Twilio SDK
 
 use Twilio\Rest\Client;
 
-// Dine Twilio-legitimasjoner
-$sid = 'REPLACE_WITH_TWILIO_SID'; // Erstatt med ditt Twilio Account SID
-$token = 'REPLACE_WITH_TWILIO_AUTH_TOKEN'; // Erstatt med ditt Twilio Auth Token
-$twilio_number = 'REPLACE_WITH_TWILIO_NUMBER'; // Erstatt med ditt Twilio-nummer
+// Your Twilio informaation
+$sid = 'REPLACE_WITH_TWILIO_SID'; // Replace with your SID
+$token = 'REPLACE_WITH_TWILIO_AUTH_TOKEN'; // Replace with your Auth Token
+$twilio_number = 'REPLACE_WITH_TWILIO_NUMBER'; // Replace with your Twilio-nummer
 
 $client = new Client($sid, $token);
 
-// Telefonnummer og melding
-$mottaker = $mottakerTlf; // Mottakerens telefonnummer (bruk internasjonalt format)
+// Phone numer and message
+$mottaker = $mottakerTlf; 
 $melding = "
 Takk for din bestilling! 
 Vi bekrefter at alt er registrert. 
