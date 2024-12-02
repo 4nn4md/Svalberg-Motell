@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Svalberg Motel</title>
+    <title>Svalberg Motell</title>
     <?php //include($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php"); ?>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="http://localhost/Svalberg-Motell/www/assets/css/styles1.css" rel="stylesheet">
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <!-- Second Section-->
 <section class="secondSection">
     <div class="container text-center">
-        <h2>Welcome to Svalberg Motel!</h2>
+        <h2>Welcome to Svalberg Motell!</h2>
         <p>- your home by the sea and the mountains.</p>
     </div>
 
