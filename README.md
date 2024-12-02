@@ -182,7 +182,7 @@ This project uses the Twilio API to send SMS messages. To get started, you need 
 https://www.twilio.com/en-us
 
 **Prerequisites**
-Before you can use this project, make sure you have the following tools installed on your system:
+If the code is not working, make sure you have these installed:
 
 - **PHP:** This project is written in PHP, so you need PHP to run the code. You can download and install PHP from php.net. Ensure that you have PHP version 7.3 or higher.
 - **Composer:** Composer is a dependency manager for PHP, and we use it to install the Twilio SDK. If you don’t have Composer installed, you can download it from getcomposer.org.
