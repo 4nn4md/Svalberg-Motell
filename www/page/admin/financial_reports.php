@@ -26,16 +26,18 @@ if (!strtotime($endDate)) {
     $endDate = date('Y-m-d'); // Reset to current date if invalid
 }
 
-// Query to fetch financial data
+// Query to fetch financial data using booking check-in date
 $sql = "SELECT
             p.payment_method,
             SUM(p.amount) AS total_amount,
             COUNT(p.payment_id) AS payment_count,
-            p.payment_date
+            b.check_in_date
         FROM
             swx_payment p
+        JOIN
+            swx_booking b ON p.payment_id = b.payment_id
         WHERE
-            p.payment_date BETWEEN ? AND ?
+            b.check_in_date BETWEEN ? AND ?
         GROUP BY
             p.payment_method
         ORDER BY
