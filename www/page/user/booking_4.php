@@ -52,6 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $room_id = $_SESSION['selected_room']['room_id'];
         $phone = $country_code !== null && $mobile !== null ? $country_code . $mobile : null;
 
+        $_SESSION['phone'] = $phone;
+
         $final_price = isset($_POST['final_price']) ? sanitize($_POST['final_price']) : $total_price;
 
         // Valider inputs
