@@ -1,15 +1,11 @@
 <?php
 session_start();
-error_log("SESSION at start of booking_2.php: " . print_r($_SESSION, true));
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
+//error_log("SESSION at start of booking_2.php: " . print_r($_SESSION, true));
 
-if (isset($_GET['action']) && $_GET['action'] === 'login') {
-    if (!isset($_SESSION['user_id'])) {
-        $_SESSION['redirect_step'] = 'booking_3';
-        error_log("Redirect step set to: " . $_SESSION['redirect_step']);
-        header('Location: /Svalberg-Motell/www/login.php');
-        exit();
-    }
-}
+redirectAction('login', 'login.php');
+redirectAction('registrer', 'register.php');
+
 ?>
 
 <html>
@@ -33,7 +29,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'login') {
             <div class="card w-75 bg-white" style="margin: 50px auto 25px auto;">
                 <h1 class="text-center" style="margin: 50px auto 25px auto;">How do you want to proceed?</h1>
                 <div style="display: flex; flex-direction: column; align-items: center;">
-                    <a href="#" class="btn msearch-btn w-50 mb-2">Become a member</a>
+                    <a href="booking_2.php?action=registrer" class="btn msearch-btn w-50 mb-2">Become a member</a>
                     <a href="booking_2.php?action=login" class="btn msearch-btn w-50 mb-2">Log in</a>
                     <a href="booking_3.php" class="btn msearch-btn w-50 mb-5">Continue without logging in</a>
                 </div>

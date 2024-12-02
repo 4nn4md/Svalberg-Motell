@@ -86,31 +86,15 @@ function calculatePriceWithPoints($price, $points){
     ];
 }
 
-/*function log_error($e) {
-    $error_message = "Error time: " . date('d-m-y H:i:s') . " - Error message: " . $e->getMessage() . "\n";
-    
-    // Path to the log file
-    $log_file = $_SERVER['DOCUMENT_ROOT'] . '/Svalberg-Motell/private/log/log.txt';
-    $log_dir = dirname($log_file);
-
-    // Sjekk om mappen eksisterer, hvis ikke, opprett den
-    if (!file_exists($log_dir)) {
-        mkdir($log_dir, 0777, true); // Opprett mappen med full tilgang (lesing/skriving)
+function redirectAction($action, $redirectUrl) {
+    if (isset($_GET['action']) && $_GET['action'] === $action) {
+        if (!isset($_SESSION['user_id'])) {
+            $_SESSION['redirect_step'] = 'booking_3';
+            error_log("Redirect step set to: " . $_SESSION['redirect_step']);
+            header("Location: /Svalberg-Motell/www/$redirectUrl");
+            exit();
+        }
     }
-
-    // Sjekk om loggfilen eksisterer, hvis ikke, opprett den
-    if (!file_exists($log_file)) {
-        file_put_contents($log_file, "Log file created on: " . date('d-m-y H:i:s') . "\n"); // Opprett filen
-        chmod($log_file, 0666); // Sett tillatelser for lesing og skriving
-    }
-
-    // Sjekk om loggfilen kan skrives til, og logg feilen
-    if (is_writable($log_file)) {
-        file_put_contents($log_file, $error_message, FILE_APPEND);
-    } else {
-        // Hvis det ikke er mulig å skrive til filen, bruk PHPs innebygde feillogg
-        error_log("Failed to write to log file: $log_file. Error: " . $e->getMessage());
-    }
-}*/
+}
 
 ?>
