@@ -14,12 +14,12 @@
     <div class="container">
         <div class="footer-content">
             <div class="footer-section">
-                <h5 class="footer-heading">Svalberg Motel</h5>
+                <h5 class="footer-heading">Svalberg Motell</h5>
                 <p>"A home between fjords and mountains, tailored for your perfect stay."</p>
             </div>
             
             <div class="footer-section">
-                <h5 class="footer-heading">Kontakt</h5>
+                <h5 class="footer-heading">Contact</h5>
                 <ul class="footer-list">
                     <li><a href="mailto:kontakt@svalberg.no">contact@svalberg.no</a></li>
                     <li>Phone: +47 123 456 78</li>
@@ -28,9 +28,9 @@
             </div>
             
             <div class="footer-section">
-                <h5 class="footer-heading">Snarveier</h5>
+                <h5 class="footer-heading">Shortcuts</h5>
                 <ul class="footer-list">
-                    <li><a href="/Svalberg-Motell/www/about.php">About the motel</a></li>
+                    <li><a href="/Svalberg-Motell/www/about.php">About the motell</a></li>
                     <li><a href="/Svalberg-Motell/www/rooms.php">Our rooms</a></li>
                     <li><a href="/Svalberg-Motell/www/error.php">Services</a></li>
                     <li><a href="/Svalberg-Motell/www/error.php">Contact</a></li>
