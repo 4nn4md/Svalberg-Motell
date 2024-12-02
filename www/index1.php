@@ -144,7 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="col-md-6">
                 <h3>Discover our facilities</h3>
                 <p>We offer comfortable rooms, outdoor activities, and amazing experiences. Our motel is the perfect place for relaxation and adventure</p>
-                <button class="btn custom-btn mt-3">Read more</button>
+                <a href="error.php">
+                    <button class="btn custom-btn mt-3">Read more</button>
+                </a>
             </div>
         </div>
 
@@ -152,7 +154,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="col-md-6">
                 <h3>An unforgettable experience</h3>
                 <p>We have a wide range of activities for the whole family. Whatever you're looking for, you'll find it here.</p>
-                <button class="btn custom-btn mt-3">Read more</button>
+                <a href="error.php">
+                    <button class="btn custom-btn mt-3">Read more</button>
+                </a>
+
             </div>
             <div class="col-md-6">
                 <img src="assets/image/index1/Hjem5.jpg" class="img-fluid" alt="forestWithLight">
