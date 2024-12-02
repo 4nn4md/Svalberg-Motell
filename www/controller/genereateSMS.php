@@ -4,9 +4,9 @@ require __DIR__ . '/../../vendor/autoload.php'; // Autoload Twilio SDK
 use Twilio\Rest\Client;
 
 // Your Twilio informaation
-$sid = 'REPLACE_WITH_TWILIO_SID'; // Replace with your SID
-$token = 'REPLACE_WITH_TWILIO_AUTH_TOKEN'; // Replace with your Auth Token
-$twilio_number = 'REPLACE_WITH_TWILIO_NUMBER'; // Replace with your Twilio-nummer
+$sid = //'AC2d5d6a5ae7ead2afbf566af96efdea8c'; // Replace with your SID
+$token = //'aa3708ac725b400ec8e25152e1521654'; // Replace with your Auth Token
+$twilio_number = //'+15672298275'; // Replace with your Twilio-nummer
 
 $client = new Client($sid, $token);
 
