@@ -46,12 +46,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // Validate phone
+        // Validate phone number
         if (empty($_POST['tlf'])) {
             $phone_err = "Phone number is required.";
         } else {
             $phone = trim($_POST['tlf']);
+            
+            // Regular expression to validate a phone number with exactly 8 digits
+            if (!preg_match('/^\d{8}$/', $phone)) {
+                $phone_err = "Phone number must be exactly 8 digits long.";
+            }
         }
+
 
         // Proceed if no errors
         if (empty($firstName_err) && empty($lastName_err) && empty($email_err) && empty($password_err) && empty($phone_err)) {
