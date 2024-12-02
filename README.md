@@ -20,14 +20,14 @@ When using this project on macOS, please note that certain folders require speci
    chmod 777 www/tmp
    ```
 
-##Description
+## Description
 This project is a room booking system for a small motel with 25 rooms, designed to enhance the booking experience for both guests and administrators. The system includes six room types, each with specific capacity limits for adults and children, ensuring a tailored booking experience.
 
 Guests can register, search for available rooms by check-in/out dates, specify the number of people, and filter based on preferences such as floor level or proximity to an elevator. Administrators can define room types, adjust room availability, and manage bookings effectively.
 
 The system emphasizes clean code and user-friendly design, utilizing **PHP** for backend functionality and integrating **Bootstrap 5** and **JavaScript** to deliver a modern and responsive interface.
 
-##Instructions
+## Instructions
 **Step 1**: Clone the Repository
 Open your terminal and navigate to the `htdocs` directory inside your XAMPP installation folder:
    ```
@@ -63,7 +63,7 @@ Clone the repository to your local machine:
    - Password: `Test1234!`
 
 
-##Installation Instructions
+## Installation Instructions
 
 This project is written in PHP and requires XAMPP and Visual Studio Code (VS Code) for development. Below are the steps to set up the development environment on both** PC** and **Mac**.
 
@@ -125,7 +125,7 @@ or for Mac:
 
 By following these steps, you should be able to set up the development environment and run the PHP project on your local machine.
 
-##API Integration: UI Avatars
+## API Integration: UI Avatars
 This project uses the UI Avatars API to dynamically generate avatar images based on users' first and last initials. The avatars are displayed on the user's profile page, enhancing the user experience by providing a visual representation.
 
 **How It Works**
@@ -176,7 +176,7 @@ As of the last check, UI Avatars does not impose strict rate limits on its usage
 
 
 
-##API Integration: SMS
+## API Integration: SMS
 This project uses the Twilio API to send SMS messages. To get started, you need to have PHP and Composer installed on your system. Here is a step-by-step guide on how to set up and use the project.
 
 https://www.twilio.com/en-us
