@@ -12,7 +12,7 @@ When using this project on macOS, please note that certain folders require speci
 
 2. Set up the file and folder permissions as follows:
    ```
-   chmod 666 www/private/log/log.txt
+   chmod 666 private/log/log.txt
    ```
 
    ```
