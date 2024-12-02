@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
-//error_log("SESSION at start of booking_2.php: " . print_r($_SESSION, true));
 
 // use redirectAction function based on the action if it is login or registrer. 
 redirectAction('login', 'login.php');
