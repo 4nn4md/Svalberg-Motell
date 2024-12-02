@@ -53,7 +53,7 @@ Clone the repository to your local machine:
    ```
 
 
-** Step 4**: Log In
+**Step 4**: Log In
 - Admin login:
    - Email: `admin@svalberg.no`
    - Password: `Admin123!`
