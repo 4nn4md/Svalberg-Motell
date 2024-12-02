@@ -12,34 +12,36 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/Valida
 $user_points = 0;
 $discount_data = ['price' => $_SESSION['selected_room']['total_price'], 'pointsLeft' => 0];
 
+// Checks to see if a suer is logged in (using email)
 if (isset($_SESSION['email'])) {
-    $username = sanitize($_SESSION['email']);
+    $username = sanitize($_SESSION['email']); // Cleaning the data
     $stmt = $pdo->prepare("SELECT point FROM swx_users WHERE username = :username");
     $stmt->execute([':username' => $username]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC); // Fetch the user data
     if ($user) {
         $user_points = $user['point'];
         $discount_data = calculatePriceWithPoints($_SESSION['selected_room']['total_price'], $user_points);
     }
 }
-
-$discounted_price = $discount_data['price']; // Ny pris etter rabatt
-$discount_amount = $_SESSION['selected_room']['total_price'] - $discounted_price; // Beregn rabatten
+// Calculate the discounted price and amount of discount applied
+$discounted_price = $discount_data['price']; // New price
+$discount_amount = $_SESSION['selected_room']['total_price'] - $discounted_price; 
 $points_left = $discount_data['pointsLeft'];
 
 $error_message = "";
 
-// Hovedlogikk for POST-forespørsel
+// Main logic for handling the POST request 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        // Begin transaction
         $pdo->beginTransaction();
 
-        // Sjekk om betalingsmetode er valgt
+        // Check to see if the payment method is selected
         if (!isset($_POST['choosePayment']) || empty($_POST['choosePayment'])) {
             throw new Exception("Du må velge en betalingsmetode.");
         }
 
-        // Hent data fra skjemaet
+        // Sanitize form data
         $fname = $_POST['fname'] !== null ? sanitize($_POST['fname']) : null;
         $lname = $_POST['lname'] !== null ? sanitize($_POST['lname']) : null;
         $email = $_POST['epost'] !== null ? sanitize($_POST['epost']) : null;
@@ -52,11 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $room_id = $_SESSION['selected_room']['room_id'];
         $phone = $country_code !== null && $mobile !== null ? $country_code . $mobile : null;
 
+        // Place phone in session
         $_SESSION['phone'] = $phone;
 
         $final_price = isset($_POST['final_price']) ? sanitize($_POST['final_price']) : $total_price;
 
-        // Valider inputs
+        // Validate the input data using the validation class
         $validation = new Validering();
         $validation->validereFornavn($fname);
         $validation->validereEtternavn($lname);
@@ -68,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Validation failed: " . implode("<br>", $validation->getValidateError()));
         }
 
-        // Oppdater poeng basert på bruk av poeng eller ikke
+        // Update user points based on wheter theuser used points or not
         $user_id = null;
         if (isset($_SESSION['email'])) {
             $username = $_SESSION['email'] !== null ? sanitize($_SESSION['email']) : null;
@@ -89,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':user_id' => $user_id
                     ]);
                 } else {
-                    // Oppdater poeng hvis poeng ikke brukes
+                    // If points are not used, add the full price to the users points 
                     $current_points = $user['point'];
                     $new_points = $current_points + $total_price;
                     $stmt = $pdo->prepare("UPDATE swx_users SET point = :point WHERE user_id = :user_id");
@@ -101,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Sett inn betaling
+        // Insert the payment record into the database
         $stmt = $pdo->prepare("INSERT INTO swx_payment (amount, payment_method, status) 
                                VALUES (:amount, :payment_method, :status)");
         $stmt->execute([
@@ -111,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         $payment_id = $pdo->lastInsertId();
 
-        // Sett inn booking
+        // Inser to the booking table
         $stmt = $pdo->prepare("INSERT INTO swx_booking (user_id, room_id, payment_id, name, email, tlf, comments, check_in_date, check_out_date, number_of_guests) 
                                VALUES (:user_id, :room_id, :payment_id, :name, :email, :tlf, :comments, :check_in_date, :check_out_date, :number_of_guests)");
         $stmt->execute([
@@ -127,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':number_of_guests' => $_SESSION['adults'] + $_SESSION['children']
         ]);
 
-        // Generer faktura om nødvendig
+        // Genereate invoice if user have chosen the option
         if ($choosePayment === 'Invoice') {
             require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/generate_invoice.php");
             $invoiceFileName = generateInvoice(

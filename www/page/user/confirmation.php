@@ -6,19 +6,19 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/db.php");
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); 
 
-// Sti til katalogen der PDF-filene lagres
+// Path to where pdf files are stored
 $pdfDir = __DIR__ . '/../../tmp/';
 
-// Sjekk om `payment_id` er sendt via GET
+// check if payment_id is provided via the get request
 if (!isset($_GET['payment_id'])) {
     log_error(new Exception("No payment ID specified"));
     echo "No payment specified.";
     exit();
 }
-
+//Place the element in an integer
 $payment_id = (int)$_GET['payment_id'];
 
-// Hent betalingsinformasjon fra databasen
+// Feth payment information from the database 
 try{
     $stmt = $pdo->prepare("SELECT payment_method, invoice_path FROM swx_payment WHERE payment_id = :payment_id");
     $stmt->execute([':payment_id' => $payment_id]);
@@ -35,29 +35,29 @@ try{
     exit;
 }
 
-// Fakturafilens sti
+// Set the full file ptah fot the invoice
 $invoicePath = !empty($payment['invoice_path']) ? $pdfDir . sanitize($payment['invoice_path']) : null;
 
-// Sjekk om en nedlastingsforespørsel er sendt via `filnavn`
+// Check if a file download request is made using the "filnavn" parameter
 if (isset($_GET['filnavn']) && isset($_GET['payment_id'])) {
-    $filename = sanitize($_GET['filnavn']); // Rens brukerinput
-    $filepath = $pdfDir . $filename; // Full sti til filen
+    $filename = sanitize($_GET['filnavn']); 
+    $filepath = $pdfDir . $filename; 
 
-    // Sjekk om filen eksisterer
+    // Check if the file exists at the given path
     if (file_exists($filepath)) {
-        // Rydd opp utdata-buffer for å unngå korrupt fil
+        // Clear output buffer to prevent any output that could corrupt the file download
         if (ob_get_length()) {
             ob_end_clean();
         }
 
-        // Send passende HTTP-headere for nedlasting
+        // Set the HTTP headers to initiate the file download
         header("Content-Type: application/pdf");
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header("Content-Length: " . filesize($filepath));
         header("Cache-Control: private");
         header("Pragma: public");
 
-        // Les og send filen til brukeren
+        // read and output the file content to the user
         readfile($filepath);
         exit();
     } else {
