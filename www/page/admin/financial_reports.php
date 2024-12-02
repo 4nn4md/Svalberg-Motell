@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/functions.php'; // Assuming sanitize function is here
@@ -46,6 +46,12 @@ $stmt->execute([$startDate, $endDate]);
 
 // Fetch the data
 $financialData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate the total amount across all payment methods
+$totalPayments = 0;
+foreach ($financialData as $row) {
+    $totalPayments += $row['total_amount'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -120,6 +126,12 @@ $financialData = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
             </form>
+        </div>
+
+        <!-- Total Payments -->
+        <div class="alert alert-info">
+            <strong>Total Payments for <?= htmlspecialchars($startDate) ?> to <?= htmlspecialchars($endDate) ?>:</strong>
+            <?= number_format($totalPayments, 2) ?> NOK
         </div>
 
         <!-- Financial report table -->
