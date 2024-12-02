@@ -4,9 +4,9 @@
 
 When using this project on macOS, please note that certain folders require specific permissions to ensure the application functions as expected. Follow the steps below to configure the necessary permissions.
 
-1. Navigate to the `svalber-motell` project folder in the terminal:
+1. Navigate to the `svalberg-motell` project folder in the terminal:
    ```
-   cd /Applications/XAMPP/htdocks/svalber-motell
+   cd /Applications/XAMPP/htdocks/svalberg-motell
    ```
 
 2. Set up the file and folder permissions as follows:
