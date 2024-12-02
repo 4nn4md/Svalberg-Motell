@@ -5,24 +5,32 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/Valida
 print_r($_SESSION);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Lagre alle relevante data i session
-    $_SESSION['location'] = $_POST['location'];
-    $_SESSION['checkin'] = $_POST['checkin'];
-    $_SESSION['checkout'] = $_POST['checkout'];
-    $_SESSION['adults'] = $_POST['adults'];
-    $_SESSION['children'] = $_POST['children'];
+    // Store all relevant data in the session
+    $_SESSION['location'] = $_POST['location'];  // Save the location selected by the user
+    $_SESSION['checkin'] = $_POST['checkin'];    // Save the check-in date chosen by the user
+    $_SESSION['checkout'] = $_POST['checkout'];  // Save the check-out date chosen by the user
+    $_SESSION['adults'] = $_POST['adults'];      // Save the number of adults selected by the user
+    $_SESSION['children'] = $_POST['children'];  // Save the number of children selected by the user
 
+    // Create a new instance of the validation class
     $validation = new Validering();
 
-    // Validering
-    $validation->validereDato($_POST['checkin'], $_POST['checkout']);
-    $validation->emptyInput($_POST['location'], $_POST['checkin'], $_POST['checkout'], $_POST['adults']);
-    $validation->hasToHaveAdult($_POST['adults']);
+    // Validate the check-in and check-out dates
+    $validation->validereDato($_POST['checkin'], $_POST['checkout']);  // Ensure that the check-out date is after the check-in date
 
-    $errorMessages = $validation->getValidateError();
+    // Validate that no fields are empty
+    $validation->emptyInput($_POST['location'], $_POST['checkin'], $_POST['checkout'], $_POST['adults']);  // Make sure essential fields are not empty
+
+    // Ensure that at least one adult is selected
+    $validation->hasToHaveAdult($_POST['adults']);  // Check that the number of adults is greater than zero
+
+    // Retrieve any validation error messages
+    $errorMessages = $validation->getValidateError();  // Get the error messages from the validation process
+
+    // If no errors, redirect to the booking page
     if (empty($errorMessages)) {
-        header("Location: page/user/booking_1.php");
-        exit();
+        header("Location: page/user/booking_1.php");  
+        exit();  
     }
 }
 ?>
