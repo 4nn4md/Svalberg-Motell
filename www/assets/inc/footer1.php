@@ -14,15 +14,15 @@
     <div class="container">
         <div class="footer-content">
             <div class="footer-section">
-                <h5 class="footer-heading">Svalberg Motell</h5>
-                <p>"Et hjem mellom fjord og fjell, skreddersydd for ditt perfekte opphold."</p>
+                <h5 class="footer-heading">Svalberg Motel</h5>
+                <p>"A home between fjords and mountains, tailored for your perfect stay."</p>
             </div>
             
             <div class="footer-section">
                 <h5 class="footer-heading">Kontakt</h5>
                 <ul class="footer-list">
-                    <li><a href="mailto:kontakt@svalberg.no">kontakt@svalberg.no</a></li>
-                    <li>Telefon: +47 123 456 78</li>
+                    <li><a href="mailto:kontakt@svalberg.no">contact@svalberg.no</a></li>
+                    <li>Phone: +47 123 456 78</li>
                     <li>Svalbergveien 1, 1111 Kristiansand</li>
                 </ul>
             </div>
@@ -30,16 +30,16 @@
             <div class="footer-section">
                 <h5 class="footer-heading">Snarveier</h5>
                 <ul class="footer-list">
-                    <li><a href="#">Om oss</a></li>
-                    <li><a href="#">Våre rom</a></li>
-                    <li><a href="#">Tjenester</a></li>
-                    <li><a href="#">Kontakt</a></li>
+                    <li><a href="/Svalberg-Motell/www/about.php">About the motel</a></li>
+                    <li><a href="/Svalberg-Motell/www/rooms.php">Our rooms</a></li>
+                    <li><a href="/Svalberg-Motell/www/error.php">Services</a></li>
+                    <li><a href="/Svalberg-Motell/www/error.php">Contact</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-divider"></div>
         <div class="footer-bottom">
-            <p>&copy; 2024 Svalberg Motell. Alle rettigheter reservert.</p>
+            <p>&copy; 2024 Svalberg Motell. All rights reserved.</p>
         </div>
     </div>
 </footer>

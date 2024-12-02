@@ -101,21 +101,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div id="carouselExample" class="carousel slide">
         <div class="carousel-inner">
             <div class="carousel-item active">
-                <img src="assets/image/index1/Hjem4.jpg" class="d-block w-100" alt="...">
+                <img src="assets/image/index1/Hjem4.jpg" class="d-block w-100" alt="oceanAndRocksInYellowLight">
                 <div class="carousel-caption d-none d-md-block">
                     <h5>Experience the peace</h5>
                     <p>Unique nature experiences are waiting for you.</p>
                 </div>
             </div>
             <div class="carousel-item">
-                <img src="assets/image/index1/Hjem3.jpg" class="d-block w-100" alt="...">
+                <img src="assets/image/index1/Hjem3.jpg" class="d-block w-100" alt="blueOceanAndRocks">
                 <div class="carousel-caption d-none d-md-block">
                     <h5>Family vacation</h5>
                     <p>Create memories with those you love.</p>
                 </div>
             </div>
             <div class="carousel-item">
-                <img src="assets/image/index1/Hjem5.jpg" class="d-block w-100" alt="...">
+                <img src="assets/image/index1/Hjem5.jpg" class="d-block w-100" alt="forestWithLight">
                 <div class="carousel-caption d-none d-md-block">
                     <h5>Nature experiences</h5>
                     <p>Discover the beautiful nature around us.</p>
@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="container">
         <div class="row align-items-center mb-4">
             <div class="col-md-6">
-                <img src="assets/image/index1/Hjem7.jpg" class="img-fluid" alt="Image description">
+                <img src="assets/image/index1/Hjem7.jpg" class="img-fluid" alt="peacefulWomanHoldingMugLookingOutsideFromBed">
             </div>
             <div class="col-md-6">
                 <h3>Discover our facilities</h3>
@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <button class="btn custom-btn mt-3">Read more</button>
             </div>
             <div class="col-md-6">
-                <img src="assets/image/index1/Hjem5.jpg" class="img-fluid" alt="Image description">
+                <img src="assets/image/index1/Hjem5.jpg" class="img-fluid" alt="forestWithLight">
             </div>
         </div>
     </div>

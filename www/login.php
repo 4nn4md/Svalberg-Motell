@@ -112,15 +112,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($role == 'Admin') {
                     header("Location: page/admin/adminIndex.php");
                 } elseif ($role == 'Staff') {
-                    header("Location: staff_dashboard.php");
+                    header("Location: error.php");
                 } elseif ($role == 'Manager') {
-                    header("Location: manager_dashboard.php");
+                    header("Location: error.php");
                 } elseif ($role == 'Receptionist') {
-                    header("Location: receptionist_dashboard.php");
+                    header("Location: error.php");
                 } elseif ($role == 'Housekeeper') {
-                    header("Location: housekeeper_dashboard.php");
+                    header("Location: error.php");
                 } elseif ($role == 'Maintenance') {
-                    header("Location: maintenance_dashboard.php");
+                    header("Location: error.php");
                 } else {
                     if (isset($_SESSION['redirect_step'])) {
                         error_log("Redirect step found: " . $_SESSION['redirect_step']);
@@ -197,15 +197,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($role == 'Admin') {
                 header("Location: page/admin/adminIndex.php");
             } elseif ($role == 'Staff') {
-                header("Location: staff_dashboard.php");
+                header("Location: error.php");
             } elseif ($role == 'Manager') {
-                header("Location: manager_dashboard.php");
+                header("Location: error.php");
             } elseif ($role == 'Receptionist') {
-                header("Location: receptionist_dashboard.php");
+                header("Location: error.php");
             } elseif ($role == 'Housekeeper') {
-                header("Location: housekeeper_dashboard.php");
+                header("Location: error.php");
             } elseif ($role == 'Maintenance') {
-                header("Location: maintenance_dashboard.php");
+                header("Location: error.php");
             } else {
                 if (isset($_SESSION['redirect_step'])) {
                     error_log("Redirect step found: " . $_SESSION['redirect_step']);
