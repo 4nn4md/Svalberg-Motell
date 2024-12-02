@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: 01. Des, 2024 17:35 PM
+-- Generation Time: 02. Des, 2024 01:31 AM
 -- Tjener-versjon: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -48,8 +48,7 @@ CREATE TABLE `swx_booking` (
 --
 
 INSERT INTO `swx_booking` (`booking_id`, `user_id`, `room_id`, `payment_id`, `check_in_date`, `check_out_date`, `number_of_guests`, `name`, `email`, `tlf`, `comments`, `created_at`, `updated_at`) VALUES
-(46, 7, 7, 49, '2025-03-07', '2025-03-08', 2, 'ine antonsen', 'ine@uia.no', '4712121212', 'nopp', '2024-12-01 16:31:19', '2024-12-01 16:31:19'),
-(47, 7, 13, 50, '2024-12-27', '2024-12-29', 2, 'andrine flydal', 'a.f@gmail.com', '4755555555', 'hei', '2024-12-01 16:33:32', '2024-12-01 16:33:32');
+(1, NULL, 1, 1, '2024-12-27', '2024-12-29', 2, 'Michael buble', 'ine.antonsen@hotmail.com', '4711111111', 'hei', '2024-12-02 00:30:11', '2024-12-02 00:30:11');
 
 -- --------------------------------------------------------
 
@@ -71,33 +70,7 @@ CREATE TABLE `swx_payment` (
 --
 
 INSERT INTO `swx_payment` (`payment_id`, `amount`, `payment_date`, `payment_method`, `invoice_path`, `status`) VALUES
-(1, 2000, '2024-11-09 21:31:03', 'Vips', NULL, 'Completed'),
-(2, 4000, '2024-11-09 21:31:03', 'Credit Card', NULL, 'Completed'),
-(7, 1900, '2024-11-13 14:04:41', 'Vips', NULL, 'Completed'),
-(8, 1300, '2024-11-13 14:06:47', 'Vips', NULL, 'Completed'),
-(9, 1300, '2024-11-13 14:20:41', 'Vips', NULL, 'Completed'),
-(10, 3000, '2024-11-13 14:25:53', 'Vips', NULL, 'Completed'),
-(11, 3000, '2024-11-27 13:13:55', 'Vips', NULL, 'Completed'),
-(12, 1300, '2024-11-27 13:19:12', 'Vips', NULL, 'Completed'),
-(13, 1300, '2024-11-27 13:22:15', 'Vips', NULL, 'Completed'),
-(14, 1900, '2024-11-27 13:25:28', 'Vips', NULL, 'Completed'),
-(15, 1300, '2024-11-27 22:22:41', 'invoice', NULL, 'Completed'),
-(19, 1300, '2024-11-28 12:43:40', 'invoice', 'faktura_19_1732797820.pdf', 'Completed'),
-(20, 1900, '2024-11-28 12:45:47', 'invoice', 'faktura_20_1732797947.pdf', 'Completed'),
-(21, 1300, '2024-11-28 12:49:01', 'invoice', 'faktura_21_1732798141.pdf', 'Completed'),
-(22, 1300, '2024-11-28 14:10:26', 'invoice', 'faktura_22_1732803026.pdf', 'Completed'),
-(23, 1300, '2024-11-28 16:14:45', 'invoice', 'faktura_23_1732810485.pdf', 'Completed'),
-(24, 1300, '2024-11-28 16:17:15', 'invoice', 'faktura_24_1732810635.pdf', 'Completed'),
-(25, 1300, '2024-11-28 16:22:56', 'invoice', 'faktura_25_1732810976.pdf', 'Completed'),
-(26, 1300, '2024-11-28 17:32:45', 'invoice', 'faktura_26_1732815165.pdf', 'Completed'),
-(27, 3000, '2024-11-28 19:50:33', 'Vips', NULL, 'Completed'),
-(28, 1800, '2024-11-30 16:14:08', 'Vips', NULL, 'Completed'),
-(29, 2000, '2024-11-30 16:18:16', 'Vips', NULL, 'Completed'),
-(30, 1300, '2024-12-01 10:39:24', 'Vips', NULL, 'Completed'),
-(31, 1300, '2024-12-01 14:32:03', 'Vips', NULL, 'Completed'),
-(32, 1300, '2024-12-01 15:03:46', 'Vips', NULL, 'Completed'),
-(49, 1500, '2024-12-01 16:31:19', 'invoice', 'faktura_49_1733070680.pdf', 'Completed'),
-(50, 2000, '2024-12-01 16:33:32', 'invoice', 'faktura_50_1733070812.pdf', 'Completed');
+(1, 1300, '2024-12-02 00:30:11', 'Credit Card', NULL, 'Completed');
 
 -- --------------------------------------------------------
 
@@ -121,31 +94,31 @@ CREATE TABLE `swx_room` (
 --
 
 INSERT INTO `swx_room` (`room_id`, `room_type`, `nearElevator`, `floor`, `availability`, `under_construction`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:35:42', '2024-12-01 01:36:14'),
-(2, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:36:58', '2024-12-01 01:38:14'),
-(3, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:37:11', '2024-12-01 01:38:18'),
-(4, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:37:27', '2024-12-01 01:37:27'),
-(5, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:37:27', '2024-12-01 01:38:30'),
-(6, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:37:45', '2024-12-01 01:38:41'),
-(7, 2, 'Ja', 1, 'ledig', 'Nei', '2024-12-01 01:40:09', '2024-12-01 01:44:17'),
-(8, 2, 'Ja', 1, 'ledig', 'Nei', '2024-12-01 01:40:09', '2024-12-01 01:44:35'),
-(9, 2, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:40:36', '2024-12-01 01:45:27'),
-(10, 2, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:40:54', '2024-12-01 01:45:34'),
-(11, 3, 'Ja', 1, 'ledig', 'Nei', '2024-12-01 01:46:39', '2024-12-01 01:46:47'),
-(12, 4, 'Ja', 1, 'ledig', 'Nei', '2024-12-01 01:47:07', '2024-12-01 01:48:00'),
-(13, 4, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:47:27', '2024-12-01 01:48:06'),
-(14, 4, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:47:39', '2024-12-01 01:48:10'),
-(15, 6, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 01:48:36', '2024-12-01 01:48:47'),
-(16, 1, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 01:38:00', '2024-12-01 01:43:36'),
-(17, 1, 'Ja', 2, 'ledig', 'Nei', '2024-12-01 01:39:19', '2024-12-01 01:43:43'),
-(18, 2, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 01:41:16', '2024-12-01 01:45:49'),
-(19, 2, 'Ja', 2, 'ledig', 'Nei', '2024-12-01 01:41:06', '2024-12-01 01:45:53'),
-(20, 3, 'Ja', 2, 'ledig', 'Nei', '2024-12-01 01:49:45', '2024-12-01 01:50:10'),
-(21, 3, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 01:49:55', '2024-12-01 01:50:14'),
-(22, 4, 'Ja', 2, 'ledig', 'Nei', '2024-12-01 01:50:45', '2024-12-01 01:51:05'),
-(23, 4, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 01:50:54', '2024-12-01 01:51:09'),
-(24, 5, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 01:51:20', '2024-12-01 01:51:48'),
-(25, 6, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 01:51:37', '2024-12-01 01:51:53');
+(1, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:35:42', '2024-12-01 00:36:14'),
+(2, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:36:58', '2024-12-01 00:38:14'),
+(3, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:37:11', '2024-12-01 00:38:18'),
+(4, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:37:27', '2024-12-01 00:37:27'),
+(5, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:37:27', '2024-12-01 00:38:30'),
+(6, 1, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:37:45', '2024-12-01 00:38:41'),
+(7, 2, 'Ja', 1, 'ledig', 'Nei', '2024-12-01 00:40:09', '2024-12-01 00:44:17'),
+(8, 2, 'Ja', 1, 'ledig', 'Nei', '2024-12-01 00:40:09', '2024-12-01 00:44:35'),
+(9, 2, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:40:36', '2024-12-01 00:45:27'),
+(10, 2, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:40:54', '2024-12-01 00:45:34'),
+(11, 3, 'Ja', 1, 'ledig', 'Nei', '2024-12-01 00:46:39', '2024-12-01 00:46:47'),
+(12, 4, 'Ja', 1, 'ledig', 'Nei', '2024-12-01 00:47:07', '2024-12-01 00:48:00'),
+(13, 4, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:47:27', '2024-12-01 00:48:06'),
+(14, 4, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:47:39', '2024-12-01 00:48:10'),
+(15, 6, 'Nei', 1, 'ledig', 'Nei', '2024-12-01 00:48:36', '2024-12-01 00:48:47'),
+(16, 1, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 00:38:00', '2024-12-01 00:43:36'),
+(17, 1, 'Ja', 2, 'ledig', 'Nei', '2024-12-01 00:39:19', '2024-12-01 00:43:43'),
+(18, 2, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 00:41:16', '2024-12-01 00:45:49'),
+(19, 2, 'Ja', 2, 'ledig', 'Nei', '2024-12-01 00:41:06', '2024-12-01 00:45:53'),
+(20, 3, 'Ja', 2, 'ledig', 'Nei', '2024-12-01 00:49:45', '2024-12-01 00:50:10'),
+(21, 3, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 00:49:55', '2024-12-01 00:50:14'),
+(22, 4, 'Ja', 2, 'ledig', 'Nei', '2024-12-01 00:50:45', '2024-12-01 00:51:05'),
+(23, 4, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 00:50:54', '2024-12-01 00:51:09'),
+(24, 5, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 00:51:20', '2024-12-01 00:51:48'),
+(25, 6, 'Nei', 2, 'ledig', 'Nei', '2024-12-01 00:51:37', '2024-12-01 00:51:53');
 
 -- --------------------------------------------------------
 
@@ -185,7 +158,6 @@ CREATE TABLE `swx_staff` (
   `last_name` varchar(100) NOT NULL,
   `position` enum('Admin','Staff','Manager','Receptionist','Housekeeper','Maintenance') NOT NULL,
   `email` varchar(100) NOT NULL,
-  `phone` varchar(15) NOT NULL,
   `hired_date` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `login_attempts` int(11) NOT NULL DEFAULT 0,
@@ -197,9 +169,9 @@ CREATE TABLE `swx_staff` (
 -- Dataark for tabell `swx_staff`
 --
 
-INSERT INTO `swx_staff` (`staff_id`, `first_name`, `last_name`, `position`, `email`, `phone`, `hired_date`, `updated_at`, `login_attempts`, `locked_until`, `password`) VALUES
-(1, 'Admin', 'Role', 'Admin', 'admin@svalberg.no', '77777777', '2024-11-27 21:03:35', '2024-11-27 21:42:43', 0, NULL, '$2y$10$.y9CIl3zFx8Hbn.ZDUdpqeOYX9pHFnYSuhzr0QKrzqO1XHz5C3p5K'),
-(2, 'Staff', 'Role', 'Staff', 'staff@svalberg.no', '12345678', '2024-11-27 21:03:35', '2024-11-27 21:03:35', 0, NULL, '$2y$10$ZwuHOt8RvpCWE3TH6GHvCOusrSlgvB8d8oUlVfbYCS3s53bVHmF.O');
+INSERT INTO `swx_staff` (`staff_id`, `first_name`, `last_name`, `position`, `email`, `hired_date`, `updated_at`, `login_attempts`, `locked_until`, `password`) VALUES
+(1, 'Admin', 'Role', 'Admin', 'admin@svalberg.no', '2024-11-27 20:03:35', '2024-11-27 20:42:43', 0, NULL, '$2y$10$.y9CIl3zFx8Hbn.ZDUdpqeOYX9pHFnYSuhzr0QKrzqO1XHz5C3p5K'),
+(2, 'Staff', 'Role', 'Staff', 'staff@svalberg.no', '2024-11-27 20:03:35', '2024-11-27 20:03:35', 0, NULL, '$2y$10$ZwuHOt8RvpCWE3TH6GHvCOusrSlgvB8d8oUlVfbYCS3s53bVHmF.O');
 
 -- --------------------------------------------------------
 
@@ -227,12 +199,7 @@ CREATE TABLE `swx_users` (
 INSERT INTO `swx_users` (`user_id`, `firstName`, `lastName`, `tlf`, `username`, `password`, `role`, `point`, `login_attempts`, `locked_until`) VALUES
 (1, 'Ine', 'Antonsen', 12345678, 'inea@hotmail.com', '$2y$10$xMSJcTavF43bh.6wW7afhunlpjWQ09mlqKYadDO0gyTN9MQXJpKC6', 'user', NULL, 0, NULL),
 (2, 'Anna', 'Dang', 11111111, 'adang@hotmail.com', '$2y$10$6gVPV70NUVb/39Vx.cuZgOPDMHqZoDg/YVFelEVuayjq7TpxHdBaC', 'user', NULL, 0, NULL),
-(3, 'test', 'one', 12345678, 'test@hotmail.com', 'test123', 'user', NULL, 2, NULL),
-(4, 'bob', 'kåre', 11111111, 'ny.test@hotmail.com', 'test123', 'user', NULL, 0, NULL),
-(5, 'jane', 'doe', 22222222, 'ikke_innlogget@gmail.com', 'test123', 'user', NULL, 0, NULL),
-(6, 'test', 'test', 95451705, 'test@test.com', '$2y$10$IMjbILxh0VKdICqhBlO3W.576TypbG5kqVfmrHVbS3twWEUm7F6ry', 'user', NULL, 2, NULL),
-(7, 'Danny', 'Elfman', 77666666, 'DannyE@gmail.com', '$2y$10$.Y/6JcPWx5EetHWm/wg2SuMDaG1whiQeUCzQGLjOwGj7j8CcMo4yq', 'user', 6100, 0, NULL),
-(8, 'sebastian', 'yatra', 12345678, 's.y@gmail.com', '$2y$10$hu2PbdZVr41Xo9ZH0MCdZusFYlL/fDoRP5IYXEvgLEBHlmFbgQrTO', 'user', NULL, 0, NULL);
+(3, 'test', 'one', 12345678, 'test@hotmail.com', 'test123', 'user', NULL, 2, NULL);
 
 --
 -- Indexes for dumped tables
@@ -289,13 +256,13 @@ ALTER TABLE `swx_users`
 -- AUTO_INCREMENT for table `swx_booking`
 --
 ALTER TABLE `swx_booking`
-  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `booking_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `swx_payment`
 --
 ALTER TABLE `swx_payment`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `swx_room`
@@ -319,7 +286,7 @@ ALTER TABLE `swx_staff`
 -- AUTO_INCREMENT for table `swx_users`
 --
 ALTER TABLE `swx_users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Begrensninger for dumpede tabeller
