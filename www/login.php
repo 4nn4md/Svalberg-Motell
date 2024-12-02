@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = sanitize($_POST['password']);  // Sanitize password input
         // Regular expression to check for at least one uppercase letter, two digits, one special character, and minimum length of 9
         if (!preg_match('/^(?=.*[A-Z])(?=.*\d.*\d)(?=.*[\W_]).{9,}$/', $password)) {
-            $password_err = "Password does not meet the criteria.";
+            $password_err = "Incorrect password, try again.";
         }
     }
 

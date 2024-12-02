@@ -10,7 +10,7 @@ $twilio_number = //'+15672298275'; // Replace with your Twilio-nummer
 
 $client = new Client($sid, $token);
 
-// Phone numer and message
+// Phone number and message
 $mottaker = $mottakerTlf; 
 $melding = "
 Takk for din bestilling! 
