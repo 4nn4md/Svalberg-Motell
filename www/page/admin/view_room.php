@@ -1,7 +1,7 @@
 <?php
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/Svalberg-Motell/www/assets/inc/db.php';
-require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php"); // Ensure sanitize function is included
+require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/functions.php");
 
 // Ensure the user is an admin
 if ($_SESSION['role'] !== 'Admin') {
@@ -21,7 +21,7 @@ $lastDayOfNextWeek = date('Y-m-d', strtotime('next sunday')); // End of next wee
 $startOfRange = $today;
 $endOfRange = $today;
 
-// Check for filter selection from the form (validate and sanitize inputs)
+// Validate the filter parameter using PHP
 if (isset($_GET['filter'])) {
     $filter = sanitize($_GET['filter']); // Sanitize filter
     switch ($filter) {
@@ -36,8 +36,10 @@ if (isset($_GET['filter'])) {
             $endOfRange = date('Y-m-t'); // Last day of the current month
             break;
         default:
+            // If the filter is invalid, default to today's date range
             $startOfRange = $today;
             $endOfRange = $today;
+            break;
     }
 } else {
     // Default to today's date range if no filter is set
@@ -77,7 +79,6 @@ $bookingQuery = "
 $stmt = $pdo->prepare($bookingQuery);
 $stmt->execute([$roomId, $startOfRange, $endOfRange]);
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 ?>
 
 <!DOCTYPE html>
@@ -125,6 +126,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="form-group">
                     <label for="filter">Filter Bookings:</label>
                     <select class="form-control" name="filter" id="filter" onchange="this.form.submit()">
+                        <option value="" disabled <?php echo !isset($_GET['filter']) ? 'selected' : ''; ?>>Select a filter...</option> <!-- Placeholder option -->
                         <option value="this_week" <?php echo (isset($_GET['filter']) && $_GET['filter'] === 'this_week') ? 'selected' : ''; ?>>This Week</option>
                         <option value="this_month" <?php echo (isset($_GET['filter']) && $_GET['filter'] === 'this_month') ? 'selected' : ''; ?>>This Month</option>
                     </select>
