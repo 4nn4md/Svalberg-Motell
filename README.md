@@ -191,13 +191,17 @@ After installation, you can check if Composer is working by running composer --v
 **Setting up the project:**
 To send messages using Twilio, you'll need to have a **Twilio account**. After registering on Twilio, navigate to the **Twilio Console** to find your **Account SID** and **Auth Token**. These credentials are essential for authenticating your API requests. Replace the placeholder values in your code with your actual Twilio credentials.
 
+1. **Locate the file to modify:** Go to the controller/genereateSMS.php where the SMS sending functionality is implemented
+2. **Update the credentials:** In this file, replce the placeholder values with your actual Twilio credentials. 
+
+
 For example, in the file where you send SMS messages, replace the following lines:
  ```
 $sid = 'TWILIO_SID';  // Replace with your Twilio Account SID
 $token = 'TWILIO_AUTH_TOKEN'; // Replace with your Twilio Auth Token
 $client = new Client($sid, $token);
  ```
-With the actual values as shown below:
+Use this if you dont have an account and cant make one:
  ```
 $sid = 'AC2d5d6a5ae7ead2afbf566af96efdea8c'; // Replace with your Twilio Account SID
 $token = '250b66ad672f0cb0cad6f90b0e928117'; // Replace with your Twilio Auth Token
