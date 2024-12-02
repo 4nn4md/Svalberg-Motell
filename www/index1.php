@@ -2,7 +2,6 @@
 //session_start(); // Start sessionen
 include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/assets/inc/header1.php");
 require_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/ValidateController.php");
-print_r($_SESSION);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Store all relevant data in the session
