@@ -94,6 +94,13 @@ if (isset($_GET['filnavn']) && isset($_GET['payment_id'])) {
 <?php
 // Håndter "Ferdig"-knappen
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['done'])) {
+    
+    $mottakerTlf = "+" . $_SESSION['phone'];
+    $checkin = $_SESSION['selected_room']['checkin'];
+    $checkout = $_SESSION['selected_room']['checkout'];
+    include_once($_SERVER['DOCUMENT_ROOT'] . "/Svalberg-Motell/www/controller/genereateSMS.php");
+
+
     if (isset($_SESSION['email'])) {
         unset($_SESSION['selected_room']);
         header('Location: user_profile_two.php');
