@@ -195,37 +195,13 @@ To send messages using Twilio, you'll need to have a **Twilio account**. After r
 2. **Update the credentials:** In this file, replce the placeholder values with your actual Twilio credentials. 
 
 
-**Exam preparation**
-
-**INE**
- ```
-$sid = 'AC2d5d6a5ae7ead2afbf566af96efdea8c'; // Replace with your SID
-$token = 'aa3708ac725b400ec8e25152e1521654'; // Replace with your Auth Token
-$twilio_number = '+15672298275'; // Replace with your Twilio-nummer
-$client = new Client($sid, $token);
- ```
-
-**ANNA**
- ```
-$sid = 'AC7ff63b7051722b22f3cc324b0868b440'; 
-$token = '48d3bbf8169116b3d2b50aad8e08b800';
-$twilio_number = '+17752628953'; 
-$client = new Client($sid, $token);
- ```
-
-For example, in the file where you send SMS messages, replace the following lines:
+In the file where you send SMS messages, replace the following lines:
  ```
 $sid = 'TWILIO_SID';  // Replace with your Twilio Account SID
 $token = 'TWILIO_AUTH_TOKEN'; // Replace with your Twilio Auth Token
 $client = new Client($sid, $token);
  ```
-Use this if you dont have an account and cant make one:
- ```
-$sid = 'AC2d5d6a5ae7ead2afbf566af96efdea8c'; // Replace with your Twilio Account SID
-$token = '250b66ad672f0cb0cad6f90b0e928117'; // Replace with your Twilio Auth Token
-$client = new Client($sid, $token);
-$twilio_number = '+1 567 229 8275'; // Your Twilio phone number
- ```
+
 **Important Information:**
 - PHP is required for the code to function, as the project is written in PHP.
 - Composer is required to manage the dependencies, but if you have cloned the repository and the vendor folder is included, you don’t need to install Twilio SDK again. You can simply run composer install to ensure all necessary dependencies are in place.
